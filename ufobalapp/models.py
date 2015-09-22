@@ -7,7 +7,7 @@ from django.db import models
 from django.utils import timezone
 
 #test
-
+'''
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
@@ -29,7 +29,7 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
-
+'''
 
 
 #ufobal
@@ -66,7 +66,6 @@ class Team(models.Model):
         return self.name
 
 class TeamOnTournament(models.Model):
-    ''''names of the team in time, players'''
     class Meta:
         verbose_name_plural = "tým na turnaji"
         verbose_name_plural = "týmy na turnaji"
@@ -78,6 +77,7 @@ class TeamOnTournament(models.Model):
     players = models.ManyToManyField(Player, verbose_name='Hráči')
 
     def save(self, *args, **kwargs):
+        '''current name of the team at the time of tournament'''
         self.name = self.team.name
         super(TeamOnTournament, self).save(*args, **kwargs)
 
@@ -107,6 +107,7 @@ class Match(models.Model):
     team_two =  models.ForeignKey(Team, related_name='+') #class TeamInMatch(models.Model():
     start = models.DateTimeField('Začátek zápasu', default=timezone.now)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
+    goalie = models.ManyToManyField(Player, through='GoalieInMatch')
 
     #def score_one
     #def score_two
@@ -116,6 +117,15 @@ class Match(models.Model):
         return "%s vs. %s, %s %s" %(self.team_one.name, self.team_two.name,
                                     self.tournament.name, self.tournament.date)
 
+class GoalieInMatch(models.Model):
+    class Meta:
+        verbose_name_plural = "brankář"
+        verbose_name_plural = "brankáři"
+    goalie = models.ForeignKey(Player, verbose_name='brankář')
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='goalies')
+    start = models.DateTimeField('Začátek chytání', default=timezone.now)
+    end = models.DateTimeField('Konec chytání', null=True, blank=True)
+
 class Goal(models.Model):
     class Meta:
         verbose_name_plural = "gól"
@@ -123,9 +133,27 @@ class Goal(models.Model):
 
     goal = models.ForeignKey(Player, related_name='goals', verbose_name='střelec')
     assistence = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent')
-    match = models.ForeignKey(Match, verbose_name='zápas')
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
     datetime = models.DateTimeField('Čas', default=timezone.now)
 
     def __unicode__(self):
         return "%s vs %s, %s" %(self.match.team_one.name,
                                 self.match.team_two.name, self.goal.name)
+
+
+#TODO class shot - jak souvisi strela s golem, zvlast/dohromady?
+
+CARDS = (
+    ('red', 'červená'),
+    ('yellow', 'žlutá'),
+)
+
+class Penalty(models.Model):
+    class Meta:
+        verbose_name_plural = "trest"
+        verbose_name_plural = "tresty"
+
+    card = models.CharField(max_length=10,
+                            verbose_name='karta',choices=CARDS)
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='penalties')
+    time = models.DateTimeField('čas')

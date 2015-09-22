@@ -5,13 +5,14 @@ from django.contrib import admin
 
 from .models import Question, Choice
 from .models import Player, Team, TeamOnTournament, Tournament,\
-    Match, Goal
+    Match, Goal, GoalieInMatch, Penalty
 
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 1
 
 #test
+'''
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': ['question_text']}),
@@ -23,7 +24,7 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['question_text']
 
 admin.site.register(Question, QuestionAdmin)
-
+'''
 
 #ufobal
 class PlayerAdmin(admin.ModelAdmin):
@@ -37,3 +38,5 @@ admin.site.register(TeamOnTournament)
 admin.site.register(Tournament)
 admin.site.register(Match)
 admin.site.register(Goal)
+admin.site.register(GoalieInMatch)
+admin.site.register(Penalty)
