@@ -3,16 +3,17 @@
 
 from django.contrib import admin
 
-from .models import Question, Choice
+#from .models import Question, Choice
 from .models import Player, Team, TeamOnTournament, Tournament,\
     Match, Goal, GoalieInMatch, Penalty
 
+#test
+'''
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 1
 
-#test
-'''
+
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,               {'fields': ['question_text']}),
