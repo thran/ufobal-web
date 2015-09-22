@@ -33,7 +33,6 @@ class Choice(models.Model):
 
 
 #ufobal
-
 class Player(models.Model):
     class Meta:
         verbose_name_plural = "hráč"
@@ -41,8 +40,9 @@ class Player(models.Model):
 
     name = models.CharField('Jméno', max_length=50)
     lastname = models.CharField('Příjmení', max_length=50)
-    nickname = models.CharField('Přezdívka', max_length=50, default=None)
+    nickname = models.CharField('Přezdívka', max_length=50, null=True, blank=True)
     birthdate = models.DateField('Datum narození')
+    team = models.ForeignKey('Team', verbose_name='aktuální tým')
 
     def age(self):
         on = datetime.date.today()
@@ -64,3 +64,68 @@ class Team(models.Model):
 
     def __unicode__(self):
         return self.name
+
+class TeamOnTournament(models.Model):
+    ''''names of the team in time, players'''
+    class Meta:
+        verbose_name_plural = "tým na turnaji"
+        verbose_name_plural = "týmy na turnaji"
+
+    team = models.ForeignKey(Team)
+    name = models.CharField('Jméno', max_length=100,
+                            editable=False) #zapamatovat si jmeno tymu v tomto turnaji
+    tournament = models.ForeignKey('Tournament', verbose_name='Turnaj')
+    players = models.ManyToManyField(Player, verbose_name='Hráči')
+
+    def save(self, *args, **kwargs):
+        self.name = self.team.name
+        super(TeamOnTournament, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return "%s %s %s" %(self.team.name, self.tournament.name, self.tournament.date)
+
+
+class Tournament(models.Model):
+    class Meta:
+        verbose_name_plural = "turnaj"
+        verbose_name_plural = "turnaje"
+
+    date = models.DateField('Datum')
+    name = models.CharField('Název/místo', max_length=50)
+    teams = models.ManyToManyField(Team, through='TeamOnTournament')
+
+    def __unicode__(self):
+        return "%s %s" %(self.name, self.date)
+
+class Match(models.Model):
+    class Meta:
+        verbose_name_plural = "zápas"
+        verbose_name_plural = "zápasy"
+
+    tournament = models.ForeignKey(Tournament)
+    team_one =  models.ForeignKey(Team, related_name='+') #hmmm
+    team_two =  models.ForeignKey(Team, related_name='+') #class TeamInMatch(models.Model():
+    start = models.DateTimeField('Začátek zápasu', default=timezone.now)
+    end = models.DateTimeField('Konec zápasu', null=True, blank=True)
+
+    #def score_one
+    #def score_two
+    #def result
+
+    def __unicode__(self):
+        return "%s vs. %s, %s %s" %(self.team_one.name, self.team_two.name,
+                                    self.tournament.name, self.tournament.date)
+
+class Goal(models.Model):
+    class Meta:
+        verbose_name_plural = "gól"
+        verbose_name_plural = "góly"
+
+    goal = models.ForeignKey(Player, related_name='goals', verbose_name='střelec')
+    assistence = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent')
+    match = models.ForeignKey(Match, verbose_name='zápas')
+    datetime = models.DateTimeField('Čas', default=timezone.now)
+
+    def __unicode__(self):
+        return "%s vs %s, %s" %(self.match.team_one.name,
+                                self.match.team_two.name, self.goal.name)
