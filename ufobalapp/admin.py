@@ -33,11 +33,28 @@ class PlayerAdmin(admin.ModelAdmin):
     readonly_fields = ['age']
     search_fields = ['nickname', 'name', 'lastname']
 
+
+class PlayerInline(admin.TabularInline):
+    model = TeamOnTournament.players.through
+
+class TeamTournamentAdmin(admin.ModelAdmin):
+    readonly_fields=('name',) #carka vytvari tupple
+    fieldsets = [
+        (None, {'fields': ['team', 'captain', 'tournament', 'name']})
+    ]
+    inlines = [PlayerInline]
+
+
+class MatchAdmin(admin.ModelAdmin):
+    readonly_fields=('score_one','score_two') #carka vytvari tupple
+
+
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team)
-admin.site.register(TeamOnTournament)
+admin.site.register(TeamOnTournament, TeamTournamentAdmin)
 admin.site.register(Tournament)
-admin.site.register(Match)
+admin.site.register(Match, MatchAdmin)
 admin.site.register(Goal)
 admin.site.register(GoalieInMatch)
 admin.site.register(Penalty)

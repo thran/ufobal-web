@@ -65,13 +65,15 @@ class Team(models.Model):
     def __unicode__(self):
         return self.name
 
+#TODO jak pracovat s hracem/tymem..hrac je porad v teamu plus zvlast se to ulozi s kym byl na turnaji?
 class TeamOnTournament(models.Model):
     class Meta:
         verbose_name_plural = "tým na turnaji"
         verbose_name_plural = "týmy na turnaji"
 
     team = models.ForeignKey(Team)
-    name = models.CharField('Jméno', max_length=100,
+    captain = models.ForeignKey(Player, related_name='+')
+    name = models.CharField('Jméno na turnaji', max_length=100,
                             editable=False) #zapamatovat si jmeno tymu v tomto turnaji
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj')
     players = models.ManyToManyField(Player, verbose_name='Hráči')
@@ -109,8 +111,21 @@ class Match(models.Model):
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
     goalie = models.ManyToManyField(Player, through='GoalieInMatch')
 
-    #def score_one
-    #def score_two
+    def score_one(self):
+        tournamentTeam = TeamOnTournament.objects.get(
+            team=self.team_one,
+            tournament=self.tournament
+        )
+        goals = Goal.objects.filter(goal__in=tournamentTeam.players.all())
+        return goals.count()
+
+    def score_two(self):
+        tournamentTeam = TeamOnTournament.objects.get(
+            team=self.team_two,
+            tournament=self.tournament
+        )
+        goals = Goal.objects.filter(goal__in=tournamentTeam.players.all())
+        return goals.count()
     #def result
 
     def __unicode__(self):
@@ -157,3 +172,4 @@ class Penalty(models.Model):
                             verbose_name='karta',choices=CARDS)
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='penalties')
     time = models.DateTimeField('čas')
+    player = models.ForeignKey(Player)
