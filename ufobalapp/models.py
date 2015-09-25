@@ -116,7 +116,8 @@ class Match(models.Model):
             team=self.team_one,
             tournament=self.tournament
         )
-        goals = Goal.objects.filter(goal__in=tournamentTeam.players.all())
+        goals = Goal.objects.filter(shooter__in=tournamentTeam.players.all(),
+                                    match=self)
         return goals.count()
 
     def score_two(self):
@@ -124,7 +125,8 @@ class Match(models.Model):
             team=self.team_two,
             tournament=self.tournament
         )
-        goals = Goal.objects.filter(goal__in=tournamentTeam.players.all())
+        goals = Goal.objects.filter(shooter__in=tournamentTeam.players.all(),
+                                    match=self)
         return goals.count()
     #def result
 
@@ -146,7 +148,7 @@ class Goal(models.Model):
         verbose_name_plural = "gól"
         verbose_name_plural = "góly"
 
-    goal = models.ForeignKey(Player, related_name='goals', verbose_name='střelec')
+    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec')
     assistence = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent')
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
     datetime = models.DateTimeField('Čas', default=timezone.now)
