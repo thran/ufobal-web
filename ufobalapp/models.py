@@ -69,6 +69,10 @@ class Player(models.Model):
 
     def assistance_count(self):
         return self.assistances.count()
+
+    def point_sum(self):
+        return self.assistances.count() +  self.goals.count()
+
     assistance_count.short_description = 'Asistencí celkem'
 
 
@@ -100,7 +104,7 @@ class TeamOnTournament(models.Model):
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='teams')
 
-    fake = models.BooleanField('Importovaná účast', default=False)# FAKE KVULI IMPORTU
+    #fake = models.BooleanField('Importovaná účast', default=False)# FAKE KVULI IMPORTU
 
     def save(self, *args, **kwargs):  # jen pri vytvoreni, pouzit signaly
         '''current name of the team at the time of tournament'''

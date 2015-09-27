@@ -64,6 +64,7 @@ class Command(BaseCommand):
                 for player in stats['players']:
                     #vytvoreni hrace
                     playerobj, created = Player.objects.get_or_create(nickname=player['name'])
+
                     #pokud existuje hrac se stejnym jmenem
                     if not created and shooters and brno: #u strelcu se vytvari ruzni hraci, u asistenci uz se to jen doplnuje
                         playerobj, created = Player.objects.get_or_create(nickname=player['name']+"-"+player['team'])
@@ -86,25 +87,26 @@ class Command(BaseCommand):
 
                             #pokud ma nejake staty
                             if player[info] and player[info] not in ['-', '?']:
-                                for i in range(int(player[info])):
+                                shotscount = int(player[info])
+                                for i in range(shotscount):
                                     newgoal = Goal(match=match)
                                     if shooters:
                                         newgoal.shooter = playerobj
                                     else:
-                                        newgoal.assistence = playerobj
+                                        newgoal.assistance = playerobj
                                     newgoal.save()
 
 
-                    #vytvoreni a prirazeni tymu ve kterych hrac byl
-                    if shooters:
-                        teams = player['team'].split(',')
-                        for team in teams:
-                            teamname = team.strip()
-                            teamobj, created = Team.objects.get_or_create(name=teamname)
-                            #prirazeni hrace k tymum
-                            teamtourobj, created = TeamOnTournament.objects.get_or_create(name='Fake Import',
-                                team=teamobj, tournament=Tournament.objects.all()[0], fake=True)
-                            teamtourobj.players.add(playerobj)
-                            teamtourobj.save()
+                            #vytvoreni a prirazeni tymu ve kterych hrac byl v rocnicich kdy hral
+                                teams = player['team'].split(',')
+                                if len(teams) == 1 and shotscount > 0:
+                                    teamname = player['team']
+                                    teamobj, created = Team.objects.get_or_create(name=teamname)
+
+                                    teamtourobj, created = TeamOnTournament.objects.get_or_create(
+                                        team=teamobj, tournament=tournament)
+                                    teamtourobj.players.add(playerobj)
+                                    teamtourobj.save()
+
 
 

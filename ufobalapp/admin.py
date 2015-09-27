@@ -4,6 +4,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.db.models import Count
+from django.contrib.auth.models import Group
 from .models import Player, Team, TeamOnTournament, Tournament,\
     Match, Goal, Shot, GoalieInMatch, Penalty
 
@@ -93,19 +94,20 @@ class PlayerAdmin(admin.ModelAdmin):
     number_of_assistances.short_description = 'Počet asistencí'
     '''
 
-
+class TeamOnTournamentInline(admin.TabularInline):
+    model = TeamOnTournament
 
 class TeamAdmin(admin.ModelAdmin):
     search_fields = ['name']
     actions = [merge]
+    inlines = [TeamOnTournamentInline]
 
 
 class TeamTournamentAdmin(admin.ModelAdmin):
-    readonly_fields=('fake',) #carka vytvari tupple
-    fieldsets = [
-        (None, {'fields': ['team', 'captain', 'tournament', 'name', 'fake']})
-    ]
-    search_fields = ['name', 'team__name']
+    list_display = ('name', 'team', 'tournament_name', 'tournament_date')
+    fields = ['team', 'captain', 'tournament', 'name']
+
+    search_fields = ['name', 'team__name', 'tournament__name', 'tournament__date']
     inlines = [PlayerInTeamsInline]
     actions = ['mergeTeamTour']
 
@@ -122,18 +124,36 @@ class TeamTournamentAdmin(admin.ModelAdmin):
         self.message_user(request, 'sloučeno, zvolte výsledné jméno')
     mergeTeamTour.short_description = "Sloučit"
 
+    def tournament_name(self, obj):
+        return obj.tournament.name
+    tournament_name.short_description = "Turnaj"
+    tournament_name.admin_order_field = 'tournament__name'
+
+    def tournament_date(self, obj):
+        return obj.tournament.date
+    tournament_date.short_description = "Datum"
+    tournament_date.admin_order_field = 'tournament__date'
 
 class MatchAdmin(admin.ModelAdmin):
+    list_display = ['tournament', 'team_one', 'score_one', 'team_two', 'score_two', 'fake']
     readonly_fields=('score_one','score_two') #carka vytvari tupple
+
+
+class TournamentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'date']
+    search_fields = ['name', 'date']
+    inlines = [TeamOnTournamentInline]
 
 
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
-admin.site.register(Tournament)
+admin.site.register(Tournament, TournamentAdmin)
 admin.site.register(Match, MatchAdmin)
 admin.site.register(Goal)
 admin.site.register(Shot)
 admin.site.register(GoalieInMatch)
 admin.site.register(Penalty)
+
+
