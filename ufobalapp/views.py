@@ -12,7 +12,7 @@ def index(request):
     players = Player.objects.all()
 
     return render(request, 'ufobalapp/index.html', {
-        'players':players
+        'players': players
     })
 
 
