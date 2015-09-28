@@ -17,12 +17,12 @@ class Command(BaseCommand):
   # Jméno Team 9.5.2004 8.5.2005 30.4.2006 27.5.2007 17.5.2008 23.5.2009 22.5.2010 28.5.2011 3.6.2012 2.6.2013 1.6.2014 30.5.2015 Součet
 
     def handle(self, *args, **options):
-        #TODO static soubory nejak zpristupnit
+        #TODO static soubory nejak zpristupnit - static files are not good way
         out = {}
         out['players'] = []
         for filename in options['statsfile']:
-            #TODO static udelat spravne
-            with open(os.path.join('static', filename), 'r', encoding='cp1250') as statfile:
+            #TODO static udelat spravne - this is OK
+            with open(os.path.join('data_source', filename), 'r', encoding='cp1250') as statfile:
                 #self.stdout.write(statfile.readline())
                 firstline = True
                 reader = csv.reader(statfile, delimiter=';')
@@ -43,6 +43,6 @@ class Command(BaseCommand):
                 except:
                     pass
 
-        with open(os.path.join('static', filename).replace('csv','json'), 'w') as outfile:
-            json.dump(out, outfile)
+            with open(os.path.join('data_source', filename).replace('csv', 'json'), 'w') as outfile:
+                json.dump(out, outfile)
 

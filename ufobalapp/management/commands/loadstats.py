@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
 
 
-            with open(os.path.join('static', filename), 'r') as statsfile:
+            with open(os.path.join('data_source', filename), 'r') as statsfile:
                 stats = json.load(statsfile)
                 name = filename.split('-')[0]
                 for datestring in stats['dates']:
