@@ -1,0 +1,11 @@
+<h1>Týmy</h1>
+<a href="{% url 'managestats:index' %}">zpět</a>
+<a href="{% url 'admin:ufobalapp_team_add' %}">přidat tým</a>
+<ul>
+    {% for team in teams %}
+        <li>
+            <a href="{% url "admin:ufobalapp_team_change" team.id %}">{{ team }}</a> -
+            <a href="{% url "admin:ufobalapp_team_changelist"%}?q={{ team.name }}">vyhledat</a>
+        </li>
+    {% endfor %}
+</ul>

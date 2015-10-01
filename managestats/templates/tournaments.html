@@ -1,0 +1,9 @@
+<h1>Turnaje</h1>
+<a href="{% url 'managestats:index' %}">zpět</a>
+<ul>
+    {% for tournament in tournaments %}
+        <li>
+            <a href="{% url 'managestats:tournament' tournament.id %}">{{ tournament }}</a>
+        </li>
+    {% endfor %}
+</ul>

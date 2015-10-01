@@ -27,7 +27,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ufobalapp'
+    'ufobalapp',
+    'managestats'
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,6 +1,1 @@
-<h1>Hráči</h1>
-<ul>
-    {% for player in players %}
-        <li><a href="{% url 'player_detail' player.id %}">{{ player }}</a></li>
-    {% endfor %}
-</ul>
+<a href ="{% url 'managestats:index' %}">správa statů</a>

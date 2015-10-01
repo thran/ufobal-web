@@ -60,7 +60,7 @@ def merge(modeladmin, request, queryset):
 
         place.delete()
 
-    ModelAdmin.message_user(modeladmin, request, 'sloučeno, zvolte výsledné jméno')
+    ModelAdmin.message_user(modeladmin, request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
 merge.short_description = "Sloučit"
 
 
@@ -121,7 +121,7 @@ class TeamTournamentAdmin(admin.ModelAdmin):
                 main.players.add(player)
             team.delete()
 
-        self.message_user(request, 'sloučeno, zvolte výsledné jméno')
+        self.message_user(request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
     mergeTeamTour.short_description = "Sloučit"
 
     def tournament_name(self, obj):
