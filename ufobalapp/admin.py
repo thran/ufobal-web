@@ -17,6 +17,7 @@ def merge(modeladmin, request, queryset):
     related = main._meta.get_all_related_objects()
     valnames = dict()
 
+
     for r in related:
         valnames.setdefault(r.related_model, []).append(r.field.name)
 
@@ -40,6 +41,24 @@ def merge(modeladmin, request, queryset):
                     manyfield.add(main)
 
         place.delete()
+
+    #merge all TeamsOnTournament on same Tournament for this Team
+    modelname = modeladmin.__class__.__name__
+    if modelname is 'TeamAdmin':
+        tours = []
+        team = Team.objects.get(name=main)
+        totm = TeamOnTournament.objects.filter(team=team)
+        for tour in totm:
+            if tour.tournament not in tours:
+                tours.append(tour.tournament)
+        for tour in tours:
+            totm = TeamOnTournament.objects.filter(team=team).filter(tournament=tour)
+            if len(totm) > 1:
+                for instance in totm[1:]:
+                    for player in instance.players.all():
+                        totm[0].players.add(player)
+                    instance.delete()
+
 
     ModelAdmin.message_user(modeladmin, request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
 merge.short_description = "Sloučit"
