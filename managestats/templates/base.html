@@ -1,0 +1,20 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} Ufobal {% endblock %}</title>
+    <link rel="stylesheet" href="{% static "css/normalize.css" %}">
+    <link rel="stylesheet" href="{% static "css/foundation.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "managestats/style.css" %}">
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/foundation.min.js" %}"></script>
+</head>
+<body>
+
+<div class="row">
+{% block content %} {% endblock %}
+</div>
+</body>
+</html>

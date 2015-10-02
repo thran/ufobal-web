@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <h1>Týmy</h1>
 <a href="{% url 'managestats:index' %}">zpět</a>
 <a href="{% url 'admin:ufobalapp_team_add' %}">přidat tým</a>
@@ -9,3 +13,5 @@
         </li>
     {% endfor %}
 </ul>
+
+{% endblock %}

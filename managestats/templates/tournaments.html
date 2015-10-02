@@ -1,3 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
 <h1>Turnaje</h1>
 <a href="{% url 'managestats:index' %}">zpět</a>
 <ul>
@@ -7,3 +12,5 @@
         </li>
     {% endfor %}
 </ul>
+
+{% endblock %}
