@@ -72,7 +72,7 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ('nickname', 'name', 'lastname', 'age', 'goal_count', 'assistance_count', 'gender')
     readonly_fields = ['age', 'goal_count', 'assistance_count']
     search_fields = ['nickname', 'name', 'lastname']
-    inlines = [PlayerInTeamsInline]
+    # inlines = [PlayerInTeamsInline]
     actions = [merge]
 
     #TOO SLOW
