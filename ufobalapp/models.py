@@ -80,7 +80,7 @@ class TeamOnTournament(models.Model):
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='teams')
 
-    object = TeamOnTournamentManager()
+    objects = TeamOnTournamentManager()
 
     def save(self, *args, **kwargs):  # TODO jen pri vytvoreni, pouzit signaly
         """current name of the team at the time of tournament"""
@@ -121,21 +121,13 @@ class Match(models.Model):
     fake = models.BooleanField('Importovaný zápas', default=False)
 
     def score_one(self):
-        tournament_team = TeamOnTournament.objects.get(
-            team=self.team_one,
-            tournament=self.tournament
-        )
-        goals = Goal.objects.filter(shooter__in=tournament_team.players.all(),  # shooter__teams=self.team_one ?
+        goals = Goal.objects.filter(shooter__in=self.team_one.players.all(),
                                     match=self)
         return goals.count()
     score_one.short_description = 'tým 1 scóre'
 
     def score_two(self):
-        tournament_team = TeamOnTournament.objects.get(
-            team=self.team_two,
-            tournament=self.tournament
-        )
-        goals = Goal.objects.filter(shooter__in=tournament_team.players.all(),
+        goals = Goal.objects.filter(shooter__in=self.team_two.players.all(),
                                     match=self)
         return goals.count()
     score_two.short_description = 'tým 2 scóre'

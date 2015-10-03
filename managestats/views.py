@@ -6,7 +6,7 @@ from django.db.models import Q
 
 
 
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match
 
 
 def index(request):
@@ -30,6 +30,8 @@ def tournaments(request):
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects.order_by('date'), id=tournament_id)
     teams = TeamOnTournament.objects.order_by('name').filter(tournament=tournament)
+    match_list = Match.objects.filter(tournament=tournament)
+
 
     knowns = Player.objects.filter(teams__tournament=tournament)
     unknowns = Player.objects.order_by('nickname').filter(
@@ -37,6 +39,7 @@ def tournament(request, tournament_id):
     ).distinct().exclude(id__in = knowns)
 
     context = {'tournament': tournament,
+               'matches' : match_list,
                'teams': teams,
                'unknowns': unknowns}
     return render(request, 'tournament.html', context)
