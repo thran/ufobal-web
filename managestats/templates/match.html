@@ -5,7 +5,8 @@
 
 
 <h2>{{ match }}</h2>
-<a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a>
+<a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a> -
+<a href="{% url 'admin:ufobalapp_match_change' match.id %}">editovat</a>
 
 
 <h3>Tým 1</h3>
