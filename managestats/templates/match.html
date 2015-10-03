@@ -6,7 +6,7 @@
 
     <h2>{{ match }}</h2>
     <a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a> -
-    <a href="{% url 'admin:ufobalapp_match_change' match.id %}">editovat</a>
+    <a target="_blank" href="{% url 'admin:ufobalapp_match_change' match.id %}">editovat</a>
 
     {% if messages %}
         {% for message in messages %}
