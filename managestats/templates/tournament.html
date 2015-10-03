@@ -48,7 +48,7 @@
 
 
 <ul>
-    <h3>nezařazení hráči</h3>
+    <h3>nezařazení hráči na turnaji</h3>
     {% for player in unknowns %}
         <li>
             <a href="{% url "admin:ufobalapp_player_change" player.id %}">{{ player }}</a>
