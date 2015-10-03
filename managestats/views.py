@@ -1,10 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
+
 from django.db.models import Q
 
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal
 
 
 def index(request):
@@ -19,7 +22,7 @@ def players(request):
 
 
 def tournaments(request):
-    tournament_list = Tournament.objects.order_by('date').all()
+    tournament_list = Tournament.objects.order_by('-date').all()
 
     context = {'tournaments': tournament_list}
     return render(request, 'tournaments.html', context)
@@ -48,6 +51,18 @@ def match(request, match_id):
     context = {'match': match, }
     return render(request, 'match.html', context)
 
+@require_http_methods(["POST"])
+def goal_add(request, match_id):
+    match = get_object_or_404(Match.objects, id=match_id)
+    shooter_id = request.POST.get("shooter")
+    print(shooter_id)
+    shooter = get_object_or_404(Player.objects, id=shooter_id)
+    assistance_id = request.POST.get("assistance")
+    assistance = get_object_or_404(Player.objects, id=assistance_id)
+    goal = Goal(shooter=shooter, assistance=assistance, match=match)
+    goal.save()
+
+    return redirect("managestats:match", match_id=match_id)
 
 def teams(request):
     teams_list = Team.objects.order_by('name')

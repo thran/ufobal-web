@@ -122,16 +122,18 @@ class Match(models.Model):
     fake = models.BooleanField('Importovaný zápas', default=False)
 
     def score_one(self):
-        goals = Goal.objects.filter(shooter__in=self.team_one.players.all(),
-                                    match=self)
-        return goals.count()
+        if self.team_one:
+            goals = Goal.objects.filter(shooter__in=self.team_one.players.all(),
+                                        match=self)
+            return goals.count()
 
     score_one.short_description = 'tým 1 scóre'
 
     def score_two(self):
-        goals = Goal.objects.filter(shooter__in=self.team_two.players.all(),
-                                    match=self)
-        return goals.count()
+        if self.team_two:
+            goals = Goal.objects.filter(shooter__in=self.team_two.players.all(),
+                                        match=self)
+            return goals.count()
 
     score_two.short_description = 'tým 2 scóre'
 

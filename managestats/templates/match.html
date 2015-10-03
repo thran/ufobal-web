@@ -10,8 +10,9 @@
 
 
     <h3>Tým 1</h3>
-    <form method="get" action="{% url 'admin:ufobalapp_goal_add' %}" target="_blank">
-        <input type="hidden" name="match" value="{{ match.id }}">
+    <form method="post" action="{% url 'managestats:goal_add' match.id%}">
+        {% csrf_token %}
+
         <h4>Gól</h4>
         <select name="shooter">
             {% for player in match.team_one.players.all %}
@@ -31,8 +32,9 @@
 
 
     <h3>Tým 2</h3>
-    <form method="get" action="{% url 'admin:ufobalapp_goal_add' %}" target="_blank">
-        <input type="hidden" name="match" value="{{ match.id }}">
+    <form method="post" action="{% url 'managestats:goal_add' match.id%}">
+        {% csrf_token %}
+
         <h4>Gól</h4>
         <select name="shooter">
             {% for player in match.team_two.players.all %}
@@ -41,7 +43,7 @@
         </select>
         <h4>Asistence</h4>
         <select name="assistance">
-            {% for player in match.team_one.players.all %}
+            {% for player in match.team_two.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
         </select>

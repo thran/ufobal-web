@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^tournament/(?P<tournament_id>[0-9]+)/$', views.tournament, name='tournament'),
     url(r'^teams$', views.teams, name='teams'),
     url(r'^match/(?P<match_id>[0-9]+)/$', views.match, name='match'),
-
+    url(r'^goal/add/(?P<match_id>[0-9]+)/$', views.goal_add, name='goal_add'),
 ]
