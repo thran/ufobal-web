@@ -90,7 +90,10 @@ class TeamOnTournament(models.Model):
         super(TeamOnTournament, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "%s %s %s" % (self.team.name, self.tournament.name, self.tournament.date)
+        if self.name == self.team.name:
+            return "{} - {} {}".format(self.name, self.tournament.name, self.tournament.date.year)
+        else:
+            return "{} ({}) - {} {}".format(self.name, self.team.name, self.tournament.name, self.tournament.date.year)
 
 
 class Tournament(models.Model):
@@ -102,7 +105,7 @@ class Tournament(models.Model):
     name = models.CharField('Název/místo', max_length=50)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.date)
+        return "%s %s" % (self.name, self.date.year)
 
 
 class Match(models.Model):
