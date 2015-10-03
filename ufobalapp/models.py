@@ -170,7 +170,7 @@ class Goal(models.Model):
         (PENALTY, 'penálta'),
     )
 
-    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True, blank=True)
+    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec')
     assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True)
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
     time = models.TimeField('Čas v zápase', null=True, blank=True)
@@ -181,8 +181,10 @@ class Goal(models.Model):
         if self.match.fake:
             return "goal import"
         else:
-            return "%s vs %s, %s, %s" % (self.match.team_one.name,
-                                         self.match.team_two.name, self.shooter.nickname, self.assistance.nickname)
+            return "%s vs %s: %s (%s)" % (self.match.team_one.name,
+                                          self.match.team_two.name,
+                                          self.shooter.nickname,
+                                          self.assistance.nickname if self.assistance else "-")
 
 
 class Shot(models.Model):

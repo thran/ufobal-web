@@ -24,6 +24,7 @@
         </select>
         <h4>Asistence</h4>
         <select name="assistance">
+            <option value=""> ------- </option>
             {% for player in match.team_one.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
@@ -46,6 +47,7 @@
         </select>
         <h4>Asistence</h4>
         <select name="assistance">
+            <option value=""> ------- </option>
             {% for player in match.team_two.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}

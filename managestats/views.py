@@ -52,19 +52,20 @@ def match(request, match_id):
     context = {'match': match, }
     return render(request, 'match.html', context)
 
+
 @require_http_methods(["POST"])
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
     shooter_id = request.POST.get("shooter")
-    print(shooter_id)
     shooter = get_object_or_404(Player.objects, id=shooter_id)
     assistance_id = request.POST.get("assistance")
-    assistance = get_object_or_404(Player.objects, id=assistance_id)
+    assistance = get_object_or_404(Player.objects, id=assistance_id) if assistance_id else None
     goal = Goal(shooter=shooter, assistance=assistance, match=match)
     goal.save()
 
-    messages.success(request, 'Gól přidán')
+    messages.success(request, 'Gól přidán: {}'.format(goal))
     return redirect("managestats:match", match_id=match_id)
+
 
 def teams(request):
     teams_list = Team.objects.order_by('name')
