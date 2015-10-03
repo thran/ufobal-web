@@ -181,10 +181,15 @@ class Goal(models.Model):
         if self.match.fake:
             return "goal import"
         else:
-            return "%s vs %s: %s (%s)" % (self.match.team_one.name,
-                                          self.match.team_two.name,
-                                          self.shooter.nickname,
-                                          self.assistance.nickname if self.assistance else "-")
+            if self.shooter in self.match.team_one.players.all():
+                teams = "{0} ---> {1}"
+            elif self.shooter in self.match.team_two.players.all():
+                teams = "{1} ---> {0}"
+            else:
+                return "!!! střelec {} gólu není v žádném z týmů".format(self.shooter.nickname)
+            return (teams + ": {2} ({3})").format(self.match.team_one.name, self.match.team_two.name,
+                                                  self.shooter.nickname,
+                                                  self.assistance.nickname if self.assistance else "-")
 
 
 class Shot(models.Model):
