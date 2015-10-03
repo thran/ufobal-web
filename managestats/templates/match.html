@@ -8,15 +8,6 @@
     <a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a> -
     <a target="_blank" href="{% url 'admin:ufobalapp_match_change' match.id %}">editovat</a>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div data-alert class="alert-box text-center {{ message.tags }} {% if message.tags == "error" %}alert{% endif %}">
-                {{ message }}
-                <a href="#" class="close">&times;</a>
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <hr>
 
 

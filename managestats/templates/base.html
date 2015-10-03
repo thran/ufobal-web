@@ -10,11 +10,28 @@
 
     <script src="{% static "js/jquery.js" %}"></script>
     <script src="{% static "js/foundation.min.js" %}"></script>
+    <script src="{% static "js/modernizr.js" %}"></script>
 </head>
 <body>
 
+
+
 <div class="row">
-{% block content %} {% endblock %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div data-alert class="alert-box text-center {{ message.tags }} {% if message.tags == "error" %}alert{% endif %}">
+                {{ message }}
+                <a href="#" class="close">&times;</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %} {% endblock %}
 </div>
+
+<script>
+  $(document).foundation();
+</script>
 </body>
 </html>
