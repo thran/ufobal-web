@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<h2>{{ match }}</h2>
+<a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a>
+
+
+<h3>Tým 1</h3>
+<form method="get" action="{% url 'admin:ufobalapp_goal_add' %}" target="_blank">
+    <input type="hidden" name="match" value="{{ match.id }}">
+    <h4>Gól</h4>
+    <select name="shooter">
+        {% for player in match.team_one.players.all %}
+            <option value="{{ player.id }}">{{ player }}</option>
+        {% endfor %}
+    </select>
+    <h4>Asistence</h4>
+    <select name="assistance">
+        {% for player in match.team_one.players.all %}
+            <option value="{{ player.id }}">{{ player }}</option>
+        {% endfor %}
+    </select>
+
+    <button>Přidat gól</button>
+</form>
+
+
+
+<h3>Tým 2</h3>
+<form method="get" action="{% url 'admin:ufobalapp_goal_add' %}" target="_blank">
+    <input type="hidden" name="match" value="{{ match.id }}">
+    <h4>Gól</h4>
+    <select name="shooter">
+        {% for player in match.team_two.players.all %}
+            <option value="{{ player.id }}">{{ player }}</option>
+        {% endfor %}
+    </select>
+    <h4>Asistence</h4>
+    <select name="assistance">
+        {% for player in match.team_one.players.all %}
+            <option value="{{ player.id }}">{{ player }}</option>
+        {% endfor %}
+    </select>
+
+    <button>Přidat gól</button>
+</form>
+
+
+<h3>Góly</h3>
+<ul>
+    {% for goal in match.goals.all %}
+        <li>
+            <a href="{% url 'admin:ufobalapp_goal_change'  goal.id %}">{{ goal }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
+
+

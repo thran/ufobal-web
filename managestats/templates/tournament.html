@@ -31,6 +31,8 @@
 <a href="{% url 'managestats:tournaments' %}">zpět</a> -
 <a href="{% url 'admin:ufobalapp_teamontournament_add' %}?tournament={{ tournament.id }}">přidat tým</a> -
 <a id="addmatch">přidat zápas</a> (zaskrtnete tymy)
+
+
 <ul>
     {% for team in teams %}
         <li>
@@ -46,7 +48,7 @@
     <h3>zápasy</h3>
     {% for match in matches %}
         <li>
-            <a href="{% url 'admin:ufobalapp_match_change' match.id %}">{{ match }}</a>
+            <a href="{% url 'managestats:match' match.id %}">{{ match }}
     {% endfor %}
 
 </ul>

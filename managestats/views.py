@@ -28,7 +28,7 @@ def tournaments(request):
 
 
 def tournament(request, tournament_id):
-    tournament = get_object_or_404(Tournament.objects.order_by('date'), id=tournament_id)
+    tournament = get_object_or_404(Tournament.objects, id=tournament_id)
     teams = TeamOnTournament.objects.order_by('name').filter(tournament=tournament)
     match_list = Match.objects.filter(tournament=tournament)
 
@@ -43,6 +43,13 @@ def tournament(request, tournament_id):
                'teams': teams,
                'unknowns': unknowns}
     return render(request, 'tournament.html', context)
+
+def match(request, match_id):
+    match = get_object_or_404(Match.objects, id=match_id)
+
+
+    context = {'match': match,}
+    return render(request, 'match.html', context)
 
 
 def teams(request):

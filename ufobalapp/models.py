@@ -176,8 +176,8 @@ class Goal(models.Model):
         if self.match.fake:
             return "goal import"
         else:
-            return "%s vs %s, %s" % (self.match.team_one.name,
-                                 self.match.team_two.name, self.shooter.nickname)
+            return "%s vs %s, %s, %s" % (self.match.team_one.name,
+                                 self.match.team_two.name, self.shooter.nickname, self.assistance.nickname)
 
 
 class Shot(models.Model):
