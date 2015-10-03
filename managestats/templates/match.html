@@ -8,9 +8,17 @@
     <a href="{% url 'managestats:tournament' match.tournament.id %}">zpět</a> -
     <a href="{% url 'admin:ufobalapp_match_change' match.id %}">editovat</a>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div data-alert class="alert-box radius">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
 
     <h3>Tým 1</h3>
-    <form method="post" action="{% url 'managestats:goal_add' match.id%}">
+    <form method="post" action="{% url 'managestats:goal_add' match.id %}">
         {% csrf_token %}
 
         <h4>Gól</h4>
@@ -32,7 +40,7 @@
 
 
     <h3>Tým 2</h3>
-    <form method="post" action="{% url 'managestats:goal_add' match.id%}">
+    <form method="post" action="{% url 'managestats:goal_add' match.id %}">
         {% csrf_token %}
 
         <h4>Gól</h4>

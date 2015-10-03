@@ -4,6 +4,7 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
+from django.contrib import messages
 
 from django.db.models import Q
 
@@ -62,6 +63,7 @@ def goal_add(request, match_id):
     goal = Goal(shooter=shooter, assistance=assistance, match=match)
     goal.save()
 
+    messages.success(request, 'Gól přidán')
     return redirect("managestats:match", match_id=match_id)
 
 def teams(request):
