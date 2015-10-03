@@ -10,16 +10,20 @@
 
     {% if messages %}
         {% for message in messages %}
-            <div data-alert class="alert-box radius">
+            <div data-alert class="alert-box text-center {{ message.tags }} {% if message.tags == "error" %}alert{% endif %}">
                 {{ message }}
+                <a href="#" class="close">&times;</a>
             </div>
         {% endfor %}
     {% endif %}
 
+    <hr>
 
-    <h3>Tým 1</h3>
-    <form method="post" action="{% url 'managestats:goal_add' match.id %}">
+
+    <form method="post" action="{% url 'managestats:goal_add' match.id %}" class="columns medium-6">
         {% csrf_token %}
+
+        <h3>{{ match.team_one.name }}</h3>
 
         <h4>Gól</h4>
         <select name="shooter">
@@ -39,8 +43,8 @@
 
 
 
-    <h3>Tým 2</h3>
-    <form method="post" action="{% url 'managestats:goal_add' match.id %}">
+    <h3>{{ match.team_two.name }}</h3>
+    <form method="post" action="{% url 'managestats:goal_add' match.id %}" class="columns medium-6">
         {% csrf_token %}
 
         <h4>Gól</h4>
