@@ -64,6 +64,11 @@ class Team(models.Model):
         return "%s" % (self.name)
 
 
+class TeamOnTournamentManager(models.Manager):
+    def get_queryset(self):
+        return super(TeamOnTournamentManager, self).get_queryset().select_related('team', 'tournament')
+
+
 class TeamOnTournament(models.Model):
     class Meta:
         verbose_name = "tým na turnaji"
@@ -71,11 +76,11 @@ class TeamOnTournament(models.Model):
 
     team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments')
     captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
-    name = models.CharField('Jméno na turnaji', max_length=100)  # prazdny jmeno = jmeno tymu jinak jmeno na tom turnaji
+    name = models.CharField('Jméno na turnaji', max_length=100)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='teams')
 
-    #fake = models.BooleanField('Importovaná účast', default=False)# FAKE KVULI IMPORTU
+    object = TeamOnTournamentManager()
 
     def save(self, *args, **kwargs):  # TODO jen pri vytvoreni, pouzit signaly
         """current name of the team at the time of tournament"""
