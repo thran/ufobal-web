@@ -5,9 +5,8 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.db.models import Count
 from django.contrib.auth.models import Group
-from .models import Player, Team, TeamOnTournament, Tournament,\
+from .models import Player, Team, TeamOnTournament, Tournament, \
     Match, Goal, Shot, GoalieInMatch, Penalty
-
 
 
 def merge(modeladmin, request, queryset):
@@ -17,16 +16,13 @@ def merge(modeladmin, request, queryset):
     related = main._meta.get_all_related_objects()
     valnames = dict()
 
-
     for r in related:
         valnames.setdefault(r.related_model, []).append(r.field.name)
-
 
     manyrelated = main._meta.get_all_related_many_to_many_objects()
     manyvalnames = dict()
     for r in manyrelated:
         manyvalnames.setdefault(r.related_model, []).append(r.field.name)
-
 
     for place in tail:
         for model, field_names in valnames.items():
@@ -35,14 +31,14 @@ def merge(modeladmin, request, queryset):
 
         for model, field_names in manyvalnames.items():
             for field_name in field_names:
-                for manytomany in  model.objects.filter(**{field_name: place}):
-                    manyfield = getattr(manytomany, field_name) #gets attribute from string
+                for manytomany in model.objects.filter(**{field_name: place}):
+                    manyfield = getattr(manytomany, field_name)  # gets attribute from string
                     manyfield.remove(place)
                     manyfield.add(main)
 
         place.delete()
 
-    #merge all TeamsOnTournament on same Tournament for this Team
+    # merge all TeamsOnTournament on same Tournament for this Team
     modelname = modeladmin.__class__.__name__
     if modelname is 'TeamAdmin':
         tours = []
@@ -59,8 +55,9 @@ def merge(modeladmin, request, queryset):
                         totm[0].players.add(player)
                     instance.delete()
 
-
     ModelAdmin.message_user(modeladmin, request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
+
+
 merge.short_description = "Sloučit"
 
 
@@ -75,7 +72,7 @@ class PlayerAdmin(admin.ModelAdmin):
     inlines = [PlayerInTeamsInline]
     actions = [merge]
 
-    #TOO SLOW
+    # TOO SLOW
     '''
     def get_queryset(self, request):
         qs = super(ModelAdmin, self).get_queryset(request)
@@ -94,8 +91,10 @@ class PlayerAdmin(admin.ModelAdmin):
     number_of_assistances.short_description = 'Počet asistencí'
     '''
 
+
 class TeamOnTournamentInline(admin.TabularInline):
     model = TeamOnTournament
+
 
 class TeamAdmin(admin.ModelAdmin):
     search_fields = ['name']
@@ -115,35 +114,38 @@ class TeamTournamentAdmin(admin.ModelAdmin):
         main = queryset[0]
         tail = queryset[1:]
 
-        #related = main._meta.get_fields()
+        # related = main._meta.get_fields()
         for team in tail:
             for player in team.players.all():
                 main.players.add(player)
             team.delete()
 
         self.message_user(request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
+
     mergeTeamTour.short_description = "Sloučit"
 
     def tournament_name(self, obj):
         return obj.tournament.name
+
     tournament_name.short_description = "Turnaj"
     tournament_name.admin_order_field = 'tournament__name'
 
     def tournament_date(self, obj):
         return obj.tournament.date
+
     tournament_date.short_description = "Datum"
     tournament_date.admin_order_field = 'tournament__date'
 
+
 class MatchAdmin(admin.ModelAdmin):
     list_display = ['tournament', 'team_one', 'score_one', 'team_two', 'score_two', 'fake']
-    readonly_fields=('score_one','score_two') #carka vytvari tupple
+    readonly_fields = ('score_one', 'score_two')  # carka vytvari tupple
 
 
 class TournamentAdmin(admin.ModelAdmin):
     list_display = ['name', 'date']
     search_fields = ['name', 'date']
     inlines = [TeamOnTournamentInline]
-
 
 
 admin.site.register(Player, PlayerAdmin)
@@ -155,5 +157,3 @@ admin.site.register(Goal)
 admin.site.register(Shot)
 admin.site.register(GoalieInMatch)
 admin.site.register(Penalty)
-
-

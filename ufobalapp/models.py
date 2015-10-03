@@ -33,6 +33,7 @@ class Player(models.Model):
             return on.year - when.year - was_earlier
         else:
             return None
+
     age.short_description = "Věk"
 
     def goal_count(self):
@@ -44,7 +45,7 @@ class Player(models.Model):
         return self.assistances.count()
 
     def point_sum(self):
-        return self.assistances.count() +  self.goals.count()
+        return self.assistances.count() + self.goals.count()
 
     assistance_count.short_description = 'Asistencí celkem'
 
@@ -124,12 +125,14 @@ class Match(models.Model):
         goals = Goal.objects.filter(shooter__in=self.team_one.players.all(),
                                     match=self)
         return goals.count()
+
     score_one.short_description = 'tým 1 scóre'
 
     def score_two(self):
         goals = Goal.objects.filter(shooter__in=self.team_two.players.all(),
                                     match=self)
         return goals.count()
+
     score_two.short_description = 'tým 2 scóre'
 
     # TODO def result
@@ -177,7 +180,7 @@ class Goal(models.Model):
             return "goal import"
         else:
             return "%s vs %s, %s, %s" % (self.match.team_one.name,
-                                 self.match.team_two.name, self.shooter.nickname, self.assistance.nickname)
+                                         self.match.team_two.name, self.shooter.nickname, self.assistance.nickname)
 
 
 class Shot(models.Model):
