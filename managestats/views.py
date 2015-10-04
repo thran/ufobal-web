@@ -46,6 +46,28 @@ def tournament(request, tournament_id):
     return render(request, 'tournament.html', context)
 
 
+@require_http_methods(["POST"])
+def match_add(request, tournament_id):
+    tournament = get_object_or_404(Tournament.objects, id=tournament_id)
+    team_one_id = request.POST.get("team_one")
+    team_one = get_object_or_404(TeamOnTournament.objects, id=team_one_id)
+    team_two_id = request.POST.get("team_two")
+    team_two = get_object_or_404(TeamOnTournament.objects, id=team_two_id)
+
+    if team_one.tournament != tournament or team_two.tournament != tournament:
+        messages.warning(request, 'Nemůžete vytvořit zápas s týmem co nehraje na turnaji')
+        return redirect("managestats:tournament", tournament_id=tournament_id)
+    if team_one == team_two:
+        messages.warning(request, 'Nemůžete vytvořit zápas se dvěma stejnými týmy')
+        return redirect("managestats:tournament", tournament_id=tournament_id)
+
+    match = Match(tournament=tournament, team_one=team_one, team_two=team_two)
+    match.save()
+
+    messages.success(request, 'Zápas přidán: {}'.format(match))
+    return redirect("managestats:tournament", tournament_id=tournament_id)
+
+
 def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
@@ -53,7 +75,7 @@ def match(request, match_id):
     return render(request, 'match.html', context)
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["POST"]) #TODO zakazat vytvareni spatnych golu
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
     shooter_id = request.POST.get("shooter")

@@ -116,7 +116,7 @@ class Match(models.Model):
     tournament = models.ForeignKey(Tournament, verbose_name='Turnaj')
     team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='+', null=True, blank=True)
     team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='+', null=True, blank=True)
-    start = models.DateTimeField('Začátek zápasu', default=timezone.now, null=True, blank=True)
+    start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
     goalie = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
     referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)

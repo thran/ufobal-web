@@ -30,8 +30,8 @@
 
     </ul>
 
-    <form method="get" action="{% url 'admin:ufobalapp_match_add' %}" target="_blank">
-        <input type="hidden" name="tournament" value="{{ tournament.id }}">
+    <form method="post" action="{% url 'managestats:match_add' tournament.id %}">
+        {% csrf_token %}
 
         <div class="medium-6 columns">
             <h4>Tým 1</h4>
