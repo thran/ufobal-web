@@ -1,3 +1,7 @@
 .idea/
 *.pyc
 data_source/*.json
+bower_components
+node_modules
+static/dist
+managestats/static/managestats/dist
