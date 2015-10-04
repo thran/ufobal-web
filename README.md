@@ -3,14 +3,19 @@
 #### backend stuff
 
 `pip install -r requirements.txt`
+
 `python manage.py syncdb`
+
 `python manage.py migrate`
 
 #### Frontend stuff
 
 `npm install bower`
+
 `npm install grunt grunt-cli`
+
 `npm install`
+
 `bower install`
 
 ## Development
