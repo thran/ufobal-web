@@ -12,7 +12,7 @@
 
 `npm install bower`
 
-`npm install grunt grunt-cli`
+`npm install -g grunt grunt-cli`
 
 `npm install`
 

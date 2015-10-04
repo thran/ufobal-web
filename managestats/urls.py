@@ -1,6 +1,8 @@
 from django.conf.urls import url
 
 from . import views
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import TemplateView
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -12,4 +14,7 @@ urlpatterns = [
     url(r'^match/add/(?P<tournament_id>[0-9]+)/$', views.match_add, name='match_add'),
     url(r'^match/(?P<match_id>[0-9]+)/$', views.match, name='match'),
     url(r'^goal/add/(?P<match_id>[0-9]+)/$', views.goal_add, name='goal_add'),
+
+    url(r'^player_detail/(?P<pk>\d+)$',
+        ensure_csrf_cookie(TemplateView.as_view(template_name="player_detail.html")), name='player_detail'),
 ]

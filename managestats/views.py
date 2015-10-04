@@ -94,7 +94,7 @@ def tournament(request, tournament_id):
     teams = TeamOnTournament.objects.order_by('name', 'team__name').filter(tournament=tournament)
     match_list = Match.objects.filter(tournament=tournament)
 
-    knowns = Player.objects.filter(teams__tournament=tournament)
+    knowns = Player.objects.filter(tournaments__tournament=tournament)
     unknowns = Player.objects.order_by('nickname').filter(
         Q(goals__match__tournament=tournament) | Q(assistances__match__tournament=tournament)
     ).distinct().exclude(id__in=knowns)
