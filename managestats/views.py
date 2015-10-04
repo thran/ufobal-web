@@ -151,12 +151,12 @@ def match(request, match_id):
 
 
     # TODO jde tohle vyresit nejak lip?
-    team_one_players = Player.objects.filter(teams=match.team_one).all()
+    team_one_players = Player.objects.filter(tournaments=match.team_one).all()
     for player in team_one_players:
         player.goals_in_match = player.goal_count(match)
         player.assistances_in_match = player.assistance_count(match)
 
-    team_two_players = Player.objects.filter(teams=match.team_two).all()
+    team_two_players = Player.objects.filter(tournaments=match.team_two).all()
     for player in team_two_players:
         player.goals_in_match = player.goal_count(match)
         player.assistances_in_match = player.assistance_count(match)
