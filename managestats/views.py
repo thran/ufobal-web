@@ -31,7 +31,7 @@ def tournaments(request):
 
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
-    teams = TeamOnTournament.objects.order_by('name').filter(tournament=tournament)
+    teams = TeamOnTournament.objects.order_by('name', 'team__name').filter(tournament=tournament)
     match_list = Match.objects.filter(tournament=tournament)
 
     knowns = Player.objects.filter(teams__tournament=tournament)

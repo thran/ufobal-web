@@ -3,14 +3,16 @@
 {% block content %}
 
 
-<h1>Turnaje</h1>
-<a href="{% url 'managestats:index' %}">zpět</a>
-<ul>
-    {% for tournament in tournaments %}
-        <li>
-            <a href="{% url 'managestats:tournament' tournament.id %}">{{ tournament }}</a>
-        </li>
-    {% endfor %}
-</ul>
+    <h1>Turnaje</h1>
+    <a href="{% url 'managestats:index' %}">zpět</a> -
+    <a target="_blank" href="{% url 'admin:ufobalapp_tournament_add' %}">přidat turnaj</a>
+
+    <ul>
+        {% for tournament in tournaments %}
+            <li>
+                <a href="{% url 'managestats:tournament' tournament.id %}">{{ tournament }}</a>
+            </li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}
