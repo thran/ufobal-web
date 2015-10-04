@@ -9,7 +9,7 @@
 #### Frontend stuff
 
 `npm install bower`
-`npm install grunt-cli`
+`npm install grunt grunt-cli`
 `npm install`
 `bower install`
 
