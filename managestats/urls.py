@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^players$', views.players, name='players'),
+    url(r'^players/edit$', views.players_edit, name='players_edit'),
     url(r'^tournaments$', views.tournaments, name='tournaments'),
     url(r'^tournament/(?P<tournament_id>[0-9]+)/$', views.tournament, name='tournament'),
     url(r'^teams$', views.teams, name='teams'),

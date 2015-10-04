@@ -11,13 +11,16 @@ from django.db.models import Q
 
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal
 
+import datetime
 
 def is_staff_check(user):
     return user.is_staff
 
+
 @user_passes_test(is_staff_check)
 def index(request):
     return render(request, 'index.html')
+
 
 @user_passes_test(is_staff_check)
 def players(request):
@@ -26,12 +29,39 @@ def players(request):
     context = {'players': player_list}
     return render(request, 'players.html', context)
 
+
+@user_passes_test(is_staff_check)
+def players_edit(request):
+    if request.POST:
+        id = request.POST.get("id")
+        player = get_object_or_404(Player.objects, id=id)
+        player.nickname = request.POST.get("nickname")
+        player.name = request.POST.get("name")
+        player.lastname = request.POST.get("lastname")
+        birthdate = request.POST.get("birthdate")
+        if birthdate:
+            try:
+                birthdate = datetime.datetime.strptime(birthdate, "%d.%m.%Y").date()
+                player.birthdate = birthdate
+            except ValueError:
+                messages.warning("Špatně zadaný tvar data. Použijte formát D.M.Y")
+        player.gender = request.POST.get("gender")
+        player.save()
+
+
+    player_list = Player.objects.order_by('nickname').all()
+
+    context = {'players': player_list}
+    return render(request, 'players_edit.html', context)
+
+
 @user_passes_test(is_staff_check)
 def tournaments(request):
     tournament_list = Tournament.objects.order_by('-date').all()
 
     context = {'tournaments': tournament_list}
     return render(request, 'tournaments.html', context)
+
 
 @user_passes_test(is_staff_check)
 def tournament(request, tournament_id):
@@ -49,6 +79,7 @@ def tournament(request, tournament_id):
                'teams': teams,
                'unknowns': unknowns}
     return render(request, 'tournament.html', context)
+
 
 @user_passes_test(is_staff_check)
 @require_http_methods(["POST"])
@@ -72,12 +103,14 @@ def match_add(request, tournament_id):
     messages.success(request, 'Zápas přidán: {}'.format(match))
     return redirect("managestats:tournament", tournament_id=tournament_id)
 
+
 @user_passes_test(is_staff_check)
 def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
     context = {'match': match, }
     return render(request, 'match.html', context)
+
 
 @user_passes_test(is_staff_check)
 @require_http_methods(["POST"])
@@ -94,7 +127,7 @@ def goal_add(request, match_id):
 
     elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or \
             (assistance and (
-                    assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
+                            assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
         messages.warning(request, 'Střelec nebo asistent nejsou z ani jednoho hrajících týmů')
         return redirect("managestats:match", match_id=match_id)
 
@@ -109,6 +142,7 @@ def goal_add(request, match_id):
 
     messages.success(request, 'Gól přidán: {}'.format(goal))
     return redirect("managestats:match", match_id=match_id)
+
 
 @user_passes_test(is_staff_check)
 def teams(request):

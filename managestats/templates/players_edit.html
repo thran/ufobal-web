@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Hráči</h1>
+    <a href="{% url 'managestats:index' %}">zpět</a>
+
+    {% for player in players %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ player.id }}">
+
+            <div class="row">
+                <div class="medium-2 columns">
+                    <label>Přezdívka
+                        <input type="text" name="nickname" value="{{ player.nickname }}">
+                    </label>
+                </div>
+
+
+                <div class="medium-2 columns">
+                    <label>Jméno
+                        <input type="text" name="name" value="{% if player.name %}{{ player.name }}{% endif %}">
+                    </label>
+                </div>
+
+                <div class="medium-2 columns">
+                    <label>Příjmení
+                        <input type="text" name="lastname"
+                               value="{% if player.lastname %}{{ player.lastname }}{% endif %}">
+                    </label>
+                </div>
+
+                <div class="medium-2 columns">
+                    <label>Datum narození
+                        <input type="text" name="birthdate"
+                               value="{% if player.birthdate %}{{ player.birthdate|date:"d.m.Y" }}{% endif %}">
+                    </label>
+                </div>
+
+                <div class="medium-2 columns">
+                    <label>Pohlaví
+                        <select name="gender">
+                            <option value="">-------</option>
+                            <option value="man" {% if player.gender == "man" %}selected{% endif %}>Muž</option>
+                            <option value="woman" {% if player.gender == "woman" %}selected{% endif %}>Žena</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="medium-2 columns">
+                    <button>OK</button>
+                </div>
+
+            </div>
+
+        </form>
+
+    {% endfor %}
+
+
+{% endblock %}
