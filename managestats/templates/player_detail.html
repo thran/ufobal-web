@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% verbatim %}
+        <div ng-controller="player-detail">
+
+            <h1>{{ player.nickname }}</h1>
+            <p>
+                <b>jméno:</b> {{ player.name }} {{ player.lastname }}<br>
+                <b>věk:</b> {{ player.age}}
+            </p>
+
+            <h3>Účast</h3>
+            <div ng-repeat="t in player.tournaments">
+                <div class="row">
+                    <div class="text-right columns small-2">{{ t.tournament.name }}  {{ t.tournament.year }}</div>
+                    <div class="columns small-10">{{ t.team.name }}</div>
+                </div>
+            </div>
+        </div>
+    {% endverbatim %}
+{% endblock %}

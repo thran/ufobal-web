@@ -25,14 +25,20 @@ class Player(models.Model):
     birthdate = models.DateField('Datum narození', null=True, blank=True)
     gender = models.CharField(max_length=10, verbose_name='pohlaví', choices=GENDERS, null=True, blank=True)
 
-    def to_json(self):
-        return {
+    def to_json(self, tournaments=True):
+        data = {
+            "pk": self.pk,
             "name": self.name,
             "lastname": self.lastname,
             "nickname": self.nickname,
             "birthdate": self.birthdate,
             "age": self.age(),
         }
+
+        if tournaments:
+            data["tournaments"] = list(map(lambda t: t.to_json(players=False), self.tournaments.all().order_by("-tournament__date")))
+
+        return data
 
     def age(self):
         if self.birthdate:
@@ -70,8 +76,15 @@ class Team(models.Model):
     name = models.CharField('Jméno', max_length=100)
     description = models.TextField('Popis', null=True, blank=True)
 
+    def to_json(self):
+        return {
+            "pk": self.pk,
+            "name": self.name,
+            "description": self.description,
+        }
+
     def __str__(self):
-        return "%s" % (self.name)
+        return "%s" % self.name
 
 
 class TeamOnTournamentManager(models.Manager):
@@ -91,6 +104,20 @@ class TeamOnTournament(models.Model):
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments')
 
     objects = TeamOnTournamentManager()
+
+    def to_json(self, players=True):
+        data = {
+            "pk": self.pk,
+            "team": self.team.to_json(),
+            "captain": self.captain.name if self.captain else None,
+            "name": self.name if self.name else self.team.name,
+            "tournament": self.tournament.to_json(),
+        }
+
+        if players:
+            data["players"] = list(map(lambda p: p.to_json(tournaments=False), self.players.all()))
+
+        return data
 
     def __str__(self):
         if not self.name:
@@ -112,6 +139,14 @@ class Tournament(models.Model):
 
     date = models.DateField('Datum')
     name = models.CharField('Název/místo', max_length=50)
+
+    def to_json(self):
+        return {
+            "pk": self.pk,
+            "name": self.name,
+            "date": self.date,
+            "year": self.date.year,
+        }
 
     def __str__(self):
         return "%s %s" % (self.name, self.date.year)

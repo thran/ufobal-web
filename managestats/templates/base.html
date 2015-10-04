@@ -6,13 +6,16 @@
     <title>{% block title %} Ufobal {% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static "managestats/dist/managestats.min.css" %}">
 
-    <script src="{% static "managestats/dist/managestats.min.js" %}"></script>
     <script src="{% static "dist/libs.min.js" %}"></script>
+    <script src="{% static 'djangular/js/django-angular.js' %}"></script>
+    <script src="{% static "managestats/dist/managestats.min.js" %}"></script>
+    <script> {% block extra_script %} {% endblock %}
+    </script>
 </head>
 <body>
 
 
-<div class="row">
+<div class="row" ng-app="ufobal-manage-stats">
 
     {% if messages %}
         {% for message in messages %}
