@@ -17,6 +17,7 @@ if not ON_SERVER:
 
 ALLOWED_HOSTS = ["*"]
 
+LOGIN_URL = 'admin:index' #redirect for login_required pages
 
 # Application definition
 

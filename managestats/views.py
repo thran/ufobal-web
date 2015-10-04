@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
@@ -11,24 +12,28 @@ from django.db.models import Q
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal
 
 
+def is_staff_check(user):
+    return user.is_staff
+
+@user_passes_test(is_staff_check)
 def index(request):
     return render(request, 'index.html')
 
-
+@user_passes_test(is_staff_check)
 def players(request):
     player_list = Player.objects.order_by('nickname').all()
 
     context = {'players': player_list}
     return render(request, 'players.html', context)
 
-
+@user_passes_test(is_staff_check)
 def tournaments(request):
     tournament_list = Tournament.objects.order_by('-date').all()
 
     context = {'tournaments': tournament_list}
     return render(request, 'tournaments.html', context)
 
-
+@user_passes_test(is_staff_check)
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
     teams = TeamOnTournament.objects.order_by('name', 'team__name').filter(tournament=tournament)
@@ -45,7 +50,7 @@ def tournament(request, tournament_id):
                'unknowns': unknowns}
     return render(request, 'tournament.html', context)
 
-
+@user_passes_test(is_staff_check)
 @require_http_methods(["POST"])
 def match_add(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
@@ -67,14 +72,14 @@ def match_add(request, tournament_id):
     messages.success(request, 'Zápas přidán: {}'.format(match))
     return redirect("managestats:tournament", tournament_id=tournament_id)
 
-
+@user_passes_test(is_staff_check)
 def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
     context = {'match': match, }
     return render(request, 'match.html', context)
 
-
+@user_passes_test(is_staff_check)
 @require_http_methods(["POST"])
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
@@ -87,13 +92,14 @@ def goal_add(request, match_id):
         messages.warning(request, 'Nemůžete vytvořit gól bez střelce ani asistence')
         return redirect("managestats:match", match_id=match_id)
 
-    elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or\
-        (assistance and (assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
+    elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or \
+            (assistance and (
+                    assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
         messages.warning(request, 'Střelec nebo asistent nejsou z ani jednoho hrajících týmů')
         return redirect("managestats:match", match_id=match_id)
 
     elif shooter and assistance and \
-            (shooter in match.team_one.players.all() and assistance in match.team_two.players.all()) or\
+            (shooter in match.team_one.players.all() and assistance in match.team_two.players.all()) or \
             (shooter in match.team_two.players.all() and assistance in match.team_one.players.all()):
         messages.warning(request, 'Střelec a asistent musí být ze stejného týmu')
         return redirect("managestats:match", match_id=match_id)
@@ -104,7 +110,7 @@ def goal_add(request, match_id):
     messages.success(request, 'Gól přidán: {}'.format(goal))
     return redirect("managestats:match", match_id=match_id)
 
-
+@user_passes_test(is_staff_check)
 def teams(request):
     teams_list = Team.objects.order_by('name')
 
