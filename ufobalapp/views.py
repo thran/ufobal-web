@@ -14,21 +14,3 @@ def index(request):
     return render(request, 'ufobalapp/index.html', {
         'players': players
     })
-
-
-def player_detail(request, player_id):
-    player = get_object_or_404(Player, pk=player_id)
-
-    return render(request, 'ufobalapp/playerDetail.html', {
-        'player': player})
-
-
-def add_player(request):
-    if request.method == 'GET':
-        return render(request, 'ufobalapp/addPlayer.html')
-    elif request.method == 'POST':
-        name = request.POST.get('name', 'jonas')
-        player = Player(name=name, lastname=name, nickname=name,
-                        birthdate=timezone.now(), team_id=1)
-        player.save()
-        return HttpResponseRedirect(reverse('player_detail', args=(player.id,)))
