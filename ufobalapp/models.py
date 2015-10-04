@@ -25,6 +25,15 @@ class Player(models.Model):
     birthdate = models.DateField('Datum narození', null=True, blank=True)
     gender = models.CharField(max_length=10, verbose_name='pohlaví', choices=GENDERS, null=True, blank=True)
 
+    def to_json(self):
+        return {
+            "name": self.name,
+            "lastname": self.lastname,
+            "nickname": self.nickname,
+            "birthdate": self.birthdate,
+            "age": self.age(),
+        }
+
     def age(self):
         if self.birthdate:
             on = datetime.date.today()
