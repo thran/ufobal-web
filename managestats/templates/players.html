@@ -5,6 +5,9 @@
     <h1>Hráči</h1>
     <a href="{% url 'managestats:index' %}">zpět</a> -
     <a href="{% url 'managestats:players_edit' %}">hromadná editace</a>
+
+    <hr>
+
     <ul>
         {% for player in players %}
             <li>

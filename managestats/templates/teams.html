@@ -5,6 +5,9 @@
     <h1>Týmy</h1>
     <a href="{% url 'managestats:index' %}">zpět</a> -
     <a target="_blank" href="{% url 'admin:ufobalapp_team_add' %}">přidat tým</a>
+
+    <hr>
+
     <ul>
         {% for team in teams %}
             <li>

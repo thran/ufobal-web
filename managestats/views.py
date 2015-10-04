@@ -13,8 +13,34 @@ from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, 
 
 import datetime
 
+
 def is_staff_check(user):
     return user.is_staff
+
+
+def add_goal(request, match, shooter, assistance):
+    if not shooter and not assistance:
+        messages.warning(request, 'Nemůžete vytvořit gól bez střelce ani asistence')
+        return None
+
+    elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or \
+            (assistance and (
+                            assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
+        messages.warning(request, 'Střelec nebo asistent nejsou z ani jednoho hrajících týmů')
+        return None
+
+    elif shooter and assistance and \
+            (shooter in match.team_one.players.all() and assistance in match.team_two.players.all()) or \
+            (shooter in match.team_two.players.all() and assistance in match.team_one.players.all()):
+        messages.warning(request, 'Střelec a asistent musí být ze stejného týmu')
+        return None
+
+    goal = Goal(shooter=shooter, assistance=assistance, match=match)
+    goal.save()
+
+    messages.success(request, 'Gól přidán: {}'.format(goal))
+
+    return goal
 
 
 @user_passes_test(is_staff_check)
@@ -47,7 +73,6 @@ def players_edit(request):
                 messages.warning("Špatně zadaný tvar data. Použijte formát D.M.Y")
         player.gender = request.POST.get("gender")
         player.save()
-
 
     player_list = Player.objects.order_by('nickname').all()
 
@@ -108,7 +133,35 @@ def match_add(request, tournament_id):
 def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
-    context = {'match': match, }
+    if request.POST:
+        player_id = request.POST.get('id')
+        player = get_object_or_404(Player.objects, id=player_id)
+        team_id = request.POST.get('team')
+        team = get_object_or_404(TeamOnTournament.objects, id=team_id)
+
+        goal_count = request.POST.get('goals')
+        goal_count = int(goal_count) if goal_count else 0
+        assistance_count = request.POST.get('assistances')
+        assistance_count = int(assistance_count) if assistance_count else 0
+
+        for i in range(goal_count):
+            goal = add_goal(request, match, player, None)
+        for i in range(assistance_count):
+            add_goal(request, match, None, player)
+
+
+    # TODO jde tohle vyresit nejak lip?
+    team_one_players = Player.objects.filter(teams=match.team_one).all()
+    for player in team_one_players:
+        player.goals_in_match = player.goal_count(match)
+        player.assistances_in_match = player.assistance_count(match)
+
+    team_two_players = Player.objects.filter(teams=match.team_two).all()
+    for player in team_two_players:
+        player.goals_in_match = player.goal_count(match)
+        player.assistances_in_match = player.assistance_count(match)
+
+    context = {'match': match, 'team_one_players': team_one_players, 'team_two_players': team_two_players, }
     return render(request, 'match.html', context)
 
 
@@ -121,26 +174,8 @@ def goal_add(request, match_id):
     assistance_id = request.POST.get("assistance")
     assistance = get_object_or_404(Player.objects, id=assistance_id) if assistance_id else None
 
-    if not shooter and not assistance:
-        messages.warning(request, 'Nemůžete vytvořit gól bez střelce ani asistence')
-        return redirect("managestats:match", match_id=match_id)
+    add_goal(request, match, shooter, assistance)
 
-    elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or \
-            (assistance and (
-                            assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
-        messages.warning(request, 'Střelec nebo asistent nejsou z ani jednoho hrajících týmů')
-        return redirect("managestats:match", match_id=match_id)
-
-    elif shooter and assistance and \
-            (shooter in match.team_one.players.all() and assistance in match.team_two.players.all()) or \
-            (shooter in match.team_two.players.all() and assistance in match.team_one.players.all()):
-        messages.warning(request, 'Střelec a asistent musí být ze stejného týmu')
-        return redirect("managestats:match", match_id=match_id)
-
-    goal = Goal(shooter=shooter, assistance=assistance, match=match)
-    goal.save()
-
-    messages.success(request, 'Gól přidán: {}'.format(goal))
     return redirect("managestats:match", match_id=match_id)
 
 

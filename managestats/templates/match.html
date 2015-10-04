@@ -11,10 +11,113 @@
     <hr>
 
 
+    <div class="columns medium-12">
+        <h3>{{ match.team_one.get_name }}</h3>
+        {% for player in team_one_players %}
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ player.id }}">
+                <input type="hidden" name="team" value="{{ match.team_one.id }}">
+
+                <div class="row">
+                    <div class="columns medium-2">
+                        <label>
+                            {{ player.nickname }}
+                        </label>
+
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Má gólů
+                            <p>{{ player.goals_in_match }}</p>
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Má asistencí
+                            <p>{{ player.assistances_in_match }}</p>
+                        </label>
+                    </div>
+
+
+                    <div class="columns medium-2">
+                        <label>Přidat gólů
+                            <input type="number" name="goals" value="">
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Přidat asistencí
+                            <input type="number" name="assistances" value="">
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <button>Přidat</button>
+                    </div>
+                </div>
+            </form>
+        {% endfor %}
+    </div>
+
+    <div class="columns medium-12">
+        <h3>{{ match.team_two.get_name }}</h3>
+        {% for player in team_two_players %}
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ player.id }}">
+                <input type="hidden" name="team" value="{{ match.team_two.id }}">
+
+                <div class="row">
+                    <div class="columns medium-2">
+                        <label>
+                            {{ player.nickname }}
+                        </label>
+
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Má gólů
+                            <p>{{ player.goals_in_match }}</p>
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Má asistencí
+                            <p>{{ player.assistances_in_match }}</p>
+                        </label>
+                    </div>
+
+
+                    <div class="columns medium-2">
+                        <label>Přidat gólů
+                            <input type="number" name="goals" value="">
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <label>Přidat asistencí
+                            <input type="number" name="assistances" value="">
+                        </label>
+                    </div>
+
+                    <div class="columns medium-2">
+                        <button>Přidat</button>
+                    </div>
+                </div>
+            </form>
+        {% endfor %}
+    </div>
+
+    <hr>
+
     <form method="post" action="{% url 'managestats:goal_add' match.id %}" class="columns medium-6">
         {% csrf_token %}
 
-        <h3>{{ match.team_one.name }}</h3>
+        <h3>{{ match.team_one.get_name }}</h3>
+
 
         <h4>Gól</h4>
         <select name="shooter">
@@ -36,7 +139,7 @@
 
 
 
-    <h3>{{ match.team_two.name }}</h3>
+    <h3>{{ match.team_two.get_name }}</h3>
     <form method="post" action="{% url 'managestats:goal_add' match.id %}" class="columns medium-6">
         {% csrf_token %}
 
@@ -58,6 +161,7 @@
         <button>Přidat gól</button>
     </form>
 
+    <hr>
 
     <h3>Góly</h3>
     <ul>

@@ -5,6 +5,8 @@
     <h1>Hráči</h1>
     <a href="{% url 'managestats:index' %}">zpět</a>
 
+    <hr>
+
     {% for player in players %}
         <form method="post">
             {% csrf_token %}

@@ -36,13 +36,20 @@ class Player(models.Model):
 
     age.short_description = "Věk"
 
-    def goal_count(self):
-        return self.goals.count()
+    def goal_count(self, match=None):
+        if not match:
+            return self.goals.count()
+        else:
+            return Goal.objects.filter(match=match, shooter=self).count()
 
     goal_count.short_description = 'Gólů celkem'
 
-    def assistance_count(self):
-        return self.assistances.count()
+    def assistance_count(self, match=None):
+        if not match:
+            return self.assistances.count()
+        else:
+            return Goal.objects.filter(match=match, assistance=self).count()
+
 
     def point_sum(self):
         return self.assistances.count() + self.goals.count()
