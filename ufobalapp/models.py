@@ -79,7 +79,7 @@ class TeamOnTournament(models.Model):
     captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
-    players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='teams')
+    players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments')
 
     objects = TeamOnTournamentManager()
 
