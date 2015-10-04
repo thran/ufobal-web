@@ -103,7 +103,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 
 class TeamTournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'team', 'tournament_name', 'tournament_date')
+    list_display = ('team', 'name', 'tournament_name', 'tournament_date')
     fields = ['team', 'captain', 'tournament', 'name']
 
     search_fields = ['name', 'team__name', 'tournament__name', 'tournament__date']

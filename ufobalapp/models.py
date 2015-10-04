@@ -184,30 +184,13 @@ class Goal(models.Model):
         if self.match.fake:
             return "goal import"
         else:
-            if self.shooter and self.assistance:
-                if self.shooter in self.match.team_one.players.all() and \
-                                self.assistance in self.match.team_one.players.all():
-                    teams = "{0} ---> {1}"
-
-                elif self.shooter in self.match.team_two.players.all() and \
-                                self.assistance in self.match.team_two.players.all():
-                    teams = "{1} ---> {0}"
-                else:
-                    return "střelec+asistent buď nejsou ve stejném týmu nebo nejsou v žádném z týmů"
-
-            elif (self.shooter and self.shooter in self.match.team_one.players.all()) or \
+            if (self.shooter and  self.shooter in self.match.team_one.players.all()) or \
                     (self.assistance and self.assistance in self.match.team_one.players.all()):
                 teams = "{0} ---> {1}"
 
-            elif (self.shooter and self.shooter in self.match.team_two.players.all()) or \
+            elif (self.shooter and  self.shooter in self.match.team_two.players.all()) or \
                     (self.assistance and self.assistance in self.match.team_two.players.all()):
                 teams = "{1} ---> {0}"
-
-            elif not self.shooter and not self.assistance:
-                return "!!! není vybrán ani střelec ani asistent"
-
-            else:
-                return "střelec/asistent buď nejsou ve stejném týmu nebo nejsou v žádném z týmů"
 
             return (teams + ": {2} ({3})").format(self.match.team_one.get_name(), self.match.team_two.get_name(),
                                                   self.shooter.nickname if self.shooter else "-",

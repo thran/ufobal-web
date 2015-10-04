@@ -75,13 +75,29 @@ def match(request, match_id):
     return render(request, 'match.html', context)
 
 
-@require_http_methods(["POST"]) #TODO zakazat vytvareni spatnych golu
+@require_http_methods(["POST"])
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
     shooter_id = request.POST.get("shooter")
     shooter = get_object_or_404(Player.objects, id=shooter_id) if shooter_id else None
     assistance_id = request.POST.get("assistance")
     assistance = get_object_or_404(Player.objects, id=assistance_id) if assistance_id else None
+
+    if not shooter and not assistance:
+        messages.warning(request, 'Nemůžete vytvořit gól bez střelce ani asistence')
+        return redirect("managestats:match", match_id=match_id)
+
+    elif (shooter and (shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all())) or\
+        (assistance and (assistance not in match.team_one.players.all() and assistance not in match.team_two.players.all())):
+        messages.warning(request, 'Střelec nebo asistent nejsou z ani jednoho hrajících týmů')
+        return redirect("managestats:match", match_id=match_id)
+
+    elif shooter and assistance and \
+            (shooter in match.team_one.players.all() and assistance in match.team_two.players.all()) or\
+            (shooter in match.team_two.players.all() and assistance in match.team_one.players.all()):
+        messages.warning(request, 'Střelec a asistent musí být ze stejného týmu')
+        return redirect("managestats:match", match_id=match_id)
+
     goal = Goal(shooter=shooter, assistance=assistance, match=match)
     goal.save()
 
