@@ -18,13 +18,14 @@
 
         <h4>Gól</h4>
         <select name="shooter">
+            <option value="">-------</option>
             {% for player in match.team_one.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
         </select>
         <h4>Asistence</h4>
         <select name="assistance">
-            <option value=""> ------- </option>
+            <option value="">-------</option>
             {% for player in match.team_one.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
@@ -41,13 +42,14 @@
 
         <h4>Gól</h4>
         <select name="shooter">
+            <option value="">-------</option>
             {% for player in match.team_two.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
         </select>
         <h4>Asistence</h4>
         <select name="assistance">
-            <option value=""> ------- </option>
+            <option value="">-------</option>
             {% for player in match.team_two.players.all %}
                 <option value="{{ player.id }}">{{ player }}</option>
             {% endfor %}
@@ -61,7 +63,7 @@
     <ul>
         {% for goal in match.goals.all %}
             <li>
-                <a href="{% url 'admin:ufobalapp_goal_change'  goal.id %}">{{ goal }}</a>
+                <a target="_blank" href="{% url 'admin:ufobalapp_goal_change'  goal.id %}">{{ goal }}</a>
             </li>
         {% endfor %}
     </ul>

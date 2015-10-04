@@ -5,15 +5,17 @@
 
 
     <h2>{{ tournament }}</h2>
-    <a href="{% url 'managestats:tournaments' %}">zpět</a>
+    <a href="{% url 'managestats:tournaments' %}">zpět</a> -
+    <a target="_blank" href="{% url 'admin:ufobalapp_tournament_change' tournament.id %}">editovat turnaj</a>
 
     <h3>Týmy</h3>
-    <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_add' %}?tournament={{ tournament.id }}">přidat tým</a>
+    <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_add' %}?tournament={{ tournament.id }}">přidat
+        tým</a>
     <ul>
         {% for team in teams %}
             <li>
-                <a href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
-                <a href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
+                <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
+                <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
             </li>
         {% endfor %}
     </ul>
@@ -30,6 +32,7 @@
 
     <form method="get" action="{% url 'admin:ufobalapp_match_add' %}" target="_blank">
         <input type="hidden" name="tournament" value="{{ tournament.id }}">
+
         <div class="medium-6 columns">
             <h4>Tým 1</h4>
             <select name="team_one">
@@ -55,7 +58,7 @@
         <h3>Nezařazení hráči na turnaji</h3>
         {% for player in unknowns %}
             <li>
-                <a href="{% url "admin:ufobalapp_player_change" player.id %}">{{ player }}</a>
+                <a target="_blank" href="{% url "admin:ufobalapp_player_change" player.id %}">{{ player }}</a>
             </li>
         {% endfor %}
 

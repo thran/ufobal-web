@@ -89,6 +89,12 @@ class TeamOnTournament(models.Model):
         else:
             return "{} ({}) - {} {}".format(self.name, self.team.name, self.tournament.name, self.tournament.date.year)
 
+    def get_name(self):
+        if self.name:
+            return self.name
+        else:
+            return self.team.name
+
 
 class Tournament(models.Model):
     class Meta:
@@ -139,7 +145,7 @@ class Match(models.Model):
     def __str__(self):
         if not self.team_one and not self.team_two:
             return "%s %s %s" % (self.tournament.name, self.tournament.date, 'fake')
-        return "%s vs. %s, %s %s" % (self.team_one.name, self.team_two.name,
+        return "%s vs. %s, %s %s" % (self.team_one.get_name(), self.team_two.get_name(),
                                      self.tournament.name, self.tournament.date)
 
 
@@ -178,14 +184,33 @@ class Goal(models.Model):
         if self.match.fake:
             return "goal import"
         else:
-            if self.shooter in self.match.team_one.players.all():
+            if self.shooter and self.assistance:
+                if self.shooter in self.match.team_one.players.all() and \
+                                self.assistance in self.match.team_one.players.all():
+                    teams = "{0} ---> {1}"
+
+                elif self.shooter in self.match.team_two.players.all() and \
+                                self.assistance in self.match.team_two.players.all():
+                    teams = "{1} ---> {0}"
+                else:
+                    return "střelec+asistent buď nejsou ve stejném týmu nebo nejsou v žádném z týmů"
+
+            elif (self.shooter and self.shooter in self.match.team_one.players.all()) or \
+                    (self.assistance and self.assistance in self.match.team_one.players.all()):
                 teams = "{0} ---> {1}"
-            elif self.shooter in self.match.team_two.players.all():
+
+            elif (self.shooter and self.shooter in self.match.team_two.players.all()) or \
+                    (self.assistance and self.assistance in self.match.team_two.players.all()):
                 teams = "{1} ---> {0}"
+
+            elif not self.shooter and not self.assistance:
+                return "!!! není vybrán ani střelec ani asistent"
+
             else:
-                return "!!! střelec {} gólu není v žádném z týmů".format(self.shooter.nickname)
-            return (teams + ": {2} ({3})").format(self.match.team_one.name, self.match.team_two.name,
-                                                  self.shooter.nickname,
+                return "střelec/asistent buď nejsou ve stejném týmu nebo nejsou v žádném z týmů"
+
+            return (teams + ": {2} ({3})").format(self.match.team_one.get_name(), self.match.team_two.get_name(),
+                                                  self.shooter.nickname if self.shooter else "-",
                                                   self.assistance.nickname if self.assistance else "-")
 
 

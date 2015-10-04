@@ -57,7 +57,7 @@ def match(request, match_id):
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
     shooter_id = request.POST.get("shooter")
-    shooter = get_object_or_404(Player.objects, id=shooter_id)
+    shooter = get_object_or_404(Player.objects, id=shooter_id) if shooter_id else None
     assistance_id = request.POST.get("assistance")
     assistance = get_object_or_404(Player.objects, id=assistance_id) if assistance_id else None
     goal = Goal(shooter=shooter, assistance=assistance, match=match)
