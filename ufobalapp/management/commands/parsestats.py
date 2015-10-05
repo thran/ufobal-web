@@ -14,10 +14,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('statsfile', nargs=1, type=str, help='ufobalove staty v xml')
 
-  # Jméno Team 9.5.2004 8.5.2005 30.4.2006 27.5.2007 17.5.2008 23.5.2009 22.5.2010 28.5.2011 3.6.2012 2.6.2013 1.6.2014 30.5.2015 Součet
+  # name team 9.5.2004 8.5.2005 30.4.2006 27.5.2007 17.5.2008 23.5.2009 22.5.2010 28.5.2011 3.6.2012 2.6.2013 1.6.2014 30.5.2015 gender
 
     def handle(self, *args, **options):
-        #TODO static soubory nejak zpristupnit - static files are not good way
         out = {}
         out['players'] = []
         for filename in options['statsfile']:

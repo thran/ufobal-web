@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 from ufobalapp.models import Player, Team, Goal, Tournament, Match, TeamOnTournament
 import json
 import os
+import random
 from collections import Counter, defaultdict
 from datetime import datetime
 
@@ -54,24 +55,32 @@ class Command(BaseCommand):
                     # fake zapas pro vsechny strely/asistence na turnaji
                     match, created = Match.objects.get_or_create(tournament=tournament, fake=True)
 
+                #abych zjistil jestli je tam jmeno vickrat
                 namecounter = {}
                 for player in stats['players']:
-                    namecounter.setdefault(player['name'], 0)
-                    namecounter[player['name']] += 1
+                    name = player['name'].strip() #za nekteryma jmenama je pro jistotu mezera
+                    namecounter.setdefault(name, 0)
+                    namecounter[name] += 1
+
+                #abych nasel lidi co maji i shodny tymy - ne napric nekolika souborama ale
+                saved = []
 
                 for player in stats['players']:
-                    # vytvoreni hrace
-                    playerobj, created = Player.objects.get_or_create(nickname=player['name'])
+                    name = player['name'].strip()
+                    #jmeno je v souboru vickrat
+                    if namecounter[name] > 1:
+                        mergedName = name + "-" + player['team']
+                        #uz existuje hrac se stejnym jmenem i tymem
+                        if mergedName in saved:
+                            mergedName = mergedName+"-".join(random.choice('aAbBcCdDeEfFgGhH') for _ in range(5))
 
-                    # pokud existuje hrac se stejnym jmenem
-                    if not created and shooters and brno:  # u strelcu se vytvari ruzni hraci, u asistenci uz se to jen doplnuje
-                        playerobj, created = Player.objects.get_or_create(
-                            nickname=player['name'] + "-" + player['team'])
-                    elif not created and nizkov and shooters:
-                        # pokud je jen jednou, priradi se uz k existujicimu brnenskemu, jinak bude nove jmeno
-                        if namecounter[player['name']] > 1:
-                            playerobj, created = Player.objects.get_or_create(
-                                nickname=player['name'] + "-" + player['team'])
+                        #vytvoreni/nacteni hrace
+                        playerobj, created = Player.objects.get_or_create(nickname=mergedName)
+                        saved.append(mergedName)
+
+                    else:
+                        playerobj, created = Player.objects.get_or_create(nickname=name)
+
 
                     if 'gender' in player:
                         playerobj.gender = player['gender']
@@ -96,8 +105,9 @@ class Command(BaseCommand):
                                     newgoal.save()
 
 
-                                    # vytvoreni a prirazeni tymu ve kterych hrac byl v rocnicich kdy hral
+                                # vytvoreni a prirazeni tymu ve kterych hrac byl v rocnicich kdy hral
                                 teams = player['team'].split(',')
+                                #pouze kdyz ma jenom jeden tym a v tom rocniku dal nejakej stat
                                 if len(teams) == 1 and shotscount > 0:
                                     teamname = player['team']
                                     teamobj, created = Team.objects.get_or_create(name=teamname)
