@@ -25,18 +25,20 @@ class Player(models.Model):
     birthdate = models.DateField('Datum narození', null=True, blank=True)
     gender = models.CharField(max_length=10, verbose_name='pohlaví', choices=GENDERS, null=True, blank=True)
 
-    def to_json(self, tournaments=True):
+    def to_json(self, tournaments=True, simple=False, staff=False, **kwargs):
         data = {
             "pk": self.pk,
             "name": self.name,
             "lastname": self.lastname,
             "nickname": self.nickname,
-            "birthdate": self.birthdate,
             "age": self.age(),
         }
 
-        if tournaments:
-            data["tournaments"] = list(map(lambda t: t.to_json(players=False), self.tournaments.all().order_by("-tournament__date")))
+        if staff:
+            data["birthdate"] = self.birthdate
+
+        if tournaments and not simple:
+            data["tournaments"] = [t.to_json(players=False) for t in self.tournaments.all().order_by("-tournament__date")]
 
         return data
 
@@ -83,7 +85,7 @@ class Team(models.Model):
     name = models.CharField('Jméno', max_length=100)
     description = models.TextField('Popis', null=True, blank=True)
 
-    def to_json(self):
+    def to_json(self, **kwargs):
         return {
             "pk": self.pk,
             "name": self.name,
@@ -112,7 +114,7 @@ class TeamOnTournament(models.Model):
 
     objects = TeamOnTournamentManager()
 
-    def to_json(self, players=True):
+    def to_json(self, players=True, simple=False, **kwargs):
         data = {
             "pk": self.pk,
             "team": self.team.to_json(),
@@ -121,8 +123,8 @@ class TeamOnTournament(models.Model):
             "tournament": self.tournament.to_json(),
         }
 
-        if players:
-            data["players"] = list(map(lambda p: p.to_json(tournaments=False), self.players.all()))
+        if players and not simple:
+            data["players"] = [p.to_json(tournaments=False) for p in self.players.all()]
 
         return data
 
@@ -147,7 +149,7 @@ class Tournament(models.Model):
     date = models.DateField('Datum')
     name = models.CharField('Název/místo', max_length=50)
 
-    def to_json(self):
+    def to_json(self, **kwargs):
         return {
             "pk": self.pk,
             "name": self.name,
