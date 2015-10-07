@@ -11,6 +11,7 @@ grunt.initConfig({
                 'bower_components/angular-cookies/angular-cookies.min.js',
                 'bower_components/angular-foundation/mm-foundation-tpls.min.js',
                 'bower_components/jquery/dist/jquery.min.js',
+                'bower_components/jquery-ui/jquery-ui.min.js',
                 'bower_components/foundation/js/foundation.min.js'
             ],
             dest: 'static/dist/libs.min.js'
