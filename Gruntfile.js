@@ -5,7 +5,7 @@ grunt.initConfig({
     concat: {
         libs: {
             src: [
-                'bower_components/foundation/js/vendor/modernizr.min.js',
+                'bower_components/foundation/js/vendor/modernizr.js',
                 'bower_components/foundation/js/vendor/fastclick.js',
                 'bower_components/angular/angular.min.js',
                 'bower_components/angular-cookies/angular-cookies.min.js',
