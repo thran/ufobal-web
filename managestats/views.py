@@ -38,7 +38,7 @@ def add_goal(request, match, shooter, assistance):
     goal = Goal(shooter=shooter, assistance=assistance, match=match)
     goal.save()
 
-    messages.success(request, 'Gól přidán: {}'.format(goal))
+    #messages.success(request, 'Gól přidán: {}'.format(goal))
 
     return goal
 
@@ -134,20 +134,29 @@ def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
     if request.POST:
-        player_id = request.POST.get('id')
-        player = get_object_or_404(Player.objects, id=player_id)
-        team_id = request.POST.get('team')
-        team = get_object_or_404(TeamOnTournament.objects, id=team_id)
+        player_ids = []
+        for key, value in request.POST.items():
+            if key.startswith('player'):
+                player_id, attribute = key.split("-")[1:]
+                if player_id not in player_ids:
+                    player_ids.append(player_id)
 
-        goal_count = request.POST.get('goals')
-        goal_count = int(goal_count) if goal_count else 0
-        assistance_count = request.POST.get('assistances')
-        assistance_count = int(assistance_count) if assistance_count else 0
+        for player_id in player_ids:
+            player = get_object_or_404(Player.objects, id=player_id)
+            team_id = request.POST.get('player-'+player_id+'-team')
+            team = get_object_or_404(TeamOnTournament.objects, id=team_id)
 
-        for i in range(goal_count):
-            goal = add_goal(request, match, player, None)
-        for i in range(assistance_count):
-            add_goal(request, match, None, player)
+            goal_count = request.POST.get('player-'+player_id+'-goals')
+            goal_count = int(goal_count) if goal_count else 0
+
+            assistance_count = request.POST.get('player-'+player_id+'-assistances')
+            assistance_count = int(assistance_count) if assistance_count else 0
+
+            for i in range(goal_count):
+                goal = add_goal(request, match, player, None)
+            for i in range(assistance_count):
+                add_goal(request, match, None, player)
+
 
 
     # TODO jde tohle vyresit nejak lip?

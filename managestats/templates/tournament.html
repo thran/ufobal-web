@@ -36,20 +36,26 @@
         {% csrf_token %}
 
         <div class="medium-6 columns">
-            <h4>Tým 1</h4>
-            <select name="team_one">
-                {% for team in teams %}
-                    <option value="{{ team.id }}">{{ team }}</option>
-                {% endfor %}
-            </select>
+            <label>
+                <h4>Tým 1</h4>
+                <select name="team_one">
+                    {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
         </div>
         <div class="medium-6 columns">
-            <h4>Tým 2</h4>
-            <select name="team_two">
-                {% for team in teams %}
-                    <option value="{{ team.id }}">{{ team }}</option>
-                {% endfor %}
-            </select>
+            <label>
+                <h4>Tým 2</h4>
+                <select name="team_two">
+                    {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
         </div>
 
         <button>Přidat zápas</button>
