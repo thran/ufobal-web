@@ -9,8 +9,7 @@
     <script src="{% static "dist/libs.min.js" %}"></script>
     <script src="{% static 'djangular/js/django-angular.js' %}"></script>
     <script src="{% static "managestats/dist/managestats.min.js" %}"></script>
-    <script> {% block extra_script %} {% endblock %}
-    </script>
+    {% block extra_scripts %} {% endblock %}
 </head>
 <body>
 

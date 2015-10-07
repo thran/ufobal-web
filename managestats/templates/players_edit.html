@@ -4,61 +4,68 @@
 
     <h1>Hráči</h1>
     <a href="{% url 'managestats:index' %}">zpět</a>
-
     <hr>
 
-    {% for player in players %}
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ player.id }}">
+    <div ng-app="ufobal-manage-stats">
+        <div ng-controller="player-bulk-edit">
+            {% verbatim %}
+            <div ng-hide="players">Načítání dat...</div>
+            <button ng-show="changed && !saving" class="fixed" ng-click="save()">Uložit</button>
 
             <div class="row">
-                <div class="medium-2 columns">
+                <div class="medium-3 columns"><input type="text" ng-model="search" placeholder="hledat"></div>
+                <div class="medium-9 columns"><button ng-click="get_players()">Obnovit</button></div>
+            </div>
+
+            <div  ng-repeat="player in players | filter:search | orderBy:'nickname' " class="row">
+                <div class="medium-3 columns">
                     <label>Přezdívka
-                        <input type="text" name="nickname" value="{{ player.nickname }}">
+                        <input type="text" ng-model="player.nickname" ng-change="player.changed = true">
                     </label>
                 </div>
 
 
                 <div class="medium-2 columns">
                     <label>Jméno
-                        <input type="text" name="name" value="{% if player.name %}{{ player.name }}{% endif %}">
+                        <input type="text" ng-model="player.name" ng-change="player.changed = true">
                     </label>
                 </div>
 
                 <div class="medium-2 columns">
                     <label>Příjmení
-                        <input type="text" name="lastname"
-                               value="{% if player.lastname %}{{ player.lastname }}{% endif %}">
+                        <input type="text" ng-model="player.lastname" ng-change="player.changed = true">
                     </label>
                 </div>
 
                 <div class="medium-2 columns">
                     <label>Datum narození
-                        <input type="text" name="birthdate"
-                               value="{% if player.birthdate %}{{ player.birthdate|date:"d.m.Y" }}{% endif %}">
+                        <input datepicker type="text" ng-model="player.birthdate" ng-change="player.changed = true">
                     </label>
                 </div>
 
                 <div class="medium-2 columns">
                     <label>Pohlaví
-                        <select name="gender">
-                            <option value="">-------</option>
-                            <option value="man" {% if player.gender == "man" %}selected{% endif %}>Muž</option>
-                            <option value="woman" {% if player.gender == "woman" %}selected{% endif %}>Žena</option>
+                        <select
+                                ng-change="player.changed = true"
+                                ng-model="player.gender"
+                                ng-options="gender.id as gender.text for gender in genders">
+                            <option value="">----</option>
                         </select>
                     </label>
                 </div>
 
-                <div class="medium-2 columns">
-                    <button>OK</button>
+                <div class="medium-1 columns">
+                    <br>
+                    <span ng-show="player.changed && !player.saving">!!!</span>
+                    <div ng-show="player.saving" class="loader small"></div>
                 </div>
 
+
             </div>
+            {% endverbatim %}
+        </div>
+    </div>
 
-        </form>
-
-    {% endfor %}
 
 
 {% endblock %}
