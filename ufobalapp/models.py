@@ -32,6 +32,7 @@ class Player(models.Model):
             "lastname": self.lastname,
             "nickname": self.nickname,
             "age": self.age(),
+            "gender": self.gender,
         }
 
         if staff:
