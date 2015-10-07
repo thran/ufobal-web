@@ -40,6 +40,7 @@ grunt.initConfig({
                 'managestats/static/managestats/dist/managestats.min.css': [
                     "bower_components/foundation/css/normalize.css",
                     "bower_components/foundation/css/foundation.css",
+                    "bower_components/jquery-ui/themes/base/datepicker.css",
                     'managestats/static/managestats/css/*.css'
                 ]
             }
