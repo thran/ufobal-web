@@ -5,6 +5,7 @@ from ufobalapp.models import Player
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^save_player$', views.save_player, name='save_player'),
 ]
 
 models = [Player]
