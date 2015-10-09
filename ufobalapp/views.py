@@ -42,9 +42,8 @@ def save_player(request):
         if field == 'birthdate':
             try:
                 birthdate = datetime.datetime.strptime(data[field], "%d.%m.%Y").date()
-            except ValueError:
+            except (ValueError, TypeError):
                 player.birthdate = None
-
 
     player.save()
     return HttpResponse("OK")

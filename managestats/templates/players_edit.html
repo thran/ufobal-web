@@ -20,20 +20,23 @@
             <div  ng-repeat="player in players | filter:search | orderBy:'nickname' " class="row">
                 <div class="medium-3 columns">
                     <label>Přezdívka
-                        <input type="text" ng-model="player.nickname" ng-change="player.changed = true">
+                        <input type="text" ng-model="player.nickname" ng-keypress="$event.which === 13 && save()"
+                               ng-change="player.changed = true">
                     </label>
                 </div>
 
 
                 <div class="medium-2 columns">
                     <label>Jméno
-                        <input type="text" ng-model="player.name" ng-change="player.changed = true">
+                        <input type="text" ng-model="player.name" ng-keypress="$event.which === 13 && save()"
+                               ng-change="player.changed = true">
                     </label>
                 </div>
 
                 <div class="medium-2 columns">
                     <label>Příjmení
-                        <input type="text" ng-model="player.lastname" ng-change="player.changed = true">
+                        <input type="text" ng-model="player.lastname" ng-keypress="$event.which === 13 && save()"
+                               ng-change="player.changed = true">
                     </label>
                 </div>
 
