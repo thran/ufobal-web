@@ -12,6 +12,9 @@ from django.db.models import Q
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal
 
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def is_staff_check(user):

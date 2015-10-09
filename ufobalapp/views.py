@@ -9,6 +9,10 @@ from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
 from ufobalapp.models import Player
 
+import datetime
+import logging
+logger = logging.getLogger(__name__)
+
 
 def index(request):
 
@@ -33,5 +37,14 @@ def save_player(request):
 
     for field in ["nickname", "lastname", "name", "gender", "birthdate"]:
         setattr(player, field, data[field])
+
+        # TODO better birthdate validation
+        if field == 'birthdate':
+            try:
+                birthdate = datetime.datetime.strptime(data[field], "%d.%m.%Y").date()
+            except ValueError:
+                player.birthdate = None
+
+
     player.save()
     return HttpResponse("OK")
