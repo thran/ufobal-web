@@ -100,6 +100,15 @@ STATIC_URL = '/static/'
 
 # logging
 
+if ON_SERVER:
+    INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
+
+    import raven
+
+    RAVEN_CONFIG = {
+        'dsn': os.getenv("RAVEN_DSN", ""),
+    }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -115,7 +124,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'ufobal.log',
+            'filename': os.getenv("LOG_FILE", "django_error.log"),
             'formatter': 'verbose',
         },
         'console': {
