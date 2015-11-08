@@ -47,7 +47,7 @@ class Command(BaseCommand):
 
             with open(os.path.join('data_source', filename), 'r') as statsfile:
                 stats = json.load(statsfile)
-                name = filename.split('-')[0]
+                name = filename.split('-')[0].replace("brno", "Brno").replace("nizkov", "Nížkov")
                 for datestring in stats['dates']:
                     date = datetime.strptime(datestring, '%d.%m.%Y').date()
                     # created==False znamena ze uz byl driv vytvoren
