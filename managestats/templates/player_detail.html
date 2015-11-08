@@ -5,17 +5,83 @@
     <div ng-app="ufobal-manage-stats">
         <div ng-controller="player-detail">
 
-            <h1>{{ player.nickname }}</h1>
-            <p>
-                <b>jméno:</b> {{ player.name }} {{ player.lastname }}<br>
-                <b>věk:</b> {{ player.age}}
-            </p>
+            <div ng-hide="player" class="loader"></div>
+            <div ng-show="player">
 
-            <h3>Účast</h3>
-            <div ng-repeat="t in player.tournaments">
-                <div class="row">
-                    <div class="text-right columns small-2">{{ t.tournament.name }}  {{ t.tournament.year }}</div>
-                    <div class="columns small-10">{{ t.team.name }}</div>
+                <div>
+
+                    <a ng-hide="edit" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
+
+                    <h1> &nbsp; {{ player.nickname }} </h1>
+                    <h2 ng-class="{man: player.gender=='man', woman: player.gender=='woman'}">
+                        {{ player.name }} {{ player.lastname }} ({{ player.age }})
+                    </h2>
+
+                </div>
+
+                <div ng-cloak ng-show="edit">
+                    <hr>
+                    <a ng-click="edit=false" class="right"><i class="fi-x"></i> zrušit změny</a>
+
+
+                    <div class="row">
+                        <div class="columns medium-3">
+                            <label>Přezdívka
+                                <input type="text" ng-model="player.nickname" />
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-3">
+                            <label>Jméno
+                                <input type="text" ng-model="player.name" />
+                            </label>
+                        </div>
+                        <div class="columns medium-3">
+                            <label>Příjmení
+                                <input type="text" ng-model="player.lastname" />
+                            </label>
+                        </div>
+                        <div class="columns medium-6"></div>
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-3">
+                            <label>Pohlaví
+                                <select
+                                    ng-model="player.gender"
+                                    ng-options="gender.id as gender.text for gender in genders">
+                                    <option value="">----</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="columns medium-3">
+                            <label>Datum narození
+                                <input type="date" ng-change="compute_age()" ng-model="player.birthdate">
+                            </label>
+                        </div>
+                         <div class="columns medium-3">
+                            <label>Věk
+                                <input disabled type="text" ng-model="player.age" />
+                            </label>
+                        </div>
+                        <div class="columns medium-6"></div>
+                    </div>
+                    <i>Datum narození nebude nikde zveřejňováno (pouze jako věk).</i>
+                    <br>
+
+                    <button ng-hide="player.saving" ng-click="save()">Uložit</button>
+                    <div ng-show="player.saving" class="loader small"></div>
+                </div>
+
+
+                <h3>Účast</h3>
+                <div ng-repeat="t in player.tournaments">
+                    <div class="row">
+                        <div class="text-right columns small-2">{{ t.tournament.name }}  {{ t.tournament.year }}</div>
+                        <div class="columns small-10">{{ t.team.name }}</div>
+                    </div>
                 </div>
             </div>
         </div>

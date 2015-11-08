@@ -40,13 +40,13 @@
                     </label>
                 </div>
 
-                <div class="medium-2 columns">
+                <div class="medium-3 columns">
                     <label>Datum narození
-                        <input datepicker type="text" ng-model="player.birthdate" ng-change="player.changed = true">
+                        <input type="date" ng-model="player.birthdate" ng-change="player.changed = true" />
                     </label>
                 </div>
 
-                <div class="medium-2 columns">
+                <div class="medium-1 columns">
                     <label>Pohlaví
                         <select
                                 ng-change="player.changed = true"

@@ -36,14 +36,17 @@ def save_player(request):
     player = get_object_or_404(Player, pk=data["pk"])
 
     for field in ["nickname", "lastname", "name", "gender", "birthdate"]:
-        setattr(player, field, data[field])
-
         # TODO better birthdate validation
         if field == 'birthdate':
             try:
-                birthdate = datetime.datetime.strptime(data[field], "%d.%m.%Y").date()
+                if "birthdate" in data:
+                    data[field] = datetime.datetime.strptime(data[field][:10], "%Y-%m-%d").date()
+                else:
+                    continue
             except (ValueError, TypeError):
-                player.birthdate = None
+                data[field] = None
+
+        setattr(player, field, data[field])
 
     player.save()
     return HttpResponse("OK")
