@@ -40,6 +40,7 @@ grunt.initConfig({
                 'managestats/static/managestats/dist/managestats.min.css': [
                     "bower_components/foundation/css/normalize.css",
                     "bower_components/foundation/css/foundation.css",
+                    "bower_components/foundation-icon-fonts/foundation-icons.css",
                     "bower_components/jquery-ui/themes/base/datepicker.css",
                     'managestats/static/managestats/css/*.css'
                 ]
@@ -54,6 +55,19 @@ grunt.initConfig({
     },
     jshint: {
         files: ['managestats/static/managestats/js/*.js']
+    },
+    copy: {
+        fonts: {
+            expand: true,
+            cwd: "bower_components/foundation-icon-fonts/",
+            src: [
+                    "foundation-icons.eot",
+                    "foundation-icons.svg",
+                    "foundation-icons.ttf",
+                    "foundation-icons.woff"
+                ],
+            dest: 'managestats/static/managestats/dist/'
+        }
     }
 });
 
@@ -65,5 +79,5 @@ grunt.initConfig({
     grunt.loadNpmTasks('grunt-angular-templates');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', "cssmin"]);
+    grunt.registerTask('default', ['jshint', 'concat', 'uglify', "cssmin", "copy"]);
 };
