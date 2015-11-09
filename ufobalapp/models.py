@@ -120,8 +120,8 @@ class TeamOnTournament(models.Model):
             "pk": self.pk,
             "team": self.team.to_json(),
             "captain": self.captain.name if self.captain else None,
-            "name": self.name if self.name else self.team.name,
-            "tournament": self.tournament.to_json(),
+            "name": self.get_name(),
+            "tournament": self.tournament.to_json(teams=False),
         }
 
         if players and not simple:
@@ -150,13 +150,18 @@ class Tournament(models.Model):
     date = models.DateField('Datum')
     name = models.CharField('Název/místo', max_length=50)
 
-    def to_json(self, **kwargs):
-        return {
+    def to_json(self, teams=True, **kwargs):
+        data = {
             "pk": self.pk,
             "name": self.name,
             "date": self.date,
             "year": self.date.year,
         }
+
+        if teams:
+            data["teams"] = [t.to_json(players=False) for t in self.teams.all()]
+
+        return data
 
     def __str__(self):
         return "%s %s" % (self.name, self.date.year)

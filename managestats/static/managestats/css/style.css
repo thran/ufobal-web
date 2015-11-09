@@ -9,6 +9,10 @@ h2, h4{
     font-size: 1.5rem;
 }
 
+div.stripes > div:nth-child(2n) > div > div{
+    background-color: #eeeeee;
+}
+
 .man:before{
     content: "♂";
 }

@@ -4,11 +4,10 @@ import json
 from django.contrib.auth.decorators import user_passes_test
 
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
-from ufobalapp.models import Player
-
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament
 import datetime
 import logging
 logger = logging.getLogger(__name__)
@@ -26,6 +25,9 @@ def get_json_one(request, model_class, pk):
 
 def get_json_all(request, model_class):
     objs = model_class.objects.all()
+    if model_class == Tournament:
+        objs = objs.prefetch_related("teams")
+
     return JsonResponse([obj.to_json(simple=True, staff=request.user.is_staff) for obj in objs], safe=False)
 
 
@@ -49,4 +51,28 @@ def save_player(request):
         setattr(player, field, data[field])
 
     player.save()
+    return HttpResponse("OK")
+
+
+def remove_attendance(request, player, team):
+    if request.method != "DELETE":
+        return HttpResponseNotAllowed(["DELETE"])
+
+    player = get_object_or_404(Player, pk=player)
+    team = get_object_or_404(TeamOnTournament, pk=team)
+    player.tournaments.remove(team)
+
+    return HttpResponse("OK")
+
+
+def add_attendance(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    player = get_object_or_404(Player, pk=data["player"])
+    team = get_object_or_404(TeamOnTournament, pk=data["team"])
+    player.tournaments.add(team)
+
     return HttpResponse("OK")

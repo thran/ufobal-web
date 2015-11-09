@@ -28,6 +28,18 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
         return $http.get(djangoUrl.reverse("api:get_player", [id]));
     };
 
+    this.get_tournaments = function(){
+        return $http.get(djangoUrl.reverse("api:get_tournaments"));
+    };
+
+    this.addAttendance = function(player, team){
+        return $http.post(djangoUrl.reverse("api:add_attendance"), { player: player, team: team});
+    };
+
+    this.removeAttendance = function(player, team){
+        return $http.delete(djangoUrl.reverse("api:remove_attendance", [player, team]));
+    };
+
     this.save_player = function(player){
         player.saving = true;
         var player_to_save = angular.copy(player);
@@ -47,6 +59,15 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
 app.controller("player-detail", ["$scope", "backend", "$location", function($scope, backend, $location){
     var player_id = parseInt($location.$$absUrl.split("/").slice(-1)[0]);
 
+    var getPlayer = function(){
+        $scope.loading = true;
+        backend.get_player(player_id)
+            .success(function(response){
+                $scope.player = response;
+                $scope.loading = false;
+        });
+    };
+
     $scope.genders = genders;
 
     $scope.compute_age = function(){
@@ -64,10 +85,20 @@ app.controller("player-detail", ["$scope", "backend", "$location", function($sco
             });
     };
 
-    backend.get_player(player_id)
+    $scope.addAttendance = function(){
+        backend.addAttendance($scope.player.pk, $scope.selectedTeam).success(getPlayer);
+    };
+
+    $scope.removeAttendance = function(team, index){
+        backend.removeAttendance($scope.player.pk, team).success(getPlayer);
+    };
+
+    getPlayer();
+
+    backend.get_tournaments()
         .success(function(response){
-            $scope.player = response;
-    });
+            $scope.tournaments = response;
+        });
 }]);
 
 
