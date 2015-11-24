@@ -232,7 +232,7 @@ class Goal(models.Model):
         (PENALTY, 'penálta'),
     )
 
-    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True)
+    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True, blank=True)
     assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True)
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
     time = models.TimeField('Čas v zápase', null=True, blank=True)
