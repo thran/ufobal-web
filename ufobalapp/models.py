@@ -137,7 +137,7 @@ class TeamOnTournament(models.Model):
 
     def get_name(self):
         if self.name:
-            return self.name
+            return "{} ({})".format(self.name, self.team.name)
         else:
             return self.team.name
 
