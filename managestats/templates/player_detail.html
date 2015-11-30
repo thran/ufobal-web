@@ -82,7 +82,7 @@
                     <div ng-repeat="t in player.tournaments track by $index">
                         <div class="row">
                             <div class="columns small-2">{{ t.tournament.name }}  {{ t.tournament.year }}</div>
-                            <div class="columns small-2">{{ t.team.name }}</div>
+                            <div class="columns small-2">{{ t.name }}</div>
                             <div class="columns small-2"><a class="fi-x" ng-click="removeAttendance(t.pk, $index)"> zrušit</a></div>
                             <div class="columns small-6"></div>
                         </div>

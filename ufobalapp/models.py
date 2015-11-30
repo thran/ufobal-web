@@ -111,7 +111,7 @@ class TeamOnTournament(models.Model):
     captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
-    players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments')
+    players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments', blank=True)
 
     objects = TeamOnTournamentManager()
 
@@ -137,7 +137,7 @@ class TeamOnTournament(models.Model):
 
     def get_name(self):
         if self.name:
-            return self.name
+            return "{} ({})".format(self.name, self.team.name)
         else:
             return self.team.name
 
@@ -232,7 +232,7 @@ class Goal(models.Model):
         (PENALTY, 'penálta'),
     )
 
-    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True, blank=True)
+    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True)
     assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True)
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
     time = models.TimeField('Čas v zápase', null=True, blank=True)
