@@ -48,7 +48,7 @@ def add_goal(request, match, shooter, assistance):
 
 @user_passes_test(is_staff_check)
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'managestats/index.html')
 
 
 @user_passes_test(is_staff_check)
@@ -56,7 +56,7 @@ def players(request):
     player_list = Player.objects.order_by('nickname').all()
 
     context = {'players': player_list}
-    return render(request, 'players.html', context)
+    return render(request, 'managestats/players.html', context)
 
 
 @user_passes_test(is_staff_check)
@@ -80,7 +80,7 @@ def players_edit(request):
     player_list = Player.objects.order_by('nickname').all()
 
     context = {'players': player_list}
-    return render(request, 'players_edit.html', context)
+    return render(request, 'managestats/players_edit.html', context)
 
 
 @user_passes_test(is_staff_check)
@@ -88,7 +88,7 @@ def tournaments(request):
     tournament_list = Tournament.objects.order_by('-date').all()
 
     context = {'tournaments': tournament_list}
-    return render(request, 'tournaments.html', context)
+    return render(request, 'managestats/tournaments.html', context)
 
 
 @user_passes_test(is_staff_check)
@@ -106,7 +106,7 @@ def tournament(request, tournament_id):
                'matches': match_list,
                'teams': teams,
                'unknowns': unknowns}
-    return render(request, 'tournament.html', context)
+    return render(request, 'managestats/tournament.html', context)
 
 
 @user_passes_test(is_staff_check)
@@ -174,7 +174,7 @@ def match(request, match_id):
         player.assistances_in_match = player.assistance_count(match)
 
     context = {'match': match, 'team_one_players': team_one_players, 'team_two_players': team_two_players, }
-    return render(request, 'match.html', context)
+    return render(request, 'managestats/match.html', context)
 
 
 @user_passes_test(is_staff_check)
@@ -196,4 +196,4 @@ def teams(request):
     teams_list = Team.objects.order_by('name')
 
     context = {'teams': teams_list}
-    return render(request, 'teams.html', context)
+    return render(request, 'managestats/teams.html', context)

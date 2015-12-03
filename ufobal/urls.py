@@ -19,5 +19,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('ufobalapp.urls', namespace='api')),
-    url(r'^managestats/', include('managestats.urls', namespace='managestats'))
+    url(r'^managestats/', include('managestats.urls', namespace='managestats')),
+    url(r'^.*$', "ufobalapp.views.home", name='home'),
 ]

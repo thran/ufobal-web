@@ -1,0 +1,71 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PlantChallenge</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static "dist/ufobalapp.min.css" %}">
+
+    <script src="{% static "dist/libs.min.js" %}"></script>
+    <script src="{% static "dist/ufobalapp.min.js" %}"></script>
+
+    <base href="/">
+</head>
+<body ng-app="ufoIS">
+<div id="container">
+
+<div class="contain-to-grid" role="navigation">
+    <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+            <li class="name uppercase"><h1><a href="/">UfoIS</a></h1></li>
+            <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
+        </ul>
+        <section class="top-bar-section"> <!-- Left Nav Section -->
+            <ul class="left">
+                <li><a href="/turnaje">Turnaje</a></li>
+                <li><a href="/tymy">Týmy</a></li>
+                <li><a href="/hraci">Hráči</a></li>
+                <li><a href="/statistiky">Statistiky</a></li>
+            </ul>
+        </section>
+        <section class="top-bar-section"> <!-- Right Nav Section -->
+            <ul class="right">
+                <li><a href="/managestats/" target="_self">Admin</a></li>
+            </ul>
+        </section>
+    </nav>
+</div>
+
+<div id="content" class="row">
+    <div ng-view></div>
+</div>
+
+
+<footer id="footer" class="fancy">
+    Oh yeah!
+</footer>
+
+</div>
+
+{% if GOOGLE_ANALYTICS %}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-70988642-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+{% else %}
+    <script>ga = function(){}</script>
+{% endif %}
+
+<script>
+    $(document).foundation('alert','events');
+</script>
+</body>
+</html>

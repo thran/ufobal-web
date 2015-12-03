@@ -5,8 +5,10 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
+from django.shortcuts import render_to_response
 from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
+from ufobal import settings
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament
 import datetime
 import logging
@@ -76,3 +78,9 @@ def add_attendance(request):
     player.tournaments.add(team)
 
     return HttpResponse("OK")
+
+
+def home(request):
+    return render(request, "index.html", {
+        "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
+    })

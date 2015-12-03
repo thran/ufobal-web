@@ -10,6 +10,7 @@ grunt.initConfig({
                 'bower_components/angular/angular.min.js',
                 'bower_components/angular-cookies/angular-cookies.min.js',
                 'bower_components/angular-foundation/mm-foundation-tpls.min.js',
+                'bower_components/angular-route/angular-route.min.js',
                 'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/foundation/js/foundation.min.js'
             ],
@@ -20,7 +21,7 @@ grunt.initConfig({
             dest: 'static/dist/managestats.js'
         },
         ufobalapp: {
-            src: ['ufobalapp/static/ufobalapp/js/*.js'],
+            src: ['ufobalapp/static/ufobalapp/js/*.js', 'static/ng-parts/templates.js'],
             dest: 'static/dist/ufobalapp.js'
         }
     },
@@ -98,5 +99,5 @@ grunt.initConfig({
     grunt.loadNpmTasks('grunt-angular-templates');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', "cssmin", "copy", "ngtemplates"]);
+    grunt.registerTask('default', ['jshint', 'ngtemplates', 'concat', 'uglify', "cssmin", "copy"]);
 };

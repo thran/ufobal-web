@@ -4,7 +4,6 @@ from . import views
 from ufobalapp.models import Player, Tournament
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
     url(r'^save_player$', views.save_player, name='save_player'),
     url(r'^add_attendance', views.add_attendance, name='add_attendance'),
     url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)', views.remove_attendance, name='remove_attendance'),
