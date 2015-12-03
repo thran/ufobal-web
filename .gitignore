@@ -5,4 +5,5 @@ bower_components
 node_modules
 static/dist
 managestats/static/managestats/dist
+ufobalapp/static/ufobalapp/dist
 django_error.log

@@ -17,7 +17,11 @@ grunt.initConfig({
         },
         managestats: {
             src: ['managestats/static/managestats/js/*.js'],
-            dest: 'managestats/static/managestats/dist/managestats.js'
+            dest: 'static/dist/managestats.js'
+        },
+        ufobalapp: {
+            src: ['ufobalapp/static/ufobalapp/js/*.js'],
+            dest: 'static/dist/ufobalapp.js'
         }
     },
     uglify: {
@@ -25,34 +29,51 @@ grunt.initConfig({
             banner: '/*! <%= pkg.name %>-libs <%= grunt.template.today("yyyy-mm-dd") %> */\n'
         },
         managestats: {
-            src: 'managestats/static/managestats/dist/managestats.js',
-            dest: 'managestats/static/managestats/dist/managestats.min.js'
+            src: 'static/dist/managestats.js',
+            dest: 'static/dist/managestats.min.js'
+        },
+        ufobalapp: {
+            src: 'static/dist/ufobalapp.js',
+            dest: 'static/dist/ufobalapp.min.js'
         }
     },
     watch: {
-        files: ['managestats/static/managestats/js/*.js', "managestats/static/managestats/css/*.css"],
+        files: [
+            'managestats/static/managestats/js/*.js',
+            "managestats/static/managestats/css/*.css",
+            'ufobalapp/static/ufobalapp/js/*.js',
+            "ufobalapp/static/ufobalapp/css/*.css",
+            "ufobalapp/static/ng-parts/*.html"
+        ],
         tasks: ['jshint', 'concat', 'uglify', "cssmin"]
     },
+
     cssmin: {
         target: {
             files: {
-                'managestats/static/managestats/dist/managestats.min.css': [
+                'static/dist/managestats.min.css': [
                     "bower_components/foundation/css/normalize.css",
                     "bower_components/foundation/css/foundation.css",
                     "bower_components/foundation-icon-fonts/foundation-icons.css",
                     'managestats/static/managestats/css/*.css'
+                ],
+                'static/dist/ufobalapp.min.css': [
+                    "bower_components/foundation/css/normalize.css",
+                    "bower_components/foundation/css/foundation.css",
+                    "bower_components/foundation-icon-fonts/foundation-icons.css",
+                    'ufobalapp/static/ufobalapp/css/*.css'
                 ]
             }
         }
     },
     ngtemplates:  {
-        //ufobalapp: {
-        //    src: 'static/ng-parts/*.html',
-        //    dest: 'static/ng-parts/templates.js'
-        //}
+        ufobalapp: {
+            src: 'ufobalapp/static/ng-parts/*.html',
+            dest: 'static/dist/templates.js'
+        }
     },
     jshint: {
-        files: ['managestats/static/managestats/js/*.js']
+        files: ['managestats/static/managestats/js/*.js', 'ufobalapp/static/ufobalapp/js/*.js']
     },
     copy: {
         fonts: {
@@ -64,7 +85,7 @@ grunt.initConfig({
                     "foundation-icons.ttf",
                     "foundation-icons.woff"
                 ],
-            dest: 'managestats/static/managestats/dist/'
+            dest: 'static/dist/'
         }
     }
 });
@@ -77,5 +98,5 @@ grunt.initConfig({
     grunt.loadNpmTasks('grunt-angular-templates');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', "cssmin", "copy"]);
+    grunt.registerTask('default', ['jshint', 'concat', 'uglify', "cssmin", "copy", "ngtemplates"]);
 };
