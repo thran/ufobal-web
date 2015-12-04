@@ -39,7 +39,7 @@ class Player(models.Model):
             data["birthdate"] = self.birthdate
 
         if tournaments and not simple:
-            data["tournaments"] = [t.to_json(players=False) for t in self.tournaments.all().order_by("-tournament__date")]
+            data["tournaments"] = [t.to_json(players=False) for t in self.tournaments.all()]
 
         return data
 
@@ -67,7 +67,6 @@ class Player(models.Model):
             return self.assistances.count()
         else:
             return Goal.objects.filter(match=match, assistance=self).count()
-
 
     def point_sum(self):
         return self.assistances.count() + self.goals.count()
@@ -124,8 +123,11 @@ class TeamOnTournament(models.Model):
             "tournament": self.tournament.to_json(teams=False),
         }
 
-        if players and not simple:
-            data["players"] = [p.to_json(tournaments=False) for p in self.players.all()]
+        if players:
+            if simple:
+                data["player_pks"] = [p.pk for p in self.players.all()]
+            else:
+                data["players"] = [p.to_json(tournaments=False) for p in self.players.all()]
 
         return data
 
@@ -154,7 +156,7 @@ class Tournament(models.Model):
         data = {
             "pk": self.pk,
             "name": self.name,
-            "date": self.date,
+            "date": str(self.date),
             "year": self.date.year,
         }
 

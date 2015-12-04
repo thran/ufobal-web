@@ -1,15 +1,16 @@
 from django.conf.urls import url
 
 from . import views
-from ufobalapp.models import Player, Tournament
+from ufobalapp.models import Player, Tournament, TeamOnTournament
 
 urlpatterns = [
     url(r'^save_player$', views.save_player, name='save_player'),
-    url(r'^add_attendance', views.add_attendance, name='add_attendance'),
-    url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)', views.remove_attendance, name='remove_attendance'),
+    url(r'^add_attendance$', views.add_attendance, name='add_attendance'),
+    url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)$', views.remove_attendance, name='remove_attendance'),
+    url(r'^goals$', views.goals, name='get_goals'),
 ]
 
-models = [Player, Tournament]
+models = [Player, Tournament, TeamOnTournament]
 
 for model_class in models:
     name = model_class.__name__.lower()
