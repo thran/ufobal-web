@@ -3,9 +3,7 @@
     position:relative;
 }
 #content{
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-bottom: 120px;
+    padding: 20px 5px 120px;
 }
 
 #footer {

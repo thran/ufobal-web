@@ -3,21 +3,27 @@
     <table class="smart-table">
         <thead>
         <tr>
-            <th st-sort="nickname" st-sort-default="true">Jméno</th>
-            <th st-sort="age">Věk</th>
-            <th></th>
+            <th width="30%" st-sort="nickname" st-sort-default="true">Jméno</th>
+            <th width="40%">týmy</th>
+            <th class="text-right" st-sort="goalsSum">góly</th>
+            <th class="text-right" st-sort="assistsSum">asistence</th>
+            <th class="text-right" st-sort="canada">kanada</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="player in rows">
-            <td><a href="" ng-click="selectPlayer(player)">{{player.nickname}}</a></td>
-            <td>{{player.age}}</td>
-            <td><div ng-class="player.gender"></div></td>
+            <td><a ng-class="player.gender" href="" ng-click="selectPlayer(player)">{{player.nickname}}</a></td>
+            <td>
+                <span ng-repeat="(pk, t) in player.teams">{{ t.team.name }} ({{ t.count }}x)<span ng-hide="$last">, </span></span>
+            </td>
+            <td class="text-right">{{ player.goalsSum }}</td>
+            <td class="text-right">{{ player.assistsSum }}</td>
+            <td class="text-right">{{ player.canada }}</td>
         </tr>
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="5" class="text-center">
+                <td colspan="15" class="text-center">
                     <div st-pagination="" st-items-by-page="20" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
                 </td>
             </tr>
@@ -28,6 +34,8 @@
 
 <div ng-cloak ng-show="player">
     <div>
+        <a ng-click="closePlayer()" class="left">&lsaquo; zpět</a>
+        <hr>
         <a ng-hide="edit" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
 
         <h1> &nbsp; {{ player.nickname }} </h1>
@@ -76,7 +84,7 @@
         <div class="row">
             <div class="columns medium-3">
                 <label>Datum narození
-                    <input type="date" ng-change="compute_age()" ng-model="player.birthdate">
+                    <input type="date" ng-change="computeAge()" ng-model="player.birthdate">
                 </label>
             </div>
              <div class="columns medium-3">
@@ -97,33 +105,45 @@
 
     <h3>Turnaje</h3>
 
-    <div class="stripes">
-        <div ng-repeat="t in player.tournaments track by $index">
-            <div class="row">
-                <div class="columns small-2">{{ t.tournament.name }}  {{ t.tournament.year }}</div>
-                <div class="columns small-2">{{ t.name }}</div>
-                <div class="columns small-2"><a class="fi-x" ng-click="removeAttendance(t.pk, $index)"> zrušit</a></div>
-                <div class="columns small-6"></div>
-            </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Turnaj</th>
+                <th>Tým</th>
+                <th class="text-right">Góly</th>
+                <th class="text-right">Asistence</th>
+                <th class="text-right">Kanada</th>
+                <th>smazat</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="t in player.tournaments">
+                <td>{{ t.tournament.name }}  {{ t.tournament.year }}</td>
+                <td>{{ t.name }}</td>
+                <td class="text-right">{{ player.goals[t.tournament.pk] }}</td>
+                <td class="text-right">{{ player.assists[t.tournament.pk] }}</td>
+                <td class="text-right">{{ player.goals[t.tournament.pk] + player.assists[t.tournament.pk] }}</td>
+                <td class="text-right"><a class="fi-x" ng-click="removeAttendance(t)"></a></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <div class="row">
+        <div class="text-right columns small-2">
+            <select
+                ng-model="selectedTournament"
+                ng-options="tournament as tournament.name + ' ' + tournament.year for tournament in tournaments | orderBy:'-date'">
+                <option value="">----</option>
+            </select>
         </div>
-        <hr>
-        <div class="row">
-            <div class="text-right columns small-2">
-                <select
-                    ng-model="selectedTournament"
-                    ng-options="tournament as tournament.name + ' ' + tournament.year for tournament in tournaments | orderBy:'-date'">
-                    <option value="">----</option>
-                </select>
-            </div>
-            <div class="columns small-2">
-                <select
-                    ng-model="selectedTeam"
-                    ng-options="team.pk as team.name for team in selectedTournament.teams | orderBy:'name'">
-                    <option value="">----</option>
-                </select>
-            </div>
-            <div class="columns small-2"><a class="fi-plus" ng-click="addAttendance()"> přidat</a></div>
-            <div class="columns small-6"></div>
+        <div class="columns small-2">
+            <select
+                ng-model="selectedTeam"
+                ng-options="team as team.name for team in selectedTournament.teamOnTournaments | orderBy:'name'">
+                <option value="">----</option>
+            </select>
         </div>
+        <div class="columns small-2"><a class="fi-plus" ng-click="addAttendance()"> přidat</a></div>
+        <div class="columns small-6"><div ng-show="player.saving" class="loader small"></div></div>
     </div>
 </div>
