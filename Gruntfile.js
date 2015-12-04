@@ -11,6 +11,7 @@ grunt.initConfig({
                 'bower_components/angular-cookies/angular-cookies.min.js',
                 'bower_components/angular-foundation/mm-foundation-tpls.min.js',
                 'bower_components/angular-route/angular-route.min.js',
+                'bower_components/angular-smart-table/dist/smart-table.min.js',
                 'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/foundation/js/foundation.min.js'
             ],
@@ -21,7 +22,7 @@ grunt.initConfig({
             dest: 'static/dist/managestats.js'
         },
         ufobalapp: {
-            src: ['ufobalapp/static/ufobalapp/js/*.js', 'static/ng-parts/templates.js'],
+            src: ['ufobalapp/static/ufobalapp/js/*.js', 'static/dist/templates.js'],
             dest: 'static/dist/ufobalapp.js'
         }
     },
@@ -44,9 +45,9 @@ grunt.initConfig({
             "managestats/static/managestats/css/*.css",
             'ufobalapp/static/ufobalapp/js/*.js',
             "ufobalapp/static/ufobalapp/css/*.css",
-            "ufobalapp/static/ng-parts/*.html"
+            "ufobalapp/static/ufobalapp/ng-parts/**/*.html"
         ],
-        tasks: ['jshint', 'concat', 'uglify', "cssmin"]
+        tasks: ['jshint', 'ngtemplates', 'concat', 'uglify:ufobalapp', 'uglify:managestats', "cssmin"]
     },
 
     cssmin: {
@@ -68,8 +69,9 @@ grunt.initConfig({
         }
     },
     ngtemplates:  {
-        ufobalapp: {
-            src: 'ufobalapp/static/ng-parts/*.html',
+        ufoIS: {
+            cwd: "ufobalapp/static/ufobalapp/ng-parts",
+            src: '**/*.html',
             dest: 'static/dist/templates.js'
         }
     },

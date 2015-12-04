@@ -1,4 +1,4 @@
-var app = angular.module('ufoIS', ["ngCookies", "ngRoute", "mm.foundation"]);
+var app = angular.module('ufoIS', ["ngCookies", "ngRoute", "mm.foundation", "ng.django.urls", "smart-table"]);
 
 app.config(["$httpProvider", function ($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -19,8 +19,12 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
         $locationProvider.hashPrefix('!');
         $routeProvider.
             when('/', {
-                templateUrl: 'static/ufobalapp/ng-parts/home.html',
+                templateUrl: 'home.html',
                 controller: "home"
+            }).
+            when('/hraci', {
+                templateUrl: 'players.html',
+                controller: "players"
             }).
             otherwise({
                 redirectTo: '/'
@@ -32,4 +36,16 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 
 app.controller("home", ["$scope", function ($scope) {
 
+}]);
+
+
+
+app.controller("players", ["$scope", "dataService", function ($scope, dataService) {
+    dataService.getPlayers().then(function(players){
+        $scope.players = players;
+    });
+
+    $scope.selectPlayer = function(player){
+        $scope.player = player;
+    };
 }]);

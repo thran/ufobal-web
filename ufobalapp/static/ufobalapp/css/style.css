@@ -9,10 +9,33 @@
 }
 
 #footer {
-    padding: 5px;
+    padding: 10px;
     width: 100%;
-    height: 50px;
     text-align: center;
     position:absolute;
     bottom:0;
+    border-top: lightgray 1px solid;
 }
+
+button.fixed{
+    top: 300px;
+    width: 100px;
+}
+
+h2, h4{
+    font-weight: bold;
+    color: gray;
+    font-size: 1.5rem;
+}
+
+.man:before{
+    content: "♂";
+}
+.woman:before{
+    content: "♀";
+}
+
+.st-sort-ascent:before{ content: '\25B2'; }
+.st-sort-descent:before{ content: '\25BC'; }
+.smart-table { width: 100% }
+.smart-table > thead > tr > th { cursor: pointer;}

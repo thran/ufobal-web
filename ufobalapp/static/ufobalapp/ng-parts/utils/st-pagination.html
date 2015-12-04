@@ -1,0 +1,11 @@
+<nav ng-if="pages.length >= 2">
+    <div class="pagination-centered">
+        <ul class="pagination">
+            <li class="arrow" ng-class="{unavailable : currentPage == 1}"><a ng-click="selectPage(1)">&laquo;</a></li>
+            <li class="arrow" ng-class="{unavailable : currentPage == 1}"><a ng-click="selectPage(currentPage - 1)">&lsaquo;</a></li>
+            <li ng-repeat="page in pages" ng-class="{current: page==currentPage}"><a ng-click="selectPage(page)">{{page}}</a> </li>
+            <li class="arrow" ng-class="{unavailable : currentPage == numPages}"><a ng-click="selectPage(currentPage + 1)">&rsaquo;</a></li>
+            <li class="arrow" ng-class="{unavailable : currentPage == numPages}"><a ng-click="selectPage(numPages)">&raquo;</a></li>
+        </ul>
+    </div>
+</nav>

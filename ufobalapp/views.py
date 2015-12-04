@@ -15,11 +15,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def index(request):
-
-    return render(request, 'ufobalapp/index.html', {})
-
-
 def get_json_one(request, model_class, pk):
     obj = get_object_or_404(model_class, pk=pk)
     return JsonResponse(obj.to_json())
