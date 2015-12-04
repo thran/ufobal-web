@@ -98,4 +98,5 @@ def add_attendance(request):
 def home(request):
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
+        "DEBUG": settings.DEBUG,
     })
