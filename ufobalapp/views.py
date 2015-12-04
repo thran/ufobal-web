@@ -64,8 +64,8 @@ def save_player(request):
                     continue
             except (ValueError, TypeError):
                 data[field] = None
-
-        setattr(player, field, data[field])
+        if field in data:
+            setattr(player, field, data[field])
 
     player.save()
     return HttpResponse("OK")
