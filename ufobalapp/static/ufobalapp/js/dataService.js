@@ -114,6 +114,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     var getGoals = function(){
         $http.get(djangoUrl.reverse("api:get_goals"))
             .success(function(response) {
+                data.goals = response;
                 getData("players").then(function(){
                     angular.forEach(response.goals, function(goals) {
                         var player = dataMaps.players[goals.shooter];
@@ -127,16 +128,17 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                         player.assistsSum += assists.count;
                         player.canada += assists.count;
                     });
+                    resolvePromise("goals");
                 });
             })
             .error(function (response, status, headers, config) {
-});
+                rejectPromise("goals", response, status);
+            });
     };
 
     self.getPlayers = function(){
         var r = getData("players");
         getData("teamontournaments");
-        getData("goals");
         return r;
     };
     self.getTeams = function(){
@@ -146,6 +148,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.getTournaments = function(){
         getData("players");
         return getData("tournaments");
+    };
+    self.getGoals = function(){
+        getData("players");
+        return getData("goals");
     };
 
     self.getObject = function(object, id){
