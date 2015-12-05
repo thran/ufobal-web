@@ -3,7 +3,7 @@
 
 <div ng-cloak ng-show="player">
     <div>
-        <a ng-href="hraci" class="left">&lsaquo; zpět</a>
+        <a ng-href="hraci" class="left">&lsaquo; hráči</a>
         <hr>
         <a ng-hide="edit" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
 
@@ -87,7 +87,7 @@
         </thead>
         <tbody>
             <tr ng-repeat="t in player.tournaments">
-                <td>{{ t.tournament.name }}  {{ t.tournament.year }}</td>
+                <td>{{ t.tournament.full_name }}</td>
                 <td>{{ t.name }}</td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.assists[t.tournament.pk] }}</td>
@@ -101,7 +101,7 @@
         <div class="text-right columns small-2">
             <select
                 ng-model="selectedTournament"
-                ng-options="tournament as tournament.name + ' ' + tournament.year for tournament in tournaments | orderBy:'-date'">
+                ng-options="tournament as tournament.full_name for tournament in tournaments | orderBy:'-date'">
                 <option value="">----</option>
             </select>
         </div>

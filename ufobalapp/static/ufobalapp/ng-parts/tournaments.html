@@ -1,0 +1,27 @@
+<div class="loader" ng-hide="tournaments"></div>
+
+<div st-persist="tournaments" st-table="rows" st-safe-src="tournaments" ng-cloak ng-show="tournaments">
+    <table class="smart-table">
+        <thead>
+        <tr>
+            <th width="30%" st-sort="name">Jméno</th>
+            <th width="30%" st-sort="date">Datum</th>
+            <th width="30%">Týmů</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="tournament in rows">
+            <td><a ng-href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></td>
+            <td>{{ tournament.date }}</td>
+            <td>{{ tournament.teamOnTournaments.length }}</td>
+        </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="15" class="text-center">
+                    <div st-pagination="" st-items-by-page="15" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

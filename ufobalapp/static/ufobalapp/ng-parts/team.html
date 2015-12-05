@@ -1,7 +1,7 @@
 <div class="loader" ng-hide="team"></div>
 
 <div ng-cloak ng-show="team">
-    <a ng-href="tymy" class="left">&lsaquo; zpět</a>
+    <a ng-href="tymy" class="left">&lsaquo; týmy</a>
 
     <hr>
 
@@ -22,7 +22,7 @@
         </thead>
         <tbody>
             <tr ng-repeat="t in team.teamOnTournaments">
-                <td>{{ t.tournament.name }}  {{ t.tournament.year }}</td>
+                <td>{{ t.tournament.full_name }}</td>
                 <td>{{ t.name }}</td>
                 <td>
                     <span ng-repeat="player in t.players">

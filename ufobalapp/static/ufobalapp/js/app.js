@@ -38,6 +38,14 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'team.html',
                 controller: "team"
             }).
+             when('/turnaje', {
+                templateUrl: 'tournaments.html',
+                controller: "tournaments"
+            }).
+            when('/turnaj/:id/:turnaj', {
+                templateUrl: 'tournament.html',
+                controller: "tournament"
+            }).
             otherwise({
                 redirectTo: '/'
             });
@@ -63,8 +71,22 @@ app.controller("team", ["$scope", "dataService", "$routeParams", function ($scop
     $scope.getTeamNames = dataService.getTeamNames;
 
     dataService.getTeams().then(function(teams){
-        $scope.teams = teams;
         $scope.team = dataService.getObject("teams", id);
+    });
+}]);
+
+app.controller("tournaments", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
+    dataService.getTournaments().then(function(tournaments){
+        tournaments = $filter('orderBy')(tournaments, "date", true);
+        $scope.tournaments = tournaments;
+    });
+}]);
+
+app.controller("tournament", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
+    var id = parseInt($routeParams.id);
+
+    dataService.getTournaments().then(function(){
+        $scope.tournament = dataService.getObject("tournaments", id);
     });
 }]);
 
@@ -111,11 +133,11 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
     };
 
     dataService.getPlayers().then(function(players){
-        $scope.players = players;
         $scope.player = dataService.getObject("players", id);
     });
 
     dataService.getTournaments().then(function(tournaments){
         $scope.tournaments = tournaments;
     });
+    dataService.getGoals();
 }]);

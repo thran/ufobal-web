@@ -1,0 +1,34 @@
+<div class="loader" ng-hide="tournament"></div>
+
+<div ng-cloak ng-show="tournament">
+    <a ng-href="turnaje" class="left">&lsaquo; turnaje</a>
+
+    <hr>
+
+    <h1>{{ tournament.full_name }}</h1>
+
+    <h3>Týmy</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Jméno</th>
+                <th>Hráči</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="t in tournament.teamOnTournaments">
+                <td>
+                    <a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a>
+                </td>
+                <td>
+                    <span ng-repeat="player in t.players">
+                        <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>
+                        <span ng-hide="$last">, </span>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

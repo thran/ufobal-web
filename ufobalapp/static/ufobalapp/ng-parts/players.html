@@ -1,6 +1,6 @@
 <div class="loader" ng-hide="players"></div>
 
-<div st-persist="players" st-table="rows" st-safe-src="players" ng-hide="player || !players">
+<div st-persist="players" st-table="rows" st-safe-src="players" ng-cloak ng-show="players">
     <input st-search="nickname" placeholder="hledat..." class="input-sm form-control" type="search"/>
     <table class="smart-table">
         <thead>

@@ -157,6 +157,7 @@ class Tournament(models.Model):
         data = {
             "pk": self.pk,
             "name": self.name,
+            "full_name": self.name + " " + str(self.date.year),
             "date": str(self.date),
             "year": self.date.year,
         }
