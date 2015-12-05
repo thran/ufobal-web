@@ -46,6 +46,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournament.html',
                 controller: "tournament"
             }).
+            when('/statistiky', {
+                templateUrl: 'stats.html',
+                controller: "stats"
+            }).
             otherwise({
                 redirectTo: '/'
             });
@@ -140,4 +144,8 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
         $scope.tournaments = tournaments;
     });
     dataService.getGoals();
+}]);
+
+
+app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
 }]);
