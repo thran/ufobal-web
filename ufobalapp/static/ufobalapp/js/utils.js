@@ -7,10 +7,7 @@ app.directive('stPersist', function ($rootScope) {
 
                 scope.$watch(ctrl.tableState, function (newValue, oldValue) {
                     if (newValue !== oldValue && scope.dataLoaded) {
-                        if (scope.oneSkipped){
-                            localStorage.setItem(nameSpace, JSON.stringify(newValue));
-                        }
-                        scope.oneSkipped = true;
+                        localStorage.setItem(nameSpace, JSON.stringify(newValue));
                     }
                 }, true);
 
