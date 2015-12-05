@@ -120,6 +120,7 @@ class TeamOnTournament(models.Model):
             "team": self.team.to_json(),
             "captain": self.captain.name if self.captain else None,
             "name": self.get_name(),
+            "name_pure": self.name if self.name else self.team.name,
             "tournament": self.tournament.to_json(teams=False),
         }
 

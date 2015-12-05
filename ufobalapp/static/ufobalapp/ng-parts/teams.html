@@ -1,0 +1,24 @@
+<div class="loader" ng-hide="teams"></div>
+
+<div st-table="rows" st-safe-src="teams" ng-hide="team || !teams">
+    <input st-search="name" placeholder="hledat..." class="input-sm form-control" type="search"/>
+    <table class="smart-table">
+        <thead>
+        <tr>
+            <th width="30%" st-sort="name" st-sort-default="true">Jméno</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="team in rows">
+            <td><a ng-href="/tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
+        </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="15" class="text-center">
+                    <div st-pagination="" st-items-by-page="20" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

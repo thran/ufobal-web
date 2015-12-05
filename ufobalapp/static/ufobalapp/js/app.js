@@ -40,9 +40,17 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'players.html',
                 controller: "players"
             }).
-            when('/hraci/:id/:hrac', {
-                templateUrl: 'players.html',
-                controller: "players"
+            when('/hrac/:id/:hrac', {
+                templateUrl: 'player.html',
+                controller: "player"
+            }).
+            when('/tymy', {
+                templateUrl: 'teams.html',
+                controller: "teams"
+            }).
+            when('/tym/:id/:tym', {
+                templateUrl: 'team.html',
+                controller: "team"
             }).
             otherwise({
                 redirectTo: '/'
@@ -57,9 +65,35 @@ app.controller("home", ["$scope", function ($scope) {
 }]);
 
 
-app.controller("players", ["$scope", "dataService", "$location", "$routeParams", function ($scope, dataService, $location, $routeParams) {
+app.controller("teams", ["$scope", "dataService", function ($scope, dataService) {
+    dataService.getTeams().then(function(teams){
+        $scope.teams = teams;
+    });
+}]);
+
+app.controller("team", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
+    var id = parseInt($routeParams.id);
+    $scope.getTeamNames = dataService.getTeamNames;
+
+    dataService.getTeams().then(function(teams){
+        $scope.teams = teams;
+        $scope.team = dataService.getObject("teams", id);
+    });
+}]);
+
+
+app.controller("players", ["$scope", "dataService", function ($scope, dataService) {
+    $scope.getPlayerTeams = dataService.getPlayerTeams;
+
+    dataService.getPlayers().then(function(players){
+        $scope.players = players;
+    });
+}]);
+
+app.controller("player", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
     var id = parseInt($routeParams.id);
     $scope.genders = genders;
+    $scope.getPlayerTeams = dataService.getPlayerTeams;
 
     $scope.computeAge = function(){
         if ($scope.player.birthdate){
@@ -67,16 +101,6 @@ app.controller("players", ["$scope", "dataService", "$location", "$routeParams",
             var ageDate = new Date(ageDifMs);
             $scope.player.age = Math.abs(ageDate.getUTCFullYear() - 1970);
         }
-    };
-
-    $scope.selectPlayer = function(player){
-        $scope.player = player;
-        $location.path("/hraci/" + player.pk + "/" + player.nickname, false);
-    };
-
-    $scope.closePlayer = function(){
-        $scope.player = null;
-        $location.path("/hraci", false);
     };
 
     $scope.addAttendance = function(){
@@ -98,9 +122,7 @@ app.controller("players", ["$scope", "dataService", "$location", "$routeParams",
 
     dataService.getPlayers().then(function(players){
         $scope.players = players;
-        if (id) {
-            $scope.selectPlayer(dataService.getObject("players", id));
-        }
+        $scope.player = dataService.getObject("players", id);
     });
 
     dataService.getTournaments().then(function(tournaments){

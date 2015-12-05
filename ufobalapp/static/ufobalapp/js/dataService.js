@@ -7,7 +7,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         players: function(player){
             player.birthdate = player.birthdate ? new Date(player.birthdate) : null;
             player.tournaments = [];
-            player.teams = {};
             player.goals = {};
             player.assists = {};
             player.goalsSum = 0;
@@ -37,13 +36,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 var player = dataMaps.players[playerPk];
                 player.tournaments.push(teamOnTournament);
                 teamOnTournament.players.push(player);
-                if (!player.teams[teamOnTournament.team.pk]){
-                    player.teams[teamOnTournament.team.pk] = {
-                        team: teamOnTournament.team,
-                        count: 0
-                    };
-                }
-                player.teams[teamOnTournament.team.pk].count += 1;
             });
         }
     };
@@ -195,6 +187,64 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             .error(function (response) {
                 player.saving = false;
             });
+    };
+
+    self.getPlayerTeams = function(player){
+        if (!player){
+            return;
+        }
+        if (player.teams){
+            var sum = 0;
+            angular.forEach(player.teams, function(team) {
+                sum += team.count;
+            });
+            if (sum === player.tournaments.length) {
+                return player.teams;
+            }
+        }
+        var teams = [];
+        var pkMap = {};
+        angular.forEach(player.tournaments, function(teamOnTournament){
+            if (typeof pkMap[teamOnTournament.team.pk] !== "number"){
+                pkMap[teamOnTournament.team.pk] = teams.length;
+                teams.push({
+                    team: teamOnTournament.team,
+                    count: 0
+                });
+            }
+        teams[pkMap[teamOnTournament.team.pk]].count += 1;
+        });
+        player.teams = teams;
+        return teams;
+    };
+
+    self.getTeamNames = function(team){
+        if (!team){
+            return;
+        }
+        if (team.names){
+            var sum = 0;
+            angular.forEach(team.names, function(name) {
+                sum += name.count;
+            });
+            if (sum === team.teamOnTournaments.length) {
+                return team.names;
+            }
+        }
+        var names = [];
+        var pkMap = {};
+        angular.forEach(team.teamOnTournaments, function(teamOnTournament){
+            if (typeof  pkMap[teamOnTournament.name] !== "number"){
+                pkMap[teamOnTournament.name] = names.length;
+                names.push({
+                    name: teamOnTournament.name_pure,
+                    count: 0
+                });
+            }
+        names[pkMap[teamOnTournament.name]].count += 1;
+        });
+        team.names = names;
+        return names;
     };
 }]);
 
