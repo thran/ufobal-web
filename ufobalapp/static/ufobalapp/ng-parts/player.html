@@ -86,9 +86,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="t in player.tournaments">
-                <td>{{ t.tournament.full_name }}</td>
-                <td>{{ t.name }}</td>
+            <tr ng-repeat="t in player.tournaments | orderBy:'tournament.date':true">
+                <td><a ng-href="/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}">{{ t.tournament.full_name }}</a></td>
+                <td><a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a></td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.assists[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] + player.assists[t.tournament.pk] }}</td>
