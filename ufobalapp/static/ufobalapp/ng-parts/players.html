@@ -1,11 +1,11 @@
 <div class="loader" ng-hide="players"></div>
 
-<div st-table="rows" st-safe-src="players" ng-hide="player || !players">
+<div st-persist="players" st-table="rows" st-safe-src="players" ng-hide="player || !players">
     <input st-search="nickname" placeholder="hledat..." class="input-sm form-control" type="search"/>
     <table class="smart-table">
         <thead>
         <tr>
-            <th width="30%" st-sort="nickname" st-sort-default="true">Jméno</th>
+            <th width="30%" st-sort="nickname">Jméno</th>
             <th width="40%">týmy</th>
             <th class="text-right" st-sort="goalsSum">góly</th>
             <th class="text-right" st-sort="assistsSum">asistence</th>

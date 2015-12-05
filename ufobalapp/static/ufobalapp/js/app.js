@@ -15,20 +15,6 @@ app.run(["$rootScope", "$location", function ($rootScope, $location) {
     });
 }]);
 
-app.run(['$route', '$rootScope', '$location', function ($route, $rootScope, $location) {
-    var original = $location.path;
-    $location.path = function (path, reload) {
-        if (reload === false) {
-            var lastRoute = $route.current;
-            var un = $rootScope.$on('$locationChangeSuccess', function () {
-                $route.current = lastRoute;
-                un();
-            });
-        }
-        return original.apply($location, [path]);
-    };
-}]);
-
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
         $locationProvider.hashPrefix('!');
         $routeProvider.
@@ -65,8 +51,9 @@ app.controller("home", ["$scope", function ($scope) {
 }]);
 
 
-app.controller("teams", ["$scope", "dataService", function ($scope, dataService) {
+app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     dataService.getTeams().then(function(teams){
+        teams = $filter('orderBy')(teams, "name");
         $scope.teams = teams;
     });
 }]);
@@ -82,11 +69,14 @@ app.controller("team", ["$scope", "dataService", "$routeParams", function ($scop
 }]);
 
 
-app.controller("players", ["$scope", "dataService", function ($scope, dataService) {
+app.controller("players", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     $scope.getPlayerTeams = dataService.getPlayerTeams;
 
-    dataService.getPlayers().then(function(players){
-        $scope.players = players;
+    dataService.getGoals().then(function(){
+        dataService.getPlayers().then(function(players){
+            players = $filter('orderBy')(players, "canada", true);
+            $scope.players = players;
+        });
     });
 }]);
 
@@ -129,14 +119,3 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
         $scope.tournaments = tournaments;
     });
 }]);
-
-
-var shallow_copy = function(obj){
-    var newObj = {};
-    angular.forEach(obj, function(value, key){
-        if (typeof value !== "object"){
-            newObj[key] = value;
-        }
-    });
-    return newObj;
-};
