@@ -6,11 +6,13 @@
         <thead>
         <tr>
             <th width="30%" st-sort="name">Jméno</th>
+            <th width="30%">Počet turnajů</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="team in rows">
             <td><a ng-href="/tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
+            <td>{{ team.teamOnTournaments.length }}</td>
         </tr>
         </tbody>
         <tfoot>

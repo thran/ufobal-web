@@ -21,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="t in team.teamOnTournaments">
+            <tr ng-repeat="t in team.teamOnTournaments | orderBy:'tournament.date':true">
                 <td>{{ t.tournament.full_name }}</td>
                 <td>{{ t.name }}</td>
                 <td>
