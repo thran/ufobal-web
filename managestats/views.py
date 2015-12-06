@@ -197,3 +197,12 @@ def teams(request):
 
     context = {'teams': teams_list}
     return render(request, 'managestats/teams.html', context)
+
+
+@user_passes_test(is_staff_check)
+@require_http_methods(["POST"])
+def set_tournament_ranking(request):
+    teams_list = request.POST.getlist('teams')
+    for team in teams_list:
+        team_object = get_object_or_404(TeamOnTournament.objects, pk=team['pk'])
+        team_object.rank = team['rank']
