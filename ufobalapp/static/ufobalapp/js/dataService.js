@@ -155,6 +155,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     };
 
     self.getObject = function(object, id){
+        if (!dataMaps[object]){
+            return null;
+        }
         return dataMaps[object][id];
     };
 
@@ -162,8 +165,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         player.saving = true;
         return $http.post(djangoUrl.reverse("api:add_attendance"), { player: player.pk, team: team.pk})
             .success(function(){
-                player.tournaments.push(team);
+                if (player.tournaments.indexOf(team) === -1){
+                    player.tournaments.push(team);
+                }
                 player.saving = false;
+                console.log("success");
             })
             .error(function(){
                 player.saving = false;
@@ -251,6 +257,29 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         });
         team.names = names;
         return names;
+    };
+
+    self.getScoreWithoutTeam = function(player){
+        if (!player){
+            return;
+        }
+        var withGoal = $.map(Object.keys(player.goals), function (x){ return parseInt(x); });
+        var withAssists = $.map(Object.keys(player.assists), function (x){ return parseInt(x); });
+        var assists = $.unique($.merge(withGoal, withAssists));
+        var tournaments = $.map(player.tournaments, function(x){return x.tournament.pk; });
+        angular.forEach(tournaments, function(pk){
+            var index = assists.indexOf(pk);
+            if (index > -1) {
+                assists.splice(index, 1);
+            }
+        });
+
+        if (player.scoreWithoutTeam && player.scoreWithoutTeam.length === assists.length){
+            return player.scoreWithoutTeam;
+        }
+        tournaments = $.map(assists, function(x) { return self.getObject("tournaments", x); });
+        player.scoreWithoutTeam = tournaments;
+        return tournaments;
     };
 }]);
 

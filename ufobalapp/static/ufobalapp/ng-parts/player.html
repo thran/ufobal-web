@@ -115,4 +115,12 @@
         <div class="columns small-2"><a class="fi-plus" ng-click="addAttendance()"> přidat</a></div>
         <div class="columns small-6"><div ng-show="player.saving" class="loader small"></div></div>
     </div>
+
+    <hr>
+
+    <h4 ng-hide="getScoreWithoutTeam(player).length == 0">What? Turnaje se skórem, ale bez týmu</h4>
+
+    <div ng-repeat="t in getScoreWithoutTeam(player)">
+        {{ t.full_name }} - {{ player.goals[t.pk] ? player.goals[t.pk] : 0 }} golů a {{ player.assists[t.pk] ? player.assists[t.pk] : 0 }} assistencí
+    </div>
 </div>

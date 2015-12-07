@@ -110,6 +110,7 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
     var id = parseInt($routeParams.id);
     $scope.genders = genders;
     $scope.getPlayerTeams = dataService.getPlayerTeams;
+    $scope.getScoreWithoutTeam = dataService.getScoreWithoutTeam;
 
     $scope.computeAge = function(){
         if ($scope.player.birthdate){
