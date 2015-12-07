@@ -89,6 +89,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                             dataMaps[object][obj.pk] = obj;
                             dataProcessors[object](obj);
                         });
+                        angular.forEach(data.teams, function(team) {
+                            self.getTeamNames(team);
+                        });
                     });
                 }else{
                     angular.forEach(response, function(obj) {
@@ -169,7 +172,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     player.tournaments.push(team);
                 }
                 player.saving = false;
-                console.log("success");
             })
             .error(function(){
                 player.saving = false;
@@ -245,6 +247,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
         var names = [];
         var pkMap = {};
+        var namesSearch = "";
         angular.forEach(team.teamOnTournaments, function(teamOnTournament){
             if (typeof  pkMap[teamOnTournament.name] !== "number"){
                 pkMap[teamOnTournament.name] = names.length;
@@ -252,10 +255,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     name: teamOnTournament.name_pure,
                     count: 0
                 });
+                namesSearch += teamOnTournament.name_pure + "###";
             }
-        names[pkMap[teamOnTournament.name]].count += 1;
+            names[pkMap[teamOnTournament.name]].count += 1;
         });
         team.names = names;
+        team.namesSearch = namesSearch;
         return names;
     };
 

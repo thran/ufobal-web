@@ -72,7 +72,6 @@ app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, d
 
 app.controller("team", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
     var id = parseInt($routeParams.id);
-    $scope.getTeamNames = dataService.getTeamNames;
 
     dataService.getTeams().then(function(teams){
         $scope.team = dataService.getObject("teams", id);
