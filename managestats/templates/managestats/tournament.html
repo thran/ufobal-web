@@ -13,14 +13,41 @@
     <h3>Týmy</h3>
     <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_add' %}?tournament={{ tournament.id }}">přidat
         tým</a>
-    <ul>
-        {% for team in teams %}
-            <li>
-                <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
-                <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
-            </li>
-        {% endfor %}
-    </ul>
+
+    <div class="medium-6 columns">
+        <ul>
+            {% for team in teams %}
+                <li>
+                    <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
+                    <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="medium-6 columns">
+        <script>
+            var x = "[{% for team in teams %}"+"{'name':'{{ team.team.name }}','id':{{ team.id }}"+"},{% endfor %}]";
+            eval('var teams =' + x);
+        </script>
+
+        {% verbatim %}
+        <div ng-app="ufobal-manage-stats" ng-controller="sortableController" class="container">
+
+          <div class="floatleft">
+            <ul ui-sortable="sortableOptions" ng-model="teams" class="list">
+              <li ng-repeat="team in teams" class="item">
+                {{team.name}}
+              </li>
+            </ul>
+          </div>
+
+        </div>
+        {% endverbatim %}
+    </div>
+
+
+
 
 
     <h3>Zápasy</h3>

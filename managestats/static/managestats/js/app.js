@@ -1,4 +1,4 @@
-var app = angular.module("ufobal-manage-stats", ['ng.django.urls']);
+var app = angular.module("ufobal-manage-stats", ['ng.django.urls', 'ui.sortable']);
 
 app.config(["$httpProvider", function ($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -53,6 +53,22 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
             });
     };
 
+    this.save_team_ranks = function(teams){
+        var teams_to_save = angular.copy(teams);
+        return $http.post(djangoUrl.reverse("managestats:set_tournament_ranking"), teams_to_save);
+    };
+
+}]);
+
+
+app.controller("sortableController", ["$scope", "$window", "backend", function($scope, $window, backend){
+  $scope.teams = $window.teams;
+
+  $scope.sortableOptions = {
+    stop: function(e, ui) {
+      backend.save_team_ranks($scope.teams);
+    }
+  };
 }]);
 
 

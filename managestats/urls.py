@@ -17,4 +17,6 @@ urlpatterns = [
 
     url(r'^player_detail/(?P<pk>\d+)$',
         ensure_csrf_cookie(TemplateView.as_view(template_name="managestats/player_detail.html")), name='player_detail'),
+
+    url(r'^set_tournament_ranking$', views.set_tournament_ranking, name='set_tournament_ranking')
 ]

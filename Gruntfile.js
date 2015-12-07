@@ -7,12 +7,12 @@ grunt.initConfig({
             src: [
                 'bower_components/foundation/js/vendor/modernizr.js',
                 'bower_components/foundation/js/vendor/fastclick.js',
+                'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/angular/angular.min.js',
                 'bower_components/angular-cookies/angular-cookies.min.js',
                 'bower_components/angular-foundation/mm-foundation-tpls.min.js',
                 'bower_components/angular-route/angular-route.min.js',
                 'bower_components/angular-smart-table/dist/smart-table.min.js',
-                'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/foundation/js/foundation.min.js'
             ],
             dest: 'static/dist/libs.min.js'

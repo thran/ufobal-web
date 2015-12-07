@@ -13,6 +13,7 @@ from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, 
 
 import datetime
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ def tournaments(request):
 @user_passes_test(is_staff_check)
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
-    teams = TeamOnTournament.objects.order_by('name', 'team__name').filter(tournament=tournament)
+    teams = TeamOnTournament.objects.order_by('rank', 'name', 'team__name').filter(tournament=tournament)
     match_list = Match.objects.filter(tournament=tournament)
 
     knowns = Player.objects.filter(tournaments__tournament=tournament)
@@ -202,7 +203,12 @@ def teams(request):
 @user_passes_test(is_staff_check)
 @require_http_methods(["POST"])
 def set_tournament_ranking(request):
-    teams_list = request.POST.getlist('teams')
+    teams_list = json.loads(str(request.body.decode('utf-8')))
+    counter = 1;
     for team in teams_list:
-        team_object = get_object_or_404(TeamOnTournament.objects, pk=team['pk'])
-        team_object.rank = team['rank']
+        team_object = get_object_or_404(TeamOnTournament.objects, pk=team['id'])
+        team_object.rank = counter
+        counter += 1
+        team_object.save()
+    return HttpResponse("OK")
+
