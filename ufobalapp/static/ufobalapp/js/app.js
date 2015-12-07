@@ -72,7 +72,6 @@ app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, d
 
 app.controller("team", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
     var id = parseInt($routeParams.id);
-    $scope.getTeamNames = dataService.getTeamNames;
 
     dataService.getTeams().then(function(teams){
         $scope.team = dataService.getObject("teams", id);
@@ -110,6 +109,7 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
     var id = parseInt($routeParams.id);
     $scope.genders = genders;
     $scope.getPlayerTeams = dataService.getPlayerTeams;
+    $scope.getScoreWithoutTeam = dataService.getScoreWithoutTeam;
 
     $scope.computeAge = function(){
         if ($scope.player.birthdate){

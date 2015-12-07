@@ -86,9 +86,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="t in player.tournaments">
-                <td>{{ t.tournament.full_name }}</td>
-                <td>{{ t.name }}</td>
+            <tr ng-repeat="t in player.tournaments | orderBy:'tournament.date':true">
+                <td><a ng-href="/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}">{{ t.tournament.full_name }}</a></td>
+                <td><a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a></td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.assists[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] + player.assists[t.tournament.pk] }}</td>
@@ -114,5 +114,13 @@
         </div>
         <div class="columns small-2"><a class="fi-plus" ng-click="addAttendance()"> přidat</a></div>
         <div class="columns small-6"><div ng-show="player.saving" class="loader small"></div></div>
+    </div>
+
+    <hr>
+
+    <h4 ng-hide="getScoreWithoutTeam(player).length == 0">What? Turnaje se skórem, ale bez týmu</h4>
+
+    <div ng-repeat="t in getScoreWithoutTeam(player)">
+        {{ t.full_name }} - {{ player.goals[t.pk] ? player.goals[t.pk] : 0 }} golů a {{ player.assists[t.pk] ? player.assists[t.pk] : 0 }} assistencí
     </div>
 </div>

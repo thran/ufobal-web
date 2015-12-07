@@ -16,14 +16,15 @@
         <thead>
             <tr>
                 <th>Turnaj</th>
-                <th>Jméno</th>
+                <th></th>
                 <th>Hráči</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="t in team.teamOnTournaments | orderBy:'tournament.date':true">
-                <td>{{ t.tournament.full_name }}</td>
-                <td>{{ t.name }}</td>
+                <td><a ng-href="/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}">{{ t.tournament.full_name }}</a></td>
+                <td><span ng-hide="t.name == team.name">{{ t.name }}</span></td>
+
                 <td>
                     <span ng-repeat="player in t.players">
                         <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>

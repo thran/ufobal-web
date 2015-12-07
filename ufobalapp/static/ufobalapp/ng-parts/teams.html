@@ -1,17 +1,21 @@
 <div class="loader" ng-hide="teams"></div>
 
 <div st-persist="teams" st-table="rows" st-safe-src="teams" ng-cloak ng-show="teams">
-    <input st-search="name" placeholder="hledat..." class="input-sm form-control" type="search"/>
+    <input st-search="namesSearch" placeholder="hledat..." class="input-sm form-control" type="search"/>
     <table class="smart-table">
         <thead>
         <tr>
-            <th width="30%" st-sort="name">Jméno</th>
-            <th width="30%">Počet turnajů</th>
+            <th width="20%" st-sort="name">Jméno</th>
+            <th width="50%"></th>
+            <th>Počet turnajů</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="team in rows">
             <td><a ng-href="/tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
+            <td>
+                <span ng-repeat="n in team.names | filter:'!'+team.name:true | orderBy:'-count'">{{ n.name }}<span ng-hide="$last">, </span></span>
+            </td>
             <td>{{ team.teamOnTournaments.length }}</td>
         </tr>
         </tbody>
