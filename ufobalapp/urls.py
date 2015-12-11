@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^add_attendance$', views.add_attendance, name='add_attendance'),
     url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)$', views.remove_attendance, name='remove_attendance'),
     url(r'^goals$', views.goals, name='get_goals'),
+    url(r'^stats$', views.stats, name='get_stats'),
 ]
 
 models = [Player, Tournament, TeamOnTournament]

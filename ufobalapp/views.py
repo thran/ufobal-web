@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 import json
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Prefetch, Count
+from django.db.models import Prefetch, Count, Max, Min
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render_to_response
@@ -48,8 +48,22 @@ def goals(request):
     return JsonResponse(data, safe=False)
 
 
+def stats(request):
+    data = {
+        "tournament_count": Tournament.objects.all().count(),
+        "max_year": Tournament.objects.aggregate(Max("date"))["date__max"].year,
+        "min_year": Tournament.objects.aggregate(Min("date"))["date__min"].year,
+        "player_count": Player.objects.all().count(),
+        "player_male_count": Player.objects.filter(gender=Player.MAN).count(),
+        "player_female_count": Player.objects.filter(gender=Player.WOMAN).count(),
+        "team_count": Team.objects.all().count(),
+        "team_on_tournament_count": TeamOnTournament.objects.all().count(),
+        "goals": Goal.objects.filter(shooter__isnull=False).count(),
+        "assists": Goal.objects.filter(assistance__isnull=False).count(),
+    }
+    return JsonResponse(data, safe=False)
+
 @require_http_methods(["POST"])
-@user_passes_test(is_staff_check)
 def save_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
     player = get_object_or_404(Player, pk=data["pk"])

@@ -58,8 +58,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     }]);
 
 
-app.controller("home", ["$scope", function ($scope) {
-
+app.controller("home", ["$scope", "dataService", function ($scope, dataService) {
+    dataService.getStats().then(function (stats) {
+       $scope.stats = stats;
+    });
 }]);
 
 

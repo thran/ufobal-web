@@ -292,6 +292,21 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         player.scoreWithoutTeam = tournaments;
         return tournaments;
     };
+
+    var stats = null;
+    self.getStats = function () {
+        var deferred = $q.defer();
+        if (stats){
+            deferred.resolve(stats);
+            return deferred.promise;
+        }
+        $http.get(djangoUrl.reverse("api:get_stats"))
+            .success(function (response) {
+                stats = response;
+                deferred.resolve(response);
+            });
+        return deferred.promise;
+    };
 }]);
 
 var genders = [
