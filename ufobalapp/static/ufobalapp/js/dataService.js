@@ -92,6 +92,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                         angular.forEach(data.teams, function(team) {
                             self.getTeamNames(team);
                         });
+                        angular.forEach(data.players, function(player) {
+                            self.getPlayerTeams(player);
+                        });
                     });
                 }else{
                     angular.forEach(response, function(obj) {
@@ -217,6 +220,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             }
         }
         var teams = [];
+        var teamsSearch = [];
         var pkMap = {};
         angular.forEach(player.tournaments, function(teamOnTournament){
             if (typeof pkMap[teamOnTournament.team.pk] !== "number"){
@@ -225,10 +229,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     team: teamOnTournament.team,
                     count: 0
                 });
+                teamsSearch += teamOnTournament.team.name + "###";
             }
         teams[pkMap[teamOnTournament.team.pk]].count += 1;
         });
         player.teams = teams;
+        player.teamsSearch = teamsSearch;
         return teams;
     };
 

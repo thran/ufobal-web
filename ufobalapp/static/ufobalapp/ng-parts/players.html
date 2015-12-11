@@ -16,7 +16,7 @@
         <tr ng-repeat="player in rows">
             <td><a ng-class="player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
             <td>
-                <span ng-repeat="t in getPlayerTeams(player) | orderBy:'-count' ">{{ t.team.name }} ({{ t.count }}x)<span ng-hide="$last">, </span></span>
+                <span ng-repeat="t in player.teams | orderBy:'-count' ">{{ t.team.name }} ({{ t.count }}x)<span ng-hide="$last">, </span></span>
             </td>
             <td class="text-right">{{ player.goalsSum }}</td>
             <td class="text-right">{{ player.assistsSum }}</td>
@@ -31,6 +31,4 @@
             </tr>
         </tfoot>
     </table>
-</div>
-
 </div>
