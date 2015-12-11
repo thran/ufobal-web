@@ -148,4 +148,58 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
 
 
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
+    var tournaments;
+    $scope.filter = {
+        yearFrom: 2010,
+        yearTo: new Date().getFullYear(),
+        nizkov: true,
+        brno: true,
+        hala: false
+    };
+     angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsTournamentFilter")));
+
+    dataService.getGoals().then(function(){
+        dataService.getTournaments().then(function(data){
+            dataService.getPlayers().then(function(players){
+                players = $filter('orderBy')(players, "canada", true);
+                $scope.stats = players;
+
+                tournaments = data;
+                $scope.$watch("filter", function(filter, o){
+                    $scope.tournaments = [];
+                    angular.forEach(tournaments, function(tournament){
+                        if (
+                                (!filter.yearFrom || tournament.year >= filter.yearFrom) &&
+                                (!filter.yearTo || tournament.year <= filter.yearTo) &&
+                                (filter.nizkov || tournament.name.indexOf("Nížkov") === -1) &&
+                                (filter.brno || tournament.name.indexOf("Brno") === -1) &&
+                                (filter.hala || tournament.name.indexOf("Hala") === -1)
+                        ){
+                            $scope.tournaments.push(tournament);
+                        }
+                    });
+                    $scope.tournaments = $filter("orderBy")($scope.tournaments, "date");
+                    updateStats();
+                    localStorage.setItem("statsTournamentFilter", JSON.stringify(filter));
+                }, true);
+            });
+        });
+    });
+
+    var updateStats = function(){
+        angular.forEach($scope.stats, function(player){
+            player.goalsSumFiltered = 0;
+            player.assistsSumFiltered = 0;
+            player.canadaFiltered= 0;
+
+             angular.forEach($scope.tournaments, function(tournament) {
+                 var g = player.goals[tournament.pk];
+                 var a = player.assists[tournament.pk];
+                 player.goalsSumFiltered += g ? g : 0;
+                 player.assistsSumFiltered += a ? a : 0;
+                 player.canadaFiltered += (g ? g : 0) + (a ? a : 0);
+             });
+        });
+    };
+
 }]);

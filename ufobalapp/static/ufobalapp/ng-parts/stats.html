@@ -1,1 +1,52 @@
-coming soon...
+<div class="loader" ng-hide="stats"></div>
+
+<div st-persist="stats" st-table="rows" st-safe-src="stats" ng-cloak ng-show="stats">
+    <div class="row">
+        <div class="columns medium-6">
+            <fieldset>
+                <legend>Filtrování hráčů</legend>
+                <label class="small-6 columns">Jméno hráče<input st-search="nickname" placeholder="jméno" type="search"/></label>
+                <label class="small-6 columns">Jméno týmu<input st-search="teamsSearch" placeholder="tým" type="search"/></label>
+            </fieldset>
+        </div>
+        <div class="columns medium-6">
+            <fieldset>
+                <legend>Filtrování turnajů</legend>
+                <label class="small-3 columns">od roku<input type="number" placeholder="rok" ng-model="filter.yearFrom"></label>
+                <label class="small-3 columns">do roku<input type="number" placeholder="rok" ng-model="filter.yearTo"></label>
+                <label class="small-2 columns">Nížkov <input type="checkbox" ng-model="filter.nizkov"> </label>
+                <label class="small-2 columns">Brno <input type="checkbox" ng-model="filter.brno"> </label>
+                <label class="small-2 columns">Hala <input type="checkbox" ng-model="filter.hala"> </label>
+            </fieldset>
+        </div>
+    </div>
+    <table class="smart-table">
+        <thead>
+        <tr>
+            <th width="10%" st-sort="nickname">Jméno</th>
+            <th ng-repeat="tournament in tournaments"><a ng-href="turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></th>
+            <th class="text-right" st-sort="goalsSumFiltered">G</th>
+            <th class="text-right" st-sort="assistsSumFiltered">A</th>
+            <th class="text-right" st-sort="canadaFiltered">K</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="player in rows">
+            <td><a ng-class="player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
+            <td ng-repeat="tournament in tournaments" ng-init="g = player.goals[tournament.pk]; a = player.assists[tournament.pk]">
+                <b>{{ g }}</b><span ng-show="a && g">+</span>{{ a }}
+            </td>
+            <td class="text-right">{{ player.goalsSumFiltered }}</td>
+            <td class="text-right">{{ player.assistsSumFiltered }}</td>
+            <td class="text-right">{{ player.canadaFiltered }}</td>
+        </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="15" class="text-center">
+                    <div st-pagination="" st-items-by-page="15" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
