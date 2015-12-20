@@ -1,4 +1,4 @@
-app.directive('stPersist', function ($rootScope) {
+app.directive('stPersist', [function () {
         return {
             require: '^stTable',
             scope: { stPersist: "=stPersist" },
@@ -26,7 +26,7 @@ app.directive('stPersist', function ($rootScope) {
 
             }
         };
-    });
+    }]);
 
 var shallow_copy = function(obj){
     var newObj = {};
