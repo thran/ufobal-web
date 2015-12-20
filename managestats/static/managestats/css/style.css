@@ -26,12 +26,12 @@ div.stripes > div:nth-child(2n) > div > div{
 }
 
 .item {
-	width: 200px;
-	padding: 5px 10px;
-	margin: 5px 0;
+	width: 300px;
+	/*padding: 5px 10px;*/
+	margin: 2px 0;
 	border: 2px solid #444;
 	border-radius: 5px;
-	background-color: #EA8A8A;
+	background-color: #95C7E2;
 
 	font-size: 1.1em;
 	font-weight: bold;
@@ -39,3 +39,39 @@ div.stripes > div:nth-child(2n) > div > div{
 	cursor: move;
 }
 
+
+.save_tournament_ranks {
+    position: relative;
+    background-color: #008CBA;
+    border: none;
+    font-size: 28px;
+    color: #FFFFFF;
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.save_tournament_ranks:after {
+    content: "";
+    background: #90EE90;
+    display: block;
+    position: absolute;
+    padding-top: 300%;
+    padding-left: 350%;
+    margin-left: -20px!important;
+    margin-top: -120%;
+    opacity: 0;
+    transition: all 0.8s
+}
+
+.save_tournament_ranks:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+}

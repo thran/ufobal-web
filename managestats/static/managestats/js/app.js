@@ -62,13 +62,15 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
 
 
 app.controller("sortableController", ["$scope", "$window", "backend", function($scope, $window, backend){
-  $scope.teams = $window.teams;
-
+    $scope.teams = $window.teams;
+    /*
   $scope.sortableOptions = {
     stop: function(e, ui) {
       backend.save_team_ranks($scope.teams);
     }
   };
+  */
+    $scope.save_team_ranks = backend.save_team_ranks;
 }]);
 
 

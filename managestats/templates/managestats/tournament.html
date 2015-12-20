@@ -13,6 +13,7 @@
     <h3>Týmy</h3>
     <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_add' %}?tournament={{ tournament.id }}">přidat
         tým</a>
+    <br>
 
     <div class="medium-6 columns">
         <ul>
@@ -29,6 +30,9 @@
         <script>
             var x = "[{% for team in teams %}"+"{'name':'{{ team.team.name }}','id':{{ team.id }}"+"},{% endfor %}]";
             eval('var teams =' + x);
+            for(var i = 0; i < teams.length; i++){
+                teams[i]['name'] = teams[i]['name'].replace("&quot;", "\"","g").replace("&quot;", "\"","g");
+            }
         </script>
 
         {% verbatim %}
@@ -37,11 +41,13 @@
           <div class="floatleft">
             <ul ui-sortable="sortableOptions" ng-model="teams" class="list">
               <li ng-repeat="team in teams" class="item">
-                {{team.name}}
+                {{ $index+1 }}. {{team.name}}
               </li>
             </ul>
           </div>
 
+        <button class="save_tournament_ranks" ng-click="save_team_ranks(teams)">Uložit pořadí</button>
+        <div id="loaded"></div>
         </div>
         {% endverbatim %}
     </div>
