@@ -1,4 +1,4 @@
-<div class="loader" ng-hide="player"></div>
+    <div class="loader" ng-hide="player"></div>
 
 
 <div ng-cloak ng-show="player">
@@ -82,7 +82,8 @@
                 <th class="text-right">Góly</th>
                 <th class="text-right">Asistence</th>
                 <th class="text-right">Kanada</th>
-                <th>smazat</th>
+                <th class="text-right">Umístění</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -92,6 +93,10 @@
                 <td class="text-right">{{ player.goals[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.assists[t.tournament.pk] }}</td>
                 <td class="text-right">{{ player.goals[t.tournament.pk] + player.assists[t.tournament.pk] }}</td>
+                <td class="text-right">
+                    <span ng-show="t.rank">{{ t.rank }}.</span>
+                    <span ng-hide="t.rank">-</span>
+                </td>
                 <td class="text-right"><a class="fi-x" ng-click="removeAttendance(t)"></a></td>
             </tr>
         </tbody>

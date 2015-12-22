@@ -7,6 +7,7 @@
         <tr>
             <th width="20%" st-sort="name">Jméno</th>
             <th width="50%"></th>
+            <th st-sort="medals">Umístění</th>
             <th>Počet turnajů</th>
         </tr>
         </thead>
@@ -15,6 +16,11 @@
             <td><a ng-href="/tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
             <td>
                 <span ng-repeat="n in team.names | filter:'!'+team.name:true | orderBy:'-count'">{{ n.name }}<span ng-hide="$last">, </span></span>
+            </td>
+            <td>
+                <span ng-repeat="count in team.medals track by $index" ng-show="count">
+                    <span class="medal medal-{{ $index + 1 }}">{{ count }}&times;</span>
+                </span>
             </td>
             <td>{{ team.teamOnTournaments.length }}</td>
         </tr>

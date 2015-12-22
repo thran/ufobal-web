@@ -67,7 +67,7 @@ app.controller("home", ["$scope", "dataService", function ($scope, dataService) 
 
 app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     dataService.getTeams().then(function(teams){
-        teams = $filter('orderBy')(teams, "name");
+        teams = $filter('orderBy')(teams, "-medals");
         $scope.teams = teams;
     });
 }]);

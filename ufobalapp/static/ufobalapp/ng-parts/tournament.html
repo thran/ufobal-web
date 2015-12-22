@@ -12,12 +12,17 @@
     <table>
         <thead>
             <tr>
+                <td></td>
                 <th>Jméno</th>
                 <th>Hráči</th>
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="t in tournament.teamOnTournaments">
+            <tr ng-repeat="t in tournament.teamOnTournaments | orderBy:'rank'">
+                <td class="text-right">
+                    <span ng-show="t.rank">{{ t.rank }}.</span>
+                    <span ng-hide="t.rank">-</span>
+                </td>
                 <td>
                     <a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a>
                 </td>

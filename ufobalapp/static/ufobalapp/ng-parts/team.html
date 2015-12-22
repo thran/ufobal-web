@@ -18,6 +18,7 @@
                 <th>Turnaj</th>
                 <th></th>
                 <th>Hráči</th>
+                <th>Umístění</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,10 @@
                         <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>
                         <span ng-hide="$last">, </span>
                     </span>
+                </td>
+                <td class="text-right">
+                    <span ng-show="t.rank">{{ t.rank }}.</span>
+                    <span ng-hide="t.rank">-</span>
                 </td>
             </tr>
         </tbody>

@@ -123,6 +123,7 @@ class TeamOnTournament(models.Model):
             "name": self.get_name(),
             "name_pure": self.name if self.name else self.team.name,
             "tournament": self.tournament.to_json(teams=False),
+            "rank": self.rank,
         }
 
         if players:

@@ -19,8 +19,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 dataMaps.teams[teamOnTournament.team.pk] = teamOnTournament.team;
                 data.teams.push(teamOnTournament.team);
                 teamOnTournament.team.teamOnTournaments = [];
+                teamOnTournament.team.medals = [0, 0, 0, 0, 0];
             }
             dataMaps.teams[teamOnTournament.team.pk].teamOnTournaments.push(teamOnTournament);
+            if (teamOnTournament.rank < 6) {
+                dataMaps.teams[teamOnTournament.team.pk].medals[teamOnTournament.rank - 1] += 1;
+            }
 
             // create and link tournaments
             if (!dataMaps.tournaments[teamOnTournament.tournament.pk]){
