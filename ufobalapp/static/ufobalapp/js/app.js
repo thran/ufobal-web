@@ -87,12 +87,40 @@ app.controller("tournaments", ["$scope", "dataService", "$filter", function ($sc
     });
 }]);
 
-app.controller("tournament", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
+app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter", function ($scope, dataService, $routeParams, $filter) {
     var id = parseInt($routeParams.id);
+    var allPlayers;
+    $scope.man = $scope.woman = true;
 
     dataService.getTournaments().then(function(){
         $scope.tournament = dataService.getObject("tournaments", id);
+        dataService.getGoals().then(function(){
+            dataService.getPlayers().then(function(players){
+                angular.forEach(players, function(player) {
+                    player.goalsSumFiltered = player.goals[$scope.tournament.pk];
+                    player.assistsSumFiltered = player.assists[$scope.tournament.pk];
+                    player.goalsSumFiltered  = player.goalsSumFiltered ? player.goalsSumFiltered : 0;
+                    player.assistsSumFiltered  = player.assistsSumFiltered ? player.assistsSumFiltered : 0;
+                    player.canadaFiltered =  player.goalsSumFiltered + player.assistsSumFiltered;
+                    player.scored = player.canadaFiltered > 0;
+                });
+                allPlayers = $filter('filter')(players, {scored: true});
+                allPlayers = $filter('orderBy')(allPlayers, "canadaFiltered", true);
+                $scope.players = allPlayers;
+            });
+        });
     });
+
+    $scope.filterGender = function () {
+        var players = allPlayers;
+        if (!$scope.man) {
+            players = $filter('filter')(players, {gender: "woman"}, true);
+        }
+        if (!$scope.woman) {
+            players = $filter('filter')(players, {gender: "man"}, true);
+        }
+        $scope.players = players;
+    };
 }]);
 
 

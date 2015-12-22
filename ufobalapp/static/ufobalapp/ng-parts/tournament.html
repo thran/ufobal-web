@@ -7,33 +7,68 @@
 
     <h1>{{ tournament.full_name }}</h1>
 
-    <h3>Týmy</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <td></td>
-                <th>Jméno</th>
-                <th>Hráči</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="t in tournament.teamOnTournaments | orderBy:'rank'">
-                <td class="text-right">
-                    <span ng-show="t.rank">{{ t.rank }}.</span>
-                    <span ng-hide="t.rank">-</span>
-                </td>
-                <td>
-                    <a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a>
-                </td>
-                <td>
-                    <span ng-repeat="player in t.players">
-                        <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>
-                        <span ng-hide="$last">, </span>
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="columns medium-7">
+            <h3>Týmy</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <td></td>
+                        <th>Jméno</th>
+                        <th>Hráči</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="t in tournament.teamOnTournaments | orderBy:'rank'">
+                        <td class="text-right">
+                            <span ng-show="t.rank">{{ t.rank }}.</span>
+                            <span ng-hide="t.rank">-</span>
+                        </td>
+                        <td>
+                            <a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a>
+                        </td>
+                        <td>
+                            <span ng-repeat="player in t.players">
+                                <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>
+                                <span ng-hide="$last">, </span>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="columns medium-5">
+            <label class="man" style="float: right !important; margin-left: 10px;"> <input type="checkbox" ng-change="filterGender()" ng-model="man"> </label>
+            <label class="woman" style="float: right !important;"> <input type="checkbox" ng-change="filterGender()" ng-model="woman"> </label>
+            <h3>Nejlepší hráči</h3>
+            <div st-table="rows" st-safe-src="players" ng-cloak ng-show="players">
+                <table class="smart-table">
+                    <thead>
+                    <tr>
+                        <th st-sort="nickname">Jméno</th>
+                        <th class="text-right" st-sort="goalsSumFiltered">góly</th>
+                        <th class="text-right" st-sort="assistsSumFiltered">asistence</th>
+                        <th class="text-right" st-sort="canadaFiltered">kanada</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="player in rows">
+                        <td><a ng-class="player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
+                        <td class="text-right">{{ player.goalsSumFiltered }}</td>
+                        <td class="text-right">{{ player.assistsSumFiltered }}</td>
+                        <td class="text-right">{{ player.canadaFiltered }}</td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="15" class="text-center">
+                                <div st-pagination="" st-items-by-page="15" st-displayed-pages="5" st-template="utils/st-pagination.html"></div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
 
 </div>
