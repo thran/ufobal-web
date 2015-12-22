@@ -19,6 +19,7 @@
         <ul>
             {% for team in teams %}
                 <li>
+                    {{ team.rank }}
                     <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
                     <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
                 </li>

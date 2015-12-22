@@ -27,15 +27,13 @@ div.stripes > div:nth-child(2n) > div > div{
 
 .item {
 	width: 300px;
-	/*padding: 5px 10px;*/
+	padding: 0 10px;
 	margin: 2px 0;
 	border: 2px solid #444;
 	border-radius: 5px;
 	background-color: #95C7E2;
-
 	font-size: 1.1em;
 	font-weight: bold;
-	text-align: center;
 	cursor: move;
 }
 
@@ -44,7 +42,7 @@ div.stripes > div:nth-child(2n) > div > div{
     position: relative;
     background-color: #008CBA;
     border: none;
-    font-size: 28px;
+    font-size: 1.2rem;
     color: #FFFFFF;
     padding: 20px;
     width: 200px;
