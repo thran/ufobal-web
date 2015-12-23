@@ -50,6 +50,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'stats.html',
                 controller: "stats"
             }).
+            when('/faq', {
+                templateUrl: 'faq.html'
+            }).
             otherwise({
                 redirectTo: '/'
             });
