@@ -63,6 +63,7 @@ def stats(request):
     }
     return JsonResponse(data, safe=False)
 
+
 @require_http_methods(["POST"])
 def save_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -109,7 +110,7 @@ def add_attendance(request):
     return HttpResponse("OK")
 
 
-@user_passes_test(is_staff_check)
+# @user_passes_test(is_staff_check)
 def home(request):
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
