@@ -65,3 +65,20 @@ h5 {
 .medal-4:after{ content: "4"; }
 .medal-5:after{ content: "5"; }
 
+#feedback{
+    right: -50px;
+    position: fixed;
+    top: 250px;
+    z-index: 999;
+
+    background: #333;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    display: inline-block;
+    padding: 6px 10px;
+    text-align: center;
+    text-decoration: none;
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    width: 140px;
+}
