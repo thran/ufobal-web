@@ -29,13 +29,14 @@
     <div ng-view></div>
 
     <hr>
-    <label>
-        <input type="checkbox" ng-model="checked">
-        Prohlašuji, že jsem aspoň trochu četl tuto stránku, nebudu se chovat destruktivně a pokud najdu chybu tak ji nahlásím.
-    </label>
-    <div style="text-align: center;">
-        <a ng-cloak ng-show="checked" href="/" target="_self"><button>Tak jo, jdeme na to!</button></a>
-        <a ng-show="!checked" target="_self"><button class="disabled">Tak jo, jdeme na to!</button></a>
+    <div ng-controller="intro">
+        <label>
+            <input type="checkbox" ng-model="checked">
+            Prohlašuji, že jsem aspoň trochu četl tuto stránku, nebudu se chovat destruktivně a pokud najdu chybu tak ji nahlásím.
+        </label>
+        <div style="text-align: center;">
+            <button ng-class="{disabled: !checked }" ng-click="check()">Tak jo, jdeme na to!</button>
+        </div>
     </div>
 </div>
 

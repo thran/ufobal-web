@@ -5,13 +5,16 @@ app.config(["$httpProvider", function ($httpProvider) {
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }]);
 
-app.run(["$rootScope", "$location", function ($rootScope, $location) {
+app.run(["$rootScope", "$location", "$window", function ($rootScope, $location, $window) {
     $rootScope.$on('$routeChangeSuccess', function(){
         ga('send', 'pageview', $location.path());
     });
 
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
-
+        if (!localStorage.getItem("checked") && next.originalPath !== "/intro"){
+            $location.path("/intro");
+            $window.location.href = "/intro";
+        }
     });
 }]);
 
@@ -71,8 +74,14 @@ app.controller("home", ["$scope", "dataService", function ($scope, dataService) 
     });
 }]);
 
-app.controller("intro", ["$scope", function ($scope) {
+app.controller("intro", ["$scope", "$window", function ($scope, $window) {
     $scope.intro = true;
+    $scope.check = function(){
+        if ($scope.checked) {
+            localStorage.setItem("checked", true);
+            $window.location.href = "/";
+        }
+    };
 }]);
 
 app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
