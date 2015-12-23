@@ -110,6 +110,12 @@ def add_attendance(request):
     return HttpResponse("OK")
 
 
+def intro(request):
+    return render(request, "intro.html", {
+        "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
+        "DEBUG": settings.DEBUG,
+    })
+
 # @user_passes_test(is_staff_check)
 def home(request):
     return render(request, "index.html", {

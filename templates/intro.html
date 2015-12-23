@@ -20,35 +20,23 @@
     <base href="/">
 </head>
 <body ng-app="ufoIS">
-<a href="https://docs.google.com/forms/d/1AcEV9XoB__lzwH9sN71xINuW0r6bsnyIMRUMyLJByHM/viewform" target="_blank"><div id="feedback">Hlášení chyby</div></a>
 
 <div id="container">
 
-<div class="contain-to-grid" role="navigation">
-    <nav class="top-bar" data-topbar role="navigation">
-        <ul class="title-area">
-            <li class="name uppercase"><h1><a href="/">Ufo-IS</a></h1></li>
-            <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
-        </ul>
-        <section class="top-bar-section"> <!-- Left Nav Section -->
-            <ul class="left">
-                <li><a href="/turnaje">Turnaje</a></li>
-                <li><a href="/tymy">Týmy</a></li>
-                <li><a href="/hraci">Hráči</a></li>
-                <li><a href="/statistiky">Statistiky</a></li>
-            </ul>
-        </section>
-        <section class="top-bar-section"> <!-- Right Nav Section -->
-            <ul class="right">
-                <li><a href="/faq">Co a jak?</a></li>
-                <li><a href="/managestats/" target="_self">Admin</a></li>
-            </ul>
-        </section>
-    </nav>
-</div>
-
 <div id="content" class="row">
+    <h1>Informační Systém Ufobalu</h1>
+
     <div ng-view></div>
+
+    <hr>
+    <label>
+        <input type="checkbox" ng-model="checked">
+        Prohlašuji, že jsem aspoň trochu četl tuto stránku, nebudu se chovat destruktivně a pokud najdu chybu tak ji nahlásím.
+    </label>
+    <div style="text-align: center;">
+        <a ng-cloak ng-show="checked" href="/" target="_self"><button>Tak jo, jdeme na to!</button></a>
+        <a ng-show="!checked" target="_self"><button class="disabled">Tak jo, jdeme na to!</button></a>
+    </div>
 </div>
 
 

@@ -53,6 +53,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
             when('/faq', {
                 templateUrl: 'faq.html'
             }).
+            when('/intro', {
+                templateUrl: 'faq.html',
+                controller: "intro"
+            }).
             otherwise({
                 redirectTo: '/'
             });
@@ -67,6 +71,9 @@ app.controller("home", ["$scope", "dataService", function ($scope, dataService) 
     });
 }]);
 
+app.controller("intro", ["$scope", function ($scope) {
+    $scope.intro = true;
+}]);
 
 app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     dataService.getTeams().then(function(teams){
