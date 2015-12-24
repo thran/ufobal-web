@@ -1,15 +1,19 @@
 <div class="loader" ng-hide="players"></div>
 
-<div st-persist="players" st-table="rows" st-safe-src="players" ng-cloak ng-show="players">
-    <input st-search="nickname" placeholder="hledat..." class="input-sm form-control" type="search"/>
+<div st-persist="players" st-table="rows" st-safe-src="players" ng-cloak class="row" ng-show="players">
+    <div class="search-box">
+        <input st-search="nickname" placeholder="hledat..." class="input-sm form-control" type="search">
+        <div class="fi-x" st-reset-search></div>
+    </div>
+
     <table class="smart-table">
         <thead>
         <tr>
             <th width="30%" st-sort="nickname">Jméno</th>
-            <th width="40%">týmy</th>
-            <th class="text-right" st-sort="goalsSum">góly</th>
-            <th class="text-right" st-sort="assistsSum">asistence</th>
-            <th class="text-right" st-sort="canada">kanada</th>
+            <th width="40%">Týmy</th>
+            <th class="text-right" st-sort="goalsSum">Góly</th>
+            <th class="text-right" st-sort="assistsSum">Asistence</th>
+            <th class="text-right" st-sort="canada">Kanada</th>
         </tr>
         </thead>
         <tbody>

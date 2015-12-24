@@ -198,14 +198,19 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
 
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     var tournaments;
-    $scope.filter = {
+    var defaultFilter = {
         yearFrom: 2010,
         yearTo: new Date().getFullYear(),
         nizkov: true,
         brno: true,
         hala: false
     };
-     angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsTournamentFilter")));
+    $scope.filter = angular.copy(defaultFilter);
+    angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsTournamentFilter")));
+
+    $scope.resetTournamentFilter = function () {
+        $scope.filter = angular.copy(defaultFilter);
+    };
 
     dataService.getGoals().then(function(){
         dataService.getTournaments().then(function(data){

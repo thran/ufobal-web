@@ -1,7 +1,10 @@
 <div class="loader" ng-hide="teams"></div>
 
 <div st-persist="teams" st-table="rows" st-safe-src="teams" ng-cloak ng-show="teams">
-    <input st-search="namesSearch" placeholder="hledat..." class="input-sm form-control" type="search"/>
+    <div class="search-box">
+        <input st-search="namesSearch" placeholder="hledat..." class="input-sm form-control" type="search"/>
+        <div class="fi-x" st-reset-search></div>
+    </div>
     <table class="smart-table">
         <thead>
         <tr>

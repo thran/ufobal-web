@@ -82,3 +82,18 @@ h5 {
     -webkit-transform: rotate(-90deg);
     width: 140px;
 }
+
+.search-box{
+    max-width: 300px;
+    position: relative;
+}
+.search-box > div, fieldset > .fi-x{
+    color: gray;
+    transition: all 0.5s;
+    position: absolute;
+    right: 0.7em;
+    top: 0.5em;
+    cursor: pointer;
+}
+fieldset > .fi-x{ top: 2em; right: 1.3em }
+.search-box > div:hover, fieldset > .fi-x:hover{ color: black}
