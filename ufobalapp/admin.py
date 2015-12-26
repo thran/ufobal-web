@@ -148,12 +148,17 @@ class TournamentAdmin(admin.ModelAdmin):
     inlines = [TeamOnTournamentInline]
 
 
+class GoalAdmin(admin.ModelAdmin):
+    list_display = ('shooter', 'assistance', 'match', 'type')
+    search_fields = ['shooter__name', 'shooter__nickname', 'assistance__name', 'assistance__nickname']
+
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
 admin.site.register(Tournament, TournamentAdmin)
 admin.site.register(Match, MatchAdmin)
-admin.site.register(Goal)
+admin.site.register(Goal, GoalAdmin)
 admin.site.register(Shot)
 admin.site.register(GoalieInMatch)
 admin.site.register(Penalty)
