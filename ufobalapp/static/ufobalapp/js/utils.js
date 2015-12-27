@@ -68,3 +68,13 @@ app.directive('back', function(){
         }
     };
 });
+
+function unique(arr){
+    var newArray = [];
+    for(var i=0, j=arr.length; i<j; i++) {
+        if (newArray.indexOf(arr[i]) === -1) {
+            newArray.push(arr[i]);
+        }
+    }
+    return newArray;
+}

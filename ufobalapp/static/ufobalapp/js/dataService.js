@@ -280,7 +280,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
         var withGoal = $.map(Object.keys(player.goals), function (x){ return parseInt(x); });
         var withAssists = $.map(Object.keys(player.assists), function (x){ return parseInt(x); });
-        var assists = $.unique($.merge(withGoal, withAssists));
+        var assists = unique($.merge(withGoal, withAssists));
         var tournaments = $.map(player.tournaments, function(x){return x.tournament.pk; });
         angular.forEach(tournaments, function(pk){
             var index = assists.indexOf(pk);
@@ -288,7 +288,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 assists.splice(index, 1);
             }
         });
-
         if (player.scoreWithoutTeam && player.scoreWithoutTeam.length === assists.length){
             return player.scoreWithoutTeam;
         }
