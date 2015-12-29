@@ -195,7 +195,6 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
     dataService.getGoals();
 }]);
 
-
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     var tournaments;
     var defaultFilter = {

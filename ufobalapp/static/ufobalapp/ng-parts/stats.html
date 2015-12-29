@@ -1,6 +1,6 @@
 <div class="loader" ng-hide="stats"></div>
 
-<div st-persist="stats" st-table="rows" st-safe-src="stats" ng-cloak ng-show="stats">
+<div st-rank st-persist="stats" st-table="rows" st-safe-src="stats" ng-cloak ng-show="stats">
     <div class="row">
         <div class="columns medium-6">
             <fieldset>
@@ -25,6 +25,7 @@
     <table class="smart-table">
         <thead>
         <tr>
+            <th>#</th>
             <th width="10%" st-sort="nickname">Jméno</th>
             <th ng-repeat="tournament in tournaments"><a ng-href="turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></th>
             <th class="text-center" st-sort="goalsSumFiltered">G</th>
@@ -34,6 +35,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="player in rows">
+            <th>{{ player.rank }}</th>
             <td><a ng-class="player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
             <td ng-repeat="tournament in tournaments" ng-init="g = player.goals[tournament.pk]; a = player.assists[tournament.pk]">
                 <b>{{ g }}</b><span ng-show="a && g">+</span>{{ a }}
@@ -45,7 +47,8 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="{{ tournaments.length + 4 }}" class="text-center">
+                <td colspan="{{ tournaments.length + 5 }}" class="text-center">
+                    {{ tableState }}
                     <div st-pagination="" st-items-by-page="15" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
                 </td>
             </tr>

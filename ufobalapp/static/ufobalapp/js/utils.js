@@ -46,6 +46,19 @@ app.directive('stPersist', [function () {
       };
 });
 
+app.directive('stRank', [function () {
+    return {
+        require: '^stTable',
+        link: function (scope, element, attr, ctrl) {
+            scope.$watch(ctrl.tableState, function () {
+                angular.forEach(ctrl.getFilteredCollection(), function(row, index) {
+                    row.rank = index + 1;
+                });
+            }, true);
+        }
+    };
+}]);
+
 var shallow_copy = function(obj){
     var newObj = {};
     angular.forEach(obj, function(value, key){
