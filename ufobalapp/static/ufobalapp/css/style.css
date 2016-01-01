@@ -95,5 +95,10 @@ h5 {
     top: 0.5em;
     cursor: pointer;
 }
+.top-right-gender{
+    position: absolute;
+    right: 3.3em;
+    top: 2.3em;
+}
 fieldset > .fi-x{ top: 2em; right: 1.3em }
 .search-box > div:hover, fieldset > .fi-x:hover{ color: black}

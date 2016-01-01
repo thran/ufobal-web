@@ -1,13 +1,17 @@
 <div class="loader" ng-hide="stats"></div>
 
-<div st-rank st-persist="stats" st-table="rows" st-safe-src="stats" ng-cloak ng-show="stats">
+<div st-rank st-persist="stats" st-table="rows" st-safe-src="players" ng-cloak ng-show="stats">
     <div class="row">
         <div class="columns medium-6">
             <fieldset>
                 <legend>Filtrování hráčů</legend>
+                <div class="fi-x" st-reset-search></div>
+                <div class="top-right-gender">
+                    <label class="man" style="float: right !important; margin-left: 10px;"> <input type="checkbox" ng-change="filterGender()" ng-model="filter.man"> </label>
+                    <label class="woman" style="float: right !important;"> <input type="checkbox" ng-change="filterGender()" ng-model="filter.woman"> </label>
+                </div>
                 <label class="small-6 columns">Jméno hráče<input st-search="nickname" placeholder="jméno" type="search"/></label>
                 <label class="small-6 columns">Jméno týmu<input st-search="teamsSearch" placeholder="tým" type="search"/></label>
-                <div class="fi-x" st-reset-search></div>
             </fieldset>
         </div>
         <div class="columns medium-6">

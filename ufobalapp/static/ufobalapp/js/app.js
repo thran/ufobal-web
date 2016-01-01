@@ -131,17 +131,20 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     });
 
     $scope.filterGender = function () {
-        var players = allPlayers;
-        if (!$scope.man) {
-            players = $filter('filter')(players, {gender: "woman"}, true);
-        }
-        if (!$scope.woman) {
-            players = $filter('filter')(players, {gender: "man"}, true);
-        }
-        $scope.players = players;
+        $scope.players = filterGender(allPlayers, $scope.man, $scope.woman, $filter);
     };
 }]);
 
+var filterGender = function (allPlayers, man, woman, $filter) {
+    var players = allPlayers;
+    if (!man) {
+        players = $filter('filter')(players, {gender: "woman"}, true);
+    }
+    if (!woman) {
+        players = $filter('filter')(players, {gender: "man"}, true);
+    }
+    return players;
+};
 
 app.controller("players", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     $scope.getPlayerTeams = dataService.getPlayerTeams;
@@ -202,13 +205,19 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
         yearTo: new Date().getFullYear(),
         nizkov: true,
         brno: true,
-        hala: false
+        hala: false,
+        man: true,
+        woman: true,
     };
     $scope.filter = angular.copy(defaultFilter);
     angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsTournamentFilter")));
 
     $scope.resetTournamentFilter = function () {
         $scope.filter = angular.copy(defaultFilter);
+    };
+
+    $scope.filterGender = function () {
+        $scope.players = filterGender($scope.stats, $scope.filter.man, $scope.filter.woman, $filter);
     };
 
     dataService.getGoals().then(function(){
@@ -233,6 +242,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                     });
                     $scope.tournaments = $filter("orderBy")($scope.tournaments, "date");
                     updateStats();
+                    $scope.filterGender();
                     localStorage.setItem("statsTournamentFilter", JSON.stringify(filter));
                 }, true);
             });
