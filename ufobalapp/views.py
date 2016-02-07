@@ -9,8 +9,10 @@ from django.shortcuts import render_to_response
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
+from django.views.decorators.csrf import csrf_exempt
 from ufobal import settings
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal,\
+    Match, Shot, GoalieInMatch, Penalty
 import datetime
 import logging
 logger = logging.getLogger(__name__)
@@ -98,15 +100,303 @@ def remove_attendance(request, player, team):
     return HttpResponse("OK")
 
 
+@require_http_methods(["POST"])
 def add_attendance(request):
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-
     data = json.loads(str(request.body.decode('utf-8')))
 
     player = get_object_or_404(Player, pk=data["player"])
     team = get_object_or_404(TeamOnTournament, pk=data["team"])
     player.tournaments.add(team)
+
+    return HttpResponse("OK")
+
+
+# @csrf_exempt # aby nebyl potreba csrf token (test)
+@require_http_methods(["POST"])
+def add_team(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    name = data.get('name')
+    if name:
+        team = Team(name=name, description=data.get('description'))
+        team.save()
+
+    return HttpResponse(team.pk)
+
+
+@require_http_methods(["POST"])
+def add_team_on_tournament(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    team = get_object_or_404(Team, pk=data.get('team'))
+    tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
+
+    tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'),
+                                 name=data.get('name'), rank=data.get('rank'))
+    tour_team.save()
+
+    return HttpResponse(tour_team.pk)
+
+
+@require_http_methods(["POST"])
+def add_player(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    name = data.get('name')
+    if name:
+        player = Player(name=name, lastname=data.get('lastname'), nickname=data.get('nickname'),
+                        birthdate=data.get('birthdate'), gender=data.get('gender'))
+        player.save()
+
+    return HttpResponse(player.pk)
+
+
+@require_http_methods(["POST"])
+def add_goal(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=data.get('match'))
+    shooter = get_object_or_404(Player, pk=data.get('shooter'))
+
+    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%M:%S"), type=data.get('type'))
+    goal.assistance = Player.objects.filter(pk=data.get('assistence'))
+    goal.save()
+
+    return HttpResponse(goal.pk)
+
+
+@require_http_methods(["POST"])
+def add_shot(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=data.get('match'))
+    shooter = get_object_or_404(Player, pk=data.get('shooter'))
+
+    shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
+    shot.save()
+
+    return HttpResponse(shot.pk)
+
+
+@require_http_methods(["POST"])
+def add_match(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
+    team_one = get_object_or_404(TeamOnTournament, pk=data.get('team_one'))
+    team_two = get_object_or_404(TeamOnTournament, pk=data.get('team_two'))
+    referee = get_object_or_404(Player, pk=data.get('referee'))
+
+    match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
+                  referee=referee, start=data.get('start'), end=data.get('end'))
+    match.save()
+
+    if data.get('goalie_one'):
+        goalie_one = get_object_or_404(Player, pk=data.get('goalie_one'))
+        goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match,
+                                            start=datetime.time(0))
+        goalie_one_in_match.save()
+
+    if data.get('goalie_two'):
+        goalie_two = get_object_or_404(Player, pk=data.get('goalie_two'))
+        goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match,
+                                            start=datetime.time(0))
+        goalie_two_in_match.save()
+
+    return HttpResponse(match.pk)
+
+
+@require_http_methods(["POST"])
+def add_penalty(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=data.get('match'))
+    player = get_object_or_404(Player, pk=data.get('player'))
+
+    penalty = Penalty(card=data.get('card'), match=match, player=player,
+                      reason=data.get('reason'), time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
+    penalty.save()
+
+    return HttpResponse(penalty.pk)
+
+
+@require_http_methods(["POST"])
+def edit_goal(request, goal_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    goal = get_object_or_404(Match, pk=goal_id)
+
+    if data.get('shooter'):
+        shooter = get_object_or_404(Player, data.get('shooter'))
+        goal.shooter = shooter
+
+    if data.get('assistance'):
+        assistance = get_object_or_404(Player, data.get('assistance'))
+        goal.assistance = assistance
+
+    if data.get('match'):
+        match = get_object_or_404(Match, data.get('match'))
+        goal.match = match
+
+    if data.get('time'):
+        goal.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    if data.get('type'):
+        goal.type = data.get('type')
+
+    goal.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
+def edit_shot(request, shot_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    shot = get_object_or_404(Match, pk=shot_id)
+
+    if data.get('shooter'):
+        shooter = get_object_or_404(Player, data.get('shooter'))
+        shot.shooter = shooter
+
+    if data.get('match'):
+        match = get_object_or_404(Match, data.get('match'))
+        shot.match = match
+
+    if data.get('time'):
+        shot.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    shot.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
+def edit_match(request, match_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=match_id)
+
+    if data.get('tournament'):
+        tournament = get_object_or_404(Tournament, data.get('tournament'))
+        match.tournament = tournament
+
+    if data.get('team_one'):
+        team_one = get_object_or_404(TeamOnTournament, data.get('team_one'))
+        match.team_one = team_one
+
+    if data.get('team_two'):
+        team_two = get_object_or_404(TeamOnTournament, data.get('team_two'))
+        match.team_two = team_two
+
+    if data.get('start'):
+        match.start = datetime.datetime.strptime(data.get('start'), "%M:%S")
+
+    if data.get('end'):
+        match.end = datetime.datetime.strptime(data.get('end'), "%M:%S")
+
+    if data.get('referee'):
+        referee = get_object_or_404(Player, data.get('referee'))
+        match.referee = referee
+
+    match.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
+def edit_penalty(request, penalty_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    penalty = get_object_or_404(Penalty, pk=penalty_id)
+
+    if data.get('card'):
+        penalty.card = data.get('card')
+
+    if data.get('match'):
+        match = get_object_or_404(Match, data.get('match'))
+        penalty.match = match
+
+    if data.get('player'):
+        player = get_object_or_404(Player, data.get('player'))
+        penalty.player = player
+
+    if data.get('time'):
+        penalty.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    if data.get('reason'):
+        penalty.reason = data.get('reason')
+
+    penalty.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["DELETE"])
+def remove_goal(request, goal_id):
+    goal = get_object_or_404(Goal, pk=goal_id)
+    goal.delete()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["DELETE"])
+def remove_shot(request, shot_id):
+    shot = get_object_or_404(Shot, pk=shot_id)
+    shot.delete()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["DELETE"])
+def remove_match(request, match_id):
+    match = get_object_or_404(Match, pk=match_id)
+    match.delete()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["DELETE"])
+def remove_penalty(request, penalty_id):
+    penalty = get_object_or_404(Penalty, pk=penalty_id)
+    penalty.delete()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
+def change_goalie(request, match_id, team_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=match_id)
+    team_on_tournament = get_object_or_404(TeamOnTournament, pk=team_id)
+    new_goalie = get_object_or_404(Player, pk=data.get('goalie'))
+    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    for goalie in GoalieInMatch.objects.filter(match=match).all():
+        if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
+            goalie.end = time
+            goalie.save()
+            break
+
+    new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match,
+                                        start=time)
+    new_goalie_in_match.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
+def end_match(request, match_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=match_id)
+    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    for goalie in GoalieInMatch.objects.filter(match=match).all():
+        if goalie.end is None:
+            goalie.end = time
+            goalie.save()
 
     return HttpResponse("OK")
 

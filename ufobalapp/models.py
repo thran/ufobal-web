@@ -183,7 +183,7 @@ class Match(models.Model):
     team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='+', null=True, blank=True)
     start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
-    goalie = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
+    goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
     referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)
     # TODO hodnoceni od tymu....
 
@@ -220,7 +220,7 @@ class GoalieInMatch(models.Model):
         verbose_name_plural = "brankáři"
 
     goalie = models.ForeignKey(Player, verbose_name='brankář')
-    match = models.ForeignKey(Match, verbose_name='zápas', related_name='goalies')
+    match = models.ForeignKey(Match, verbose_name='zápas')
     start = models.TimeField('Začátek chytání')
     end = models.TimeField('Konec chytání', null=True, blank=True)
 
