@@ -218,6 +218,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
 
     $scope.filterGender = function () {
         $scope.players = filterGender($scope.stats, $scope.filter.man, $scope.filter.woman, $filter);
+        return $scope.players;
     };
 
     dataService.getGoals().then(function(){
@@ -244,10 +245,21 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                     updateStats();
                     $scope.filterGender();
                     localStorage.setItem("statsTournamentFilter", JSON.stringify(filter));
+                    orderPlayers();
                 }, true);
             });
         });
     });
+
+    var orderPlayers = function () {
+        if (localStorage.getItem("stats")) {
+            var savedState = JSON.parse(localStorage.getItem("stats"));
+            $scope.stats = $filter('orderBy')($scope.stats, savedState.sort.predicate, savedState.sort.reverse);
+        }
+        angular.forEach($scope.filterGender(), function(player, index){
+            player.rank = index + 1;
+        });
+    };
 
     var updateStats = function(){
         angular.forEach($scope.stats, function(player){
