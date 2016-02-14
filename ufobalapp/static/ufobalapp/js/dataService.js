@@ -213,6 +213,23 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             });
     };
 
+    self.addPlayer = function(player){
+        player.saving = true;
+        var player_to_save = shallow_copy(player);
+        player_to_save.birthdate = $filter('date')(player.birthdate, "yyyy-MM-dd");
+        return $http.post(djangoUrl.reverse("api:add_player"), player_to_save)
+            .success(function (pk) {
+                player.saving = false;
+                player.pk = pk;
+                dataProcessors.players(player);
+                data.players.push(player);
+                dataMaps.players[pk] = player;
+            })
+            .error(function () {
+                player.saving = false;
+            });
+    };
+
     self.addTeamOnTournament = function (registration) {
         registration.saving = true;
         if (registration.name === ""){
@@ -227,7 +244,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     team: team,
                     name: registration.name ? registration.name + " (" + team.name + ")" : team.name,
                     name_pure: registration.name ? registration.name : team.name,
-                    tournament: dataMaps.tournaments[registration.tournament]
+                    tournament: dataMaps.tournaments[registration.tournament],
+                    players: []
                 };
                 dataMaps.tournaments[registration.tournament].teamOnTournaments.push(teamOnTournament);
                 team.teamOnTournaments.push(teamOnTournament);
@@ -244,6 +262,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 if (player.tournaments.indexOf(team) === -1){
                     player.tournaments.push(team);
                 }
+                if (team.players.indexOf(player) === -1){
+                    team.players.push(player);
+                }
                 player.saving = false;
             })
             .error(function(){
@@ -256,6 +277,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return $http.delete(djangoUrl.reverse("api:remove_attendance", [player.pk, team.pk]))
             .success(function(){
                 player.tournaments.splice(player.tournaments.indexOf(team), 1);
+                team.players.splice(team.players.indexOf(player), 1);
                 player.saving = false;
             })
             .error(function(){

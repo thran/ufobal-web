@@ -12,6 +12,7 @@
             <ul>
                 <li ng-repeat="team in tournament.teamOnTournaments"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></li>
             </ul>
+            <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
         </div>
         <div class="columns medium-6">
             <h3>Zápasy</h3>

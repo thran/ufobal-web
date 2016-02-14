@@ -1,4 +1,90 @@
 <div class="loader" ng-hide="team"></div>
-<div ng-show="team" class="columns medium-6 medium-offset-3">
-    <h3>{{ tournament.full_name }} - {{ team.name }}</h3>
+
+<div ng-show="team">
+    <a href back class="left">&lsaquo; zpět</a>
+
+    <hr>
+
+    <h1>{{ tournament.full_name }} - {{ team.name }}</h1>
+
+    <div class="columns medium-6">
+        <h3>Hráči</h3>
+        <div class="row">
+            <div class="row collapse">
+                <div class="small-9 columns">
+                    <select ng-model="player" ng-options="player as player.full_name for player in players| orderBy:'full_name'">
+                        <option value="">----</option>
+                    </select>
+                </div>
+                <div class="small-3 columns">
+                    <a href="#" ng-click="addAttendance()" ng-disabled="!player" class="button postfix">Přidat</a>
+                </div>
+            </div>
+        </div>
+        <div class="text-right"><a href="#" data-reveal-id="newPlayer">Nový hráč</a></div>
+
+        <ul>
+            <li ng-repeat="player in team.players | orderBy: 'full_name'">
+                <i class="fi-x" ng-click="removeAttendance(player)"></i>
+                <a href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.full_name }}
+                </a>
+            </li>
+        </ul>
+
+    </div>
+    <div class="columns medium-6">
+    </div>
+</div>
+
+
+<div id="newPlayer" class="small reveal-modal" data-reveal>
+    Ujisti se prosím, že hráč určitě není v systému.
+    <h2 id="modalTitle">Nový hráč</h2>
+    <div class="row">
+        <div class="columns small-6">
+            <label>Přezdívka
+                <input type="text" ng-model="newPlayer.nickname" />
+            </label>
+        </div>
+        <div class="columns small-6">
+            <label>Pohlaví
+                <select
+                    ng-model="newPlayer.gender"
+                    ng-options="gender.id as gender.text for gender in genders">
+                    <option value="">----</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="columns small-6">
+            <label>Jméno
+                <input type="text" ng-model="newPlayer.name" />
+            </label>
+        </div>
+        <div class="columns small-6">
+            <label>Příjmení
+                <input type="text" ng-model="newPlayer.lastname" />
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="columns small-6">
+            <label>Datum narození
+                <input type="date" ng-change="computeAge()" ng-model="newPlayer.birthdate">
+            </label>
+        </div>
+         <div class="columns small-6">
+            <label>Věk
+                <input disabled type="text" ng-model="newPlayer.age" />
+            </label>
+        </div>
+    </div>
+    <i>Datum narození nebude zveřejňováno (pouze jako věk).</i>
+
+    <br>
+
+    <button ng-hide="newPlayer.saving" ng-disabled="!newPlayer.nickname" ng-click="addPlayer()">Vytvořit</button>
+    <div class="loader" ng-show="newPlayer.saving"></div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

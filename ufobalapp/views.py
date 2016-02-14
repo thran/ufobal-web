@@ -154,13 +154,14 @@ def add_team_on_tournament(request):
 def add_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
 
-    name = data.get('name')
-    if name:
-        player = Player(name=name, lastname=data.get('lastname'), nickname=data.get('nickname'),
+    nickname = data.get('nickname')
+    if nickname:
+        player = Player(name=data.get('name'), lastname=data.get('lastname'), nickname=nickname,
                         birthdate=data.get('birthdate'), gender=data.get('gender'))
         player.save()
+        return HttpResponse(player.pk)
 
-    return HttpResponse(player.pk)
+    return HttpResponseBadRequest("Chybí přezdívka")
 
 
 @require_http_methods(["POST"])

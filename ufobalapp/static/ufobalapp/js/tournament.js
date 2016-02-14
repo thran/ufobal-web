@@ -44,6 +44,7 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
 
 app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
     var pk = parseInt($routeParams.pk);
+    $scope.genders = genders;
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;
@@ -54,7 +55,37 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
                 }
             });
         });
+        dataService.getPlayers().then(function (players) {
+            $scope.players = players;
+        });
     });
+
+    $scope.computeAge = function(){
+        if ($scope.newPlayer.birthdate){
+            var ageDifMs = Date.now() - Date.parse($scope.newPlayer.birthdate);
+            var ageDate = new Date(ageDifMs);
+            $scope.newPlayer.age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+    };
+
+    $scope.addAttendance = function () {
+        dataService.addAttendance($scope.player, $scope.team);
+    };
+    $scope.removeAttendance= function (player) {
+        dataService.removeAttendance(player, $scope.team);
+    };
+
+    $scope.addPlayer = function () {
+        $scope.newPlayer.full_name = $scope.newPlayer.nickname;
+        dataService.addPlayer($scope.newPlayer)
+            .success(function () {
+                $('#newPlayer').foundation('reveal', 'close');
+                dataService.addAttendance($scope.newPlayer, $scope.team);
+                $scope.newPlayer = {};
+            });
+    };
+
+    $(document).foundation('reveal');
 }]);
 
 
@@ -62,7 +93,6 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;
-        console.log(tournament);
         dataService.getTeams().then(function () {
         });
     });

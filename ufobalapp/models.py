@@ -32,6 +32,7 @@ class Player(models.Model):
             "lastname": self.lastname,
             "nickname": self.nickname,
             "age": self.age(),
+            "full_name": self.full_name(),
             "gender": self.gender,
         }
 
@@ -72,6 +73,17 @@ class Player(models.Model):
         return self.assistances.count() + self.goals.count()
 
     assistance_count.short_description = 'Asistencí celkem'
+
+    def full_name(self):
+        name_parts = []
+        if self.name:
+            name_parts.append(self.name)
+        if self.lastname:
+            name_parts.append(self.lastname)
+
+        if len(name_parts) == 0:
+            return self.nickname
+        return "{} - {}".format(self.nickname, " ".join(name_parts))
 
     def __str__(self):
         return "%s" % (self.nickname)
