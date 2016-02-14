@@ -121,10 +121,15 @@ def set_captain(request):
 
     player = get_object_or_404(Player, pk=data["player"])
     team = get_object_or_404(TeamOnTournament, pk=data["team"])
+
+    if player not in team.players:
+        return HttpResponseBadRequest("Hráč se nenachází ve zvoleném týmu.")
+
     team.captain = player
     team.save()
 
     return HttpResponse("OK")
+
 
 # @csrf_exempt # aby nebyl potreba csrf token (test)
 @require_http_methods(["POST"])
@@ -133,7 +138,7 @@ def add_team(request):
 
     name = data.get('name')
     if not name:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Chybí jméno týmu")
 
     team = Team(name=name, description=data.get('description'))
     team.save()
@@ -148,7 +153,7 @@ def add_team_on_tournament(request):
     team = get_object_or_404(Team, pk=data.get('team'))
     tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
     if not tournament.is_registration_open():
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Registrace ukončena.")
 
     tots = TeamOnTournament.objects.filter(team=team, tournament=tournament)
     if len(tots) > 0:
@@ -182,7 +187,11 @@ def add_goal(request):
     match = get_object_or_404(Match, pk=data.get('match'))
     shooter = get_object_or_404(Player, pk=data.get('shooter'))
 
-    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%M:%S"), type=data.get('type'))
+    if shooter not in match.team_one.players and shooter not in match.team_two.players:
+        return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
+
+    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%M:%S"),
+                type=data.get('type'))
     goal.assistance = Player.objects.filter(pk=data.get('assistence'))
     goal.save()
 
@@ -195,6 +204,9 @@ def add_shot(request):
 
     match = get_object_or_404(Match, pk=data.get('match'))
     shooter = get_object_or_404(Player, pk=data.get('shooter'))
+
+    if shooter not in match.team_one.players and shooter not in match.team_two.players:
+        return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
     shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
     shot.save()
@@ -211,18 +223,29 @@ def add_match(request):
     team_two = get_object_or_404(TeamOnTournament, pk=data.get('team_two'))
     referee = get_object_or_404(Player, pk=data.get('referee'))
 
+    goalie_one = Player.objects.get(pk=data.get('goalie_one'))
+    goalie_two = Player.objects.get(pk=data.get('goalie_two'))
+
+    if team_one not in tournament.teams:
+        return HttpResponseBadRequest("První tým není zaregistrovaný na turnaji.")
+    if team_two not in tournament.teams:
+        return HttpResponseBadRequest("Druhý tým není zaregistrovaný na turnaji.")
+
+    if goalie_one and goalie_one not in team_one.players:
+        return HttpResponseBadRequest("První brankář se nenachází v prvním týmu.")
+    if goalie_two and goalie_two not in team_two.players:
+        return HttpResponseBadRequest("Druhý brankář se nenachází ve druhém týmu.")
+
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
                   referee=referee, start=data.get('start'), end=data.get('end'))
     match.save()
 
-    if data.get('goalie_one'):
-        goalie_one = get_object_or_404(Player, pk=data.get('goalie_one'))
+    if goalie_one:
         goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match,
                                             start=datetime.time(0))
         goalie_one_in_match.save()
 
-    if data.get('goalie_two'):
-        goalie_two = get_object_or_404(Player, pk=data.get('goalie_two'))
+    if goalie_two:
         goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match,
                                             start=datetime.time(0))
         goalie_two_in_match.save()
@@ -236,6 +259,9 @@ def add_penalty(request):
 
     match = get_object_or_404(Match, pk=data.get('match'))
     player = get_object_or_404(Player, pk=data.get('player'))
+
+    if player not in match.team_one.players and player not in match.team_two.players:
+        return HttpResponseBadRequest("Hráč se nenachází ani v jednom z týmů.")
 
     penalty = Penalty(card=data.get('card'), match=match, player=player,
                       reason=data.get('reason'), time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
@@ -397,6 +423,9 @@ def change_goalie(request, match_id, team_id):
     new_goalie = get_object_or_404(Player, pk=data.get('goalie'))
     time = datetime.datetime.strptime(data.get('time'), "%M:%S")
 
+    if new_goalie not in match.team_one.players and new_goalie not in match.team_two.players:
+        return HttpResponseBadRequest("Nový brankář se nenachází ani v jednom z týmů.")
+
     for goalie in GoalieInMatch.objects.filter(match=match).all():
         if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
             goalie.end = time
@@ -411,16 +440,39 @@ def change_goalie(request, match_id, team_id):
 
 
 @require_http_methods(["POST"])
+def start_match(request, match_id):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    match = get_object_or_404(Match, pk=match_id)
+
+    # realny cas zacatku zapasu
+    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    match.start = time
+    match.save()
+
+    return HttpResponse("OK")
+
+
+@require_http_methods(["POST"])
 def end_match(request, match_id):
     data = json.loads(str(request.body.decode('utf-8')))
 
     match = get_object_or_404(Match, pk=match_id)
-    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+
+    # konecny cas delky zapasu
+    time_relative = datetime.datetime.strptime(data.get('time_relative'), "%M:%S")
+
+    # realny cas konce zapasu
+    time_real = datetime.datetime.strptime(data.get('time_real'), "%M:%S")
 
     for goalie in GoalieInMatch.objects.filter(match=match).all():
         if goalie.end is None:
-            goalie.end = time
+            goalie.end = time_relative
             goalie.save()
+
+    match.end = time_real
+    match.save()
 
     return HttpResponse("OK")
 
