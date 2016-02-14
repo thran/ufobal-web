@@ -131,7 +131,7 @@ class TeamOnTournament(models.Model):
         data = {
             "pk": self.pk,
             "team": self.team.to_json(),
-            "captain": self.captain.name if self.captain else None,
+            "captain": self.captain.pk if self.captain else None,
             "name": self.get_name(),
             "name_pure": self.name if self.name else self.team.name,
             "tournament": self.tournament.to_json(teams=False),

@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^add_team$', views.add_team, name='add_team'),
     url(r'^add_team_on_tournament$', views.add_team_on_tournament, name='add_team_on_tournament'),
     url(r'^add_player$', views.add_player, name='add_player'),
+    url(r'^set_captain', views.set_captain, name='set_captain'),
     url(r'^add_goal$', views.add_goal, name='add_goal'),
     url(r'^add_shot$', views.add_shot, name='add_shot'),
     url(r'^add_match$', views.add_match, name='add_match'),

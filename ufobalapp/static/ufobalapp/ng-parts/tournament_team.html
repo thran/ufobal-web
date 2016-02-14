@@ -31,6 +31,24 @@
             </li>
         </ul>
 
+        <hr>
+        <h3>Kapitán</h3>
+        <div class="row">
+            <div class="row collapse">
+                <div class="small-9 columns">
+                        <select ng-model="captain"
+                                ng-change="captainMsg = null"
+                                ng-options="player as player.full_name for player in team.players| orderBy:'full_name'">
+                            <option value="">----</option>
+                        </select>
+                </div>
+                <div class="small-3 columns">
+                    <a href="#" ng-click="setCaptain(captain)" ng-disabled="!captain" class="button postfix">Nastavit</a>
+                </div>
+            </div>
+        </div>
+        {{ captainMsg }}
+
     </div>
     <div class="columns medium-6">
     </div>
@@ -43,7 +61,7 @@
     <div class="row">
         <div class="columns small-6">
             <label>Přezdívka
-                <input type="text" ng-model="newPlayer.nickname" />
+                <input type="text" ng-model="newPlayer.nickname" placeholder="povinné"/>
             </label>
         </div>
         <div class="columns small-6">

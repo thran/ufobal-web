@@ -285,6 +285,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             });
     };
 
+    self.setCaptain = function (teamOnTournament, player) {
+        return $http.post(djangoUrl.reverse("api:set_captain"), {player: player.pk, team: teamOnTournament.pk})
+            .success(function(){
+                teamOnTournament.captain = player.pk;
+            });
+    };
+
     self.savePlayer = function(player){
         player.saving = true;
         var player_to_save = shallow_copy(player);

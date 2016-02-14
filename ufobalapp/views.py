@@ -115,6 +115,17 @@ def add_attendance(request):
     return HttpResponse("OK")
 
 
+@require_http_methods(["POST"])
+def set_captain(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+
+    player = get_object_or_404(Player, pk=data["player"])
+    team = get_object_or_404(TeamOnTournament, pk=data["team"])
+    team.captain = player
+    team.save()
+
+    return HttpResponse("OK")
+
 # @csrf_exempt # aby nebyl potreba csrf token (test)
 @require_http_methods(["POST"])
 def add_team(request):
