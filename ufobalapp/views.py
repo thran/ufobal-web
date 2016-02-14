@@ -139,6 +139,10 @@ def add_team_on_tournament(request):
     if not tournament.is_registration_open():
         return HttpResponseBadRequest()
 
+    tots = TeamOnTournament.objects.filter(team=team, tournament=tournament)
+    if len(tots) > 0:
+        return HttpResponseBadRequest("Tým je již registrován.")
+
     tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'),
                                  name=data.get('name'), rank=data.get('rank'))
     tour_team.save()

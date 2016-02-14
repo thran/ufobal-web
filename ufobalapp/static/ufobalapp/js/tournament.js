@@ -18,10 +18,14 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
     };
 
     $scope.register = function () {
+        $scope.error = null;
         dataService.addTeamOnTournament($scope.registration)
             .success(function (pk) {
                 $scope.registration = {};
                 $location.path("/turnaj/tym/" + pk);
+            })
+            .error(function (msg) {
+                $scope.error = msg;
             });
     };
 
