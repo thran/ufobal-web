@@ -65,6 +65,14 @@ TEMPLATES = [
     },
 ]
 
+if ON_SERVER and not DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+        }
+    }
+
 WSGI_APPLICATION = 'ufobal.wsgi.application'
 
 
@@ -91,6 +99,8 @@ USE_TZ = True
 MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
