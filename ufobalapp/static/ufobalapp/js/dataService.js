@@ -15,12 +15,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         },
         teamontournaments: function(teamOnTournament){
             // create and link teams
-            if (!dataMaps.teams[teamOnTournament.team.pk]){
-                dataMaps.teams[teamOnTournament.team.pk] = teamOnTournament.team;
-                data.teams.push(teamOnTournament.team);
-                teamOnTournament.team.teamOnTournaments = [];
-                teamOnTournament.team.medals = [0, 0, 0, 0, 0];
-            }
+            addTeam(teamOnTournament.team);
+
             dataMaps.teams[teamOnTournament.team.pk].teamOnTournaments.push(teamOnTournament);
             if (teamOnTournament.rank < 6) {
                 dataMaps.teams[teamOnTournament.team.pk].medals[teamOnTournament.rank - 1] += 1;
@@ -31,6 +27,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 dataMaps.tournaments[teamOnTournament.tournament.pk] = teamOnTournament.tournament;
                 data.tournaments.push(teamOnTournament.tournament);
                 teamOnTournament.tournament.teamOnTournaments = [];
+                if (data.liveTournament && data.liveTournament.pk === teamOnTournament.tournament.pk){
+                    data.liveTournament = teamOnTournament.tournament;
+                }
             }
             dataMaps.tournaments[teamOnTournament.tournament.pk].teamOnTournaments.push(teamOnTournament);
 
@@ -41,6 +40,22 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 player.tournaments.push(teamOnTournament);
                 teamOnTournament.players.push(player);
             });
+        },
+        liveTournament: function(liveTournament){
+            if (!dataMaps.tournaments[liveTournament.pk]) {
+                dataMaps.tournaments[liveTournament.pk] = liveTournament;
+                data.tournaments.push(liveTournament);
+                liveTournament.teamOnTournaments = [];
+            }
+        }
+    };
+
+    var addTeam = function (team) {
+         if (!dataMaps.teams[team.pk]){
+            dataMaps.teams[team.pk] = team;
+            data.teams.push(team);
+            team.teamOnTournaments = [];
+            team.medals = [0, 0, 0, 0, 0];
         }
     };
 
@@ -86,8 +101,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 if (object === "teamontournaments") {
                     data.teams = [];
                     dataMaps.teams = {};
-                    data.tournaments = [];
-                    dataMaps.tournaments = {};
+                    if (!dataMaps.tournaments){
+                        data.tournaments = [];
+                        dataMaps.tournaments = {};
+                    }
                     getData("players").then(function(){
                         angular.forEach(response, function(obj) {
                             dataMaps[object][obj.pk] = obj;
@@ -100,6 +117,14 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                             self.getPlayerTeams(player);
                         });
                     });
+                }else if (object === "liveTournament"){
+                    if (!dataMaps.tournaments){
+                        data.tournaments = [];
+                        dataMaps.tournaments = {};
+                    }else{
+                        data.liveTournament = dataMaps.tournaments[response.pk];
+                    }
+                    dataProcessors[object](response);
                 }else{
                     angular.forEach(response, function(obj) {
                         dataMaps[object][obj.pk] = obj;
@@ -163,12 +188,53 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         getData("players");
         return getData("goals");
     };
+    self.getLiveTournament = function(){
+        self.getTeams();
+        return getData("liveTournament");
+    };
 
     self.getObject = function(object, id){
         if (!dataMaps[object]){
             return null;
         }
         return dataMaps[object][id];
+    };
+
+    self.addTeam = function(newTeam){
+        newTeam.saving = true;
+        return $http.post(djangoUrl.reverse("api:add_team"), newTeam)
+            .success(function (pk) {
+                newTeam.saving = false;
+                newTeam.pk = pk;
+                addTeam(newTeam);
+            })
+            .error(function () {
+                newTeam.saving = false;
+            });
+    };
+
+    self.addTeamOnTournament = function (registration) {
+        registration.saving = true;
+        if (registration.name === ""){
+            delete  registration.name;
+        }
+        return $http.post(djangoUrl.reverse("api:add_team_on_tournament"), registration)
+            .success(function (pk) {
+                registration.saving = false;
+                var team = dataMaps.teams[registration.team];
+                var teamOnTournament = {
+                    pk: parseInt(pk),
+                    team: team,
+                    name: registration.name ? registration.name + " (" + team.name + ")" : team.name,
+                    name_pure: registration.name ? registration.name : team.name,
+                    tournament: dataMaps.tournaments[registration.tournament]
+                };
+                dataMaps.tournaments[registration.tournament].teamOnTournaments.push(teamOnTournament);
+                team.teamOnTournaments.push(teamOnTournament);
+            })
+            .error(function () {
+                registration.saving = false;
+            });
     };
 
     self.addAttendance = function(player, team){

@@ -68,7 +68,7 @@ def stats(request):
 
 
 def live_tournament(request):
-    return JsonResponse(Tournament.objects.all().order_by("-date")[0].to_json(), safe=False)
+    return JsonResponse(Tournament.objects.all().order_by("-date")[0].to_json(teams=False), safe=False)
 
 
 @require_http_methods(["POST"])
@@ -121,9 +121,11 @@ def add_team(request):
     data = json.loads(str(request.body.decode('utf-8')))
 
     name = data.get('name')
-    if name:
-        team = Team(name=name, description=data.get('description'))
-        team.save()
+    if not name:
+        return HttpResponseBadRequest()
+
+    team = Team(name=name, description=data.get('description'))
+    team.save()
 
     return HttpResponse(team.pk)
 

@@ -1,0 +1,48 @@
+<div class="loader" ng-hide="tournament"></div>
+<div ng-show="tournament" class="columns medium-6 medium-offset-3">
+
+    <div ng-cloak class="text-center" ng-hide="tournament.registration_open">
+        Přihlašování na turnaj bylo již uzavřeno.
+    </div>
+
+    <div ng-show="tournament.registration_open">
+        <h3>{{ tournament.full_name }}</h3>
+        <div class="row">
+            <div class="columns medium-6">
+                <label>
+                    Tým
+                    <select ng-model="team" ng-options="team as team.name for team in teams| orderBy:'name'">
+                        <option value="">----</option>
+                    </select>
+                </label>
+            </div>
+            <div class="columns medium-6">
+                <br>
+                <a href="#" data-reveal-id="newTeam">vytvořit nový tým</a>
+            </div>
+        </div>
+
+        <label>
+            Jméno na tomto turnaji (pouze pokud se liší od běžného jména týmu)
+            <input type="text" ng-model="registration.name" placeholder="{{ team.name }}">
+        </label>
+        <button ng-disabled="!registration.team" ng-click="register()">Přihlásit</button>
+    </div>
+</div>
+
+
+
+<div id="newTeam" class="small reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+    <h2 id="modalTitle">Nový tým</h2>
+    <label>
+        Jméno
+        <input type="text" ng-model="newTeam.name">
+    </label>
+    <label>
+        Popis (volitelné)
+        <textarea name="" id="" cols="30" rows="10" title="Popis" ng-model="newTeam.description"></textarea>
+    </label>
+    <button ng-hide="newTeam.saving" ng-disabled="!newTeam.name" ng-click="addTeam()">Vytvořit</button>
+    <div class="loader" ng-show="newTeam.saving"></div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>

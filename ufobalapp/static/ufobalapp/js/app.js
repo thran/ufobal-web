@@ -45,9 +45,17 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournaments.html',
                 controller: "tournaments"
             }).
+            when('/turnaj/tym/:pk', {
+                templateUrl: 'tournament_team.html',
+                controller: "tournamentTeam"
+            }).
             when('/turnaj/:id/:turnaj', {
                 templateUrl: 'tournament.html',
                 controller: "tournament"
+            }).
+            when('/turnaj/prihlasovani', {
+                templateUrl: 'tournament_registration.html',
+                controller: "tournamentRegistration"
             }).
             when('/statistiky', {
                 templateUrl: 'stats.html',
@@ -71,6 +79,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 app.controller("home", ["$scope", "dataService", function ($scope, dataService) {
     dataService.getStats().then(function (stats) {
        $scope.stats = stats;
+    });
+    dataService.getLiveTournament().then(function (tournament) {
+       $scope.liveTournament = tournament;
     });
 }]);
 
