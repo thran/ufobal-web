@@ -52,3 +52,14 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
         });
     });
 }]);
+
+
+app.controller("tournamentLive", ["$scope", "dataService", function($scope, dataService){
+
+    dataService.getLiveTournament().then(function (tournament) {
+        $scope.tournament = tournament;
+        console.log(tournament);
+        dataService.getTeams().then(function () {
+        });
+    });
+}]);

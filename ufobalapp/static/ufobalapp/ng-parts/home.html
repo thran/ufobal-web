@@ -18,7 +18,7 @@
     <hr>
 
     <div ng-show="liveTournament">
-        <h3>{{ liveTournament.full_name }}</h3>
+        <h3><a href="/turnaj">{{ liveTournament.full_name }}</a></h3>
         <strong>datum:</strong> {{ liveTournament.date | date : "d. M. yyyy"}}<br>
         <div ng-show="liveTournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ liveTournament.registration_to | date : "d. M. yyyy"}}</div>
     </div>

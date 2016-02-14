@@ -1,0 +1,20 @@
+<div class="loader" ng-hide="tournament"></div>
+<div ng-show="tournament">
+    <a href back class="left">&lsaquo; zpět</a>
+
+    <hr>
+
+    <h1>{{ tournament.full_name }}</h1>
+
+    <div class="row">
+        <div class="columns medium-6">
+            <h3>Týmy</h3>
+            <ul>
+                <li ng-repeat="team in tournament.teamOnTournaments"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></li>
+            </ul>
+        </div>
+        <div class="columns medium-6">
+            <h3>Zápasy</h3>
+        </div>
+    </div>
+</div>
