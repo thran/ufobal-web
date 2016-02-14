@@ -153,6 +153,7 @@ class Tournament(models.Model):
         verbose_name_plural = "turnaje"
 
     date = models.DateField('Datum')
+    registration_to = models.DateField('Přihlašování do', null=True, blank=True)
     name = models.CharField('Název/místo', max_length=50)
 
     def to_json(self, teams=True, **kwargs):
@@ -161,6 +162,8 @@ class Tournament(models.Model):
             "name": self.name,
             "full_name": self.name + " " + str(self.date.year),
             "date": str(self.date),
+            "registration_to": str(self.registration_to),
+            "registration_open": self.is_registration_open(),
             "year": self.date.year,
         }
 
@@ -168,6 +171,9 @@ class Tournament(models.Model):
             data["teams"] = [t.to_json(players=False) for t in self.teams.all()]
 
         return data
+
+    def is_registration_open(self):
+        return self.registration_to is not None and self.registration_to >= datetime.date.today()
 
     def __str__(self):
         return "%s %s" % (self.name, self.date.year)

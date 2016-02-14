@@ -4,7 +4,7 @@ import json
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Prefetch, Count, Max, Min
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -65,6 +65,10 @@ def stats(request):
         "assists": Goal.objects.filter(assistance__isnull=False).count(),
     }
     return JsonResponse(data, safe=False)
+
+
+def live_tournament(request):
+    return JsonResponse(Tournament.objects.all().order_by("-date")[0].to_json(), safe=False)
 
 
 @require_http_methods(["POST"])
@@ -130,6 +134,8 @@ def add_team_on_tournament(request):
 
     team = get_object_or_404(Team, pk=data.get('team'))
     tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
+    if not tournament.is_registration_open():
+        return HttpResponseBadRequest()
 
     tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'),
                                  name=data.get('name'), rank=data.get('rank'))

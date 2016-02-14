@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)$', views.remove_attendance, name='remove_attendance'),
     url(r'^goals$', views.goals, name='get_goals'),
     url(r'^stats$', views.stats, name='get_stats'),
+    url(r'^get_live_tournament$', views.live_tournament, name='get_liveTournament'),
     url(r'^add_team$', views.add_team, name='add_team'),
     url(r'^add_team_on_tournament$', views.add_team_on_tournament, name='add_team_on_tournament'),
     url(r'^add_player$', views.add_player, name='add_player'),
