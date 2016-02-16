@@ -13,24 +13,44 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             player.assistsSum = 0;
             player.canada = 0;
         },
+        team: function (team) {
+            if (dataMaps.teams[team.pk]){
+                return;
+            }
+            team.matches = [];
+            dataMaps.teams[team.pk] = team;
+            data.teams.push(team);
+            team.teamOnTournaments = [];
+            team.medals = [0, 0, 0, 0, 0];
+        },
+        tournament: function (tournament) {
+            if (dataMaps.tournaments[tournament.pk]){
+                return;
+            }
+            tournament.matches = [];
+            dataMaps.tournaments[tournament.pk] = tournament;
+            data.tournaments.push(tournament);
+            tournament.teamOnTournaments = [];
+        },
+        liveTournament: function(liveTournament){
+            if (dataMaps.tournaments[liveTournament.pk]){
+                liveTournament = dataMaps.tournaments[liveTournament.pk];
+                return;
+            }
+            data.liveTournament = liveTournament;
+            dataProcessors.tournament(liveTournament);
+        },
         teamontournaments: function(teamOnTournament){
+            teamOnTournament.matches = [];
             // create and link teams
-            addTeam(teamOnTournament.team);
-
+            dataProcessors.team(teamOnTournament.team);
             dataMaps.teams[teamOnTournament.team.pk].teamOnTournaments.push(teamOnTournament);
             if (teamOnTournament.rank < 6) {
                 dataMaps.teams[teamOnTournament.team.pk].medals[teamOnTournament.rank - 1] += 1;
             }
 
             // create and link tournaments
-            if (!dataMaps.tournaments[teamOnTournament.tournament.pk]){
-                dataMaps.tournaments[teamOnTournament.tournament.pk] = teamOnTournament.tournament;
-                data.tournaments.push(teamOnTournament.tournament);
-                teamOnTournament.tournament.teamOnTournaments = [];
-                if (data.liveTournament && data.liveTournament.pk === teamOnTournament.tournament.pk){
-                    data.liveTournament = teamOnTournament.tournament;
-                }
-            }
+            dataProcessors.tournament(teamOnTournament.tournament);
             dataMaps.tournaments[teamOnTournament.tournament.pk].teamOnTournaments.push(teamOnTournament);
 
             // link players
@@ -47,21 +67,17 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 }
             });
         },
-        liveTournament: function(liveTournament){
-            if (!dataMaps.tournaments[liveTournament.pk]) {
-                dataMaps.tournaments[liveTournament.pk] = liveTournament;
-                data.tournaments.push(liveTournament);
-                liveTournament.teamOnTournaments = [];
-            }
-        }
-    };
+        matchs: function (match) {
+            match.tournament = self.getObject("tournaments", match.tournament);
+            match.team_one = self.getObject("teamontournaments", match.team_one);
+            match.team_two = self.getObject("teamontournaments", match.team_two);
+            match.referee = self.getObject("players", match.referee);
+            match.start = match.start ? new Date(match.start) : null;
+            match.end = match.end ? new Date(match.end) : null;
 
-    var addTeam = function (team) {
-         if (!dataMaps.teams[team.pk]){
-            dataMaps.teams[team.pk] = team;
-            data.teams.push(team);
-            team.teamOnTournaments = [];
-            team.medals = [0, 0, 0, 0, 0];
+            match.tournament.matches.push(match);
+            match.team_one.matches.push(match);
+            match.team_two.matches.push(match);
         }
     };
 
@@ -131,6 +147,15 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                         data.liveTournament = dataMaps.tournaments[response.pk];
                     }
                     dataProcessors[object](response);
+                }else if (object === "matchs"){
+                    self.getTeams().then(function() {
+                        self.getPlayers().then(function() {
+                            angular.forEach(response, function (obj) {
+                                dataMaps[object][obj.pk] = obj;
+                                dataProcessors[object](obj);
+                            });
+                        });
+                    });
                 }else{
                     angular.forEach(response, function(obj) {
                         dataMaps[object][obj.pk] = obj;
@@ -198,6 +223,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         self.getTeams();
         return getData("liveTournament");
     };
+    self.getMatches = function () {
+        return getData("matchs");
+    };
 
     self.getObject = function(object, id){
         if (!dataMaps[object]){
@@ -212,7 +240,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             .success(function (pk) {
                 newTeam.saving = false;
                 newTeam.pk = pk;
-                addTeam(newTeam);
+                dataProcessors.team(newTeam);
             })
             .error(function () {
                 newTeam.saving = false;
@@ -411,6 +439,23 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 deferred.resolve(response);
             });
         return deferred.promise;
+    };
+
+    self.addMatch = function (match) {
+        match.saving = true;
+        return $http.post(djangoUrl.reverse("api:add_match"), {
+            tournament: match.tournament.pk,
+            team_one: match.team_one.pk,
+            team_two: match.team_two.pk
+        }).success(function (pk) {
+            match.pk = pk;
+            match.tournament.matches.push(match);
+            match.team_one.matches.push(match);
+            match.team_two.matches.push(match);
+            match.saving = false;
+        }).error(function () {
+            match.saving = false;
+        });
     };
 }]);
 

@@ -29,6 +29,8 @@ def get_json_all(request, model_class):
     objs = model_class.objects.all()
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
+    if model_class == Match:
+        objs = objs.filter(fake=False)
     if model_class == TeamOnTournament:
         objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
 
@@ -191,7 +193,7 @@ def add_goal(request):
     match = get_object_or_404(Match, pk=data.get('match'))
     shooter = get_object_or_404(Player, pk=data.get('shooter'))
 
-    if shooter not in match.team_one.players and shooter not in match.team_two.players:
+    if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
     goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%M:%S"),
@@ -209,7 +211,7 @@ def add_shot(request):
     match = get_object_or_404(Match, pk=data.get('match'))
     shooter = get_object_or_404(Player, pk=data.get('shooter'))
 
-    if shooter not in match.team_one.players and shooter not in match.team_two.players:
+    if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
     shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
@@ -225,33 +227,32 @@ def add_match(request):
     tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
     team_one = get_object_or_404(TeamOnTournament, pk=data.get('team_one'))
     team_two = get_object_or_404(TeamOnTournament, pk=data.get('team_two'))
-    referee = get_object_or_404(Player, pk=data.get('referee'))
+    if data.get('referee'):
+        referee = get_object_or_404(Player, pk=data.get('referee'))
+    else:
+        referee = None
 
-    goalie_one = Player.objects.get(pk=data.get('goalie_one'))
-    goalie_two = Player.objects.get(pk=data.get('goalie_two'))
-
-    if team_one not in tournament.teams:
+    if team_one not in tournament.teams.all():
         return HttpResponseBadRequest("První tým není zaregistrovaný na turnaji.")
-    if team_two not in tournament.teams:
+    if team_two not in tournament.teams.all():
         return HttpResponseBadRequest("Druhý tým není zaregistrovaný na turnaji.")
-
-    if goalie_one and goalie_one not in team_one.players:
-        return HttpResponseBadRequest("První brankář se nenachází v prvním týmu.")
-    if goalie_two and goalie_two not in team_two.players:
-        return HttpResponseBadRequest("Druhý brankář se nenachází ve druhém týmu.")
 
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
                   referee=referee, start=data.get('start'), end=data.get('end'))
     match.save()
 
-    if goalie_one:
-        goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match,
-                                            start=datetime.time(0))
+    if data.get('goalie_one'):
+        goalie_one = Player.objects.get(pk=data.get('goalie_one'))
+        if goalie_one and goalie_one not in team_one.players.all():
+            return HttpResponseBadRequest("První brankář se nenachází v prvním týmu.")
+        goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match, start=datetime.time(0))
         goalie_one_in_match.save()
 
-    if goalie_two:
-        goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match,
-                                            start=datetime.time(0))
+    if data.get('goalie_two'):
+        goalie_two = Player.objects.get(pk=data.get('goalie_two'))
+        if goalie_two and goalie_two not in team_two.players.all():
+            return HttpResponseBadRequest("Druhý brankář se nenachází ve druhém týmu.")
+        goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match, start=datetime.time(0))
         goalie_two_in_match.save()
 
     return HttpResponse(match.pk)
@@ -264,7 +265,7 @@ def add_penalty(request):
     match = get_object_or_404(Match, pk=data.get('match'))
     player = get_object_or_404(Player, pk=data.get('player'))
 
-    if player not in match.team_one.players and player not in match.team_two.players:
+    if player not in match.team_one.players.all() and player not in match.team_two.players.all():
         return HttpResponseBadRequest("Hráč se nenachází ani v jednom z týmů.")
 
     penalty = Penalty(card=data.get('card'), match=match, player=player,

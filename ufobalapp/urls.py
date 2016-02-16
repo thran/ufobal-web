@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from . import views
-from ufobalapp.models import Player, Tournament, TeamOnTournament
+from ufobalapp.models import Player, Tournament, TeamOnTournament, Match
 
 urlpatterns = [
     url(r'^save_player$', views.save_player, name='save_player'),
@@ -32,7 +32,7 @@ urlpatterns = [
 ]
 
 
-models = [Player, Tournament, TeamOnTournament]
+models = [Player, Tournament, TeamOnTournament, Match]
 
 for model_class in models:
     name = model_class.__name__.lower()

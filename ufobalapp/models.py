@@ -209,18 +209,30 @@ class Match(models.Model):
 
     fake = models.BooleanField('Importovaný zápas', default=False)
 
+    def to_json(self, **kwargs):
+        data = {
+            "pk": self.pk,
+            "tournament": self.tournament_id,
+            "team_one": self.team_one_id,
+            "team_two": self.team_two_id,
+            "start": str(self.start),
+            "end": str(self.end),
+            "referee": self.referee_id,
+            "fake": self.fake,
+        }
+
+        return data
+
     def score_one(self):
         if self.team_one:
-            goals = Goal.objects.filter(shooter__in=self.team_one.players.all(),
-                                        match=self)
+            goals = Goal.objects.filter(shooter__in=self.team_one.players.all(), match=self)
             return goals.count()
 
     score_one.short_description = 'tým 1 scóre'
 
     def score_two(self):
         if self.team_two:
-            goals = Goal.objects.filter(shooter__in=self.team_two.players.all(),
-                                        match=self)
+            goals = Goal.objects.filter(shooter__in=self.team_two.players.all(), match=self)
             return goals.count()
 
     score_two.short_description = 'tým 2 scóre'

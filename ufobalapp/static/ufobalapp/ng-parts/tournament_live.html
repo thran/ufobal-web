@@ -10,12 +10,36 @@
         <div class="columns medium-6">
             <h3>Týmy</h3>
             <ul>
-                <li ng-repeat="team in tournament.teamOnTournaments"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></li>
+                <li ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></li>
             </ul>
             <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
         </div>
         <div class="columns medium-6">
             <h3>Zápasy</h3>
+            <div> <a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a></div>
+            <ul>
+                <li ng-repeat="match in tournament.matches | orderBy:'start'"><a href="">{{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}</a></li>
+            </ul>
         </div>
     </div>
+</div>
+
+
+<div id="newMatch" class="small reveal-modal" data-reveal>
+    <label>Tým 1
+        <select ng-model="match.team_one"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
+    <label>Tým 2
+        <select ng-model="match.team_two"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
+
+    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.team_two " ng-click="addMatch()">Vytvořit</button>
+    <div class="loader" ng-show="match.saving"></div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
