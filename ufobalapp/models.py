@@ -120,6 +120,7 @@ class TeamOnTournament(models.Model):
 
     team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments')
     captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
+    default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie', null=True, blank=True)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments', blank=True)
@@ -132,6 +133,7 @@ class TeamOnTournament(models.Model):
             "pk": self.pk,
             "team": self.team.to_json(),
             "captain": self.captain.pk if self.captain else None,
+            "default_goalie": self.default_goalie.pk if self.default_goalie else None,
             "name": self.get_name(),
             "name_pure": self.name if self.name else self.team.name,
             "tournament": self.tournament.to_json(teams=False),

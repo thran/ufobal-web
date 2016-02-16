@@ -116,16 +116,20 @@ def add_attendance(request):
 
 
 @require_http_methods(["POST"])
-def set_captain(request):
+def set_captain_or_goalie(request, goalie=False):
     data = json.loads(str(request.body.decode('utf-8')))
 
     player = get_object_or_404(Player, pk=data["player"])
     team = get_object_or_404(TeamOnTournament, pk=data["team"])
 
-    if player not in team.players:
+    if player not in team.players.all():
         return HttpResponseBadRequest("Hráč se nenachází ve zvoleném týmu.")
 
-    team.captain = player
+    if goalie:
+        team.default_goalie = player
+    else:
+        team.captain = player
+
     team.save()
 
     return HttpResponse("OK")

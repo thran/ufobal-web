@@ -39,6 +39,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 var player = dataMaps.players[playerPk];
                 player.tournaments.push(teamOnTournament);
                 teamOnTournament.players.push(player);
+                if (playerPk === teamOnTournament.captain){
+                    teamOnTournament.captain = player;
+                }
+                if (playerPk === teamOnTournament.default_goalie){
+                    teamOnTournament.defaultGoalie = player;
+                }
             });
         },
         liveTournament: function(liveTournament){
@@ -285,11 +291,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             });
     };
 
-    self.setCaptain = function (teamOnTournament, player) {
-        return $http.post(djangoUrl.reverse("api:set_captain"), {player: player.pk, team: teamOnTournament.pk})
-            .success(function(){
-                teamOnTournament.captain = player.pk;
-            });
+    self.setCaptain = function (teamOnTournament) {
+        return $http.post(djangoUrl.reverse("api:set_captain"), {player: teamOnTournament.captain.pk, team: teamOnTournament.pk});
+    };
+
+    self.setDefaultGoalie = function (teamOnTournament) {
+        return $http.post(djangoUrl.reverse("api:set_default_goalie"), {player: teamOnTournament.defaultGoalie.pk, team: teamOnTournament.pk});
     };
 
     self.savePlayer = function(player){

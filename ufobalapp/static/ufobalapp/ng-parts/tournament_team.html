@@ -36,17 +36,33 @@
         <div class="row">
             <div class="row collapse">
                 <div class="small-9 columns">
-                        <select ng-model="captain"
+                        <select ng-model="team.captain"
                                 ng-change="captainMsg = null"
                                 ng-options="player as player.full_name for player in team.players| orderBy:'full_name'">
                             <option value="">----</option>
                         </select>
                 </div>
                 <div class="small-3 columns">
-                    <a href="#" ng-click="setCaptain(captain)" ng-disabled="!captain" class="button postfix">Nastavit</a>
+                    <a href="#" ng-click="setCaptain()" ng-disabled="!team.captain" class="button postfix">Nastavit</a>
                 </div>
             </div>
         </div>
+        <h3>Výchozí brankář</h3>
+        <div class="row">
+            <div class="row collapse">
+                <div class="small-9 columns">
+                        <select ng-model="team.defaultGoalie"
+                                ng-change="captainMsg = null"
+                                ng-options="player as player.full_name for player in team.players| orderBy:'full_name'">
+                            <option value="">----</option>
+                        </select>
+                </div>
+                <div class="small-3 columns">
+                    <a href="#" ng-click="setDefaultGoalie()" ng-disabled="!team.defaultGoalie" class="button postfix">Nastavit</a>
+                </div>
+            </div>
+        </div>
+
         {{ captainMsg }}
 
     </div>

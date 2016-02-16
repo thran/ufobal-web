@@ -52,14 +52,6 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
             angular.forEach(tournament.teamOnTournaments, function (team) {
                 if (team.pk === pk) {
                     $scope.team = team;
-                    dataService.getPlayers().then(function (players) {
-                        angular.forEach(team.players, function (player) {
-                            if (player.pk === team.captain){
-                                $scope.captain = player;
-                            }
-                        });
-                        $scope.players = players;
-                    });
                 }
             });
         });
@@ -90,8 +82,14 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
             });
     };
 
-    $scope.setCaptain = function (captain) {
-        dataService.setCaptain($scope.team, captain).then(function () {
+    $scope.setCaptain = function () {
+        dataService.setCaptain($scope.team).then(function () {
+            $scope.captainMsg = "Uloženo";
+        });
+    };
+
+    $scope.setDefaultGoalie = function () {
+        dataService.setDefaultGoalie($scope.team).then(function () {
             $scope.captainMsg = "Uloženo";
         });
     };
