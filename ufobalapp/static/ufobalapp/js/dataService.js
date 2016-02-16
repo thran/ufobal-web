@@ -5,7 +5,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     var deferredTmp = {};
     var dataProcessors = {
         players: function(player){
-            player.birthdate = player.birthdate ? new Date(player.birthdate) : null;
+            player.birthdate = player.birthdate === null ? new Date(player.birthdate) : null;
             player.tournaments = [];
             player.goals = {};
             player.assists = {};
@@ -72,8 +72,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.team_one = self.getObject("teamontournaments", match.team_one);
             match.team_two = self.getObject("teamontournaments", match.team_two);
             match.referee = self.getObject("players", match.referee);
-            match.start = match.start ? new Date(match.start) : null;
-            match.end = match.end ? new Date(match.end) : null;
+            match.start = match.start === null ? new Date(match.start) : null;
+            match.end = match.end === null ? new Date(match.end) : null;
 
             match.tournament.matches.push(match);
             match.team_one.matches.push(match);
