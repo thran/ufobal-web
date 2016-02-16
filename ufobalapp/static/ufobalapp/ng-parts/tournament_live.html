@@ -5,21 +5,27 @@
     <hr>
 
     <h1>{{ tournament.full_name }}</h1>
-
+    <hr>
     <div class="row">
         <div class="columns medium-6">
-            <h3>Týmy</h3>
+            <div class="text-right columns small-6"><h3>Zápasy</h3></div>
+            <div class="columns small-6" style="padding-top: 12px;"><a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a></div>
+            <hr>
+
+            <div ng-repeat="match in tournament.matches | orderBy:'start'" class="row">
+                <a href="">
+                    <div class="text-right columns small-6">{{ match.team_one.name_pure }}</div>
+                    <div class="columns small-6">{{ match.team_two.name_pure }}</div>
+                </a>
+            </div>
+        </div>
+        <div class="columns medium-6">
+            <div class="text-right columns small-6"><h3>Týmy</h3></div>
+            <hr>
             <ul>
                 <li ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></li>
             </ul>
             <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
-        </div>
-        <div class="columns medium-6">
-            <h3>Zápasy</h3>
-            <div> <a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a></div>
-            <ul>
-                <li ng-repeat="match in tournament.matches | orderBy:'start'"><a href="">{{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}</a></li>
-            </ul>
         </div>
     </div>
 </div>
