@@ -43,7 +43,7 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
 
 
 app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
-    var pk = parseInt($routeParams.pk);
+    var pk = parseInt($routeParams.id);
     $scope.genders = genders;
 
     dataService.getLiveTournament().then(function (tournament) {
@@ -116,6 +116,21 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
             $('#newMatch').foundation('reveal', 'close');
         });
     };
+
+    $(document).foundation('reveal');
+}]);
+
+app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", function($scope, $routeParams, dataService){
+    var id = parseInt($routeParams.id);
+
+    dataService.getMatches().then(function (matches) {
+        angular.forEach(matches, function (match) {
+            if (id === match.pk){
+                $scope.match = match;
+                console.log(match);
+            }
+        });
+    });
 
     $(document).foundation('reveal');
 }]);

@@ -49,17 +49,21 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournament_live.html',
                 controller: "tournamentLive"
             }).
-            when('/turnaj/tym/:pk', {
+            when('/turnaj/tym/:id', {
                 templateUrl: 'tournament_team.html',
                 controller: "tournamentTeam"
-            }).
-            when('/turnaj/:id/:turnaj', {
-                templateUrl: 'tournament.html',
-                controller: "tournament"
             }).
             when('/turnaj/prihlasovani', {
                 templateUrl: 'tournament_registration.html',
                 controller: "tournamentRegistration"
+            }).
+            when('/turnaj/zapas/:id', {
+                templateUrl: 'tournament_match.html',
+                controller: "tournamentMatch"
+            }).
+            when('/turnaj/:id/:turnaj', {
+                templateUrl: 'tournament.html',
+                controller: "tournament"
             }).
             when('/statistiky', {
                 templateUrl: 'stats.html',

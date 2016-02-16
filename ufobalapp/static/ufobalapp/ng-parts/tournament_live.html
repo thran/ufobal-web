@@ -1,8 +1,8 @@
+<a href back class="left">&lsaquo; zpět</a>
+
+<hr>
 <div class="loader" ng-hide="tournament"></div>
 <div ng-show="tournament">
-    <a href back class="left">&lsaquo; zpět</a>
-
-    <hr>
 
     <h1>{{ tournament.full_name }}</h1>
     <hr>
@@ -13,7 +13,7 @@
             <hr>
 
             <div ng-repeat="match in tournament.matches | orderBy:'start'" class="row">
-                <a href="">
+                <a href="/turnaj/zapas/{{ match.pk }}">
                     <div class="text-right columns small-6">{{ match.team_one.name_pure }}</div>
                     <div class="columns small-6">{{ match.team_two.name_pure }}</div>
                 </a>
