@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^remove_match/(?P<match_id>\d+)$', views.remove_match, name='remove_match'),
     url(r'^remove_penalty/(?P<penalty_id>\d+)$', views.remove_penalty, name='remove_penalty'),
     url(r'^change_goalie/(?P<match_id>\d+)-(?P<team_id>\d+)$', views.change_goalie, name='change_goalie'),
+    url(r'^start_match/(?P<match_id>\d+)$', views.start_match, name='start_match'),
     url(r'^end_match/(?P<match_id>\d+)$', views.end_match, name='end_match'),
 ]
 

@@ -428,7 +428,7 @@ def change_goalie(request, match_id, team_id):
     new_goalie = get_object_or_404(Player, pk=data.get('goalie'))
     time = datetime.datetime.strptime(data.get('time'), "%M:%S")
 
-    if new_goalie not in match.team_one.players and new_goalie not in match.team_two.players:
+    if new_goalie not in match.team_one.players.all() and new_goalie not in match.team_two.players.all():
         return HttpResponseBadRequest("Nový brankář se nenachází ani v jednom z týmů.")
 
     for goalie in GoalieInMatch.objects.filter(match=match).all():
