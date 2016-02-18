@@ -457,6 +457,17 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.saving = false;
         });
     };
+
+    self.saveMatch = function (match) {
+        match.saving = true;
+        return $http.post(djangoUrl.reverse("api:edit_match", {match_id: match.pk}), shallow_copy(match))
+            .success(function () {
+                match.saving = false;
+                match.changed = false;
+            }).error(function () {
+                match.saving = false;
+            });
+    };
 }]);
 
 var genders = [

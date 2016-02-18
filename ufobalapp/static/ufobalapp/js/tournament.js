@@ -133,7 +133,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                             $scope.match = match;
                             $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                             $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
-                            $scope.match.halftime = 1;
+                            $scope.match.halftime = match.halftime_length ? match.length ? null : 2 : 0;
                         }
                     });
                 });
@@ -149,22 +149,33 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
                 $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                 $scope.match.halftime = 2;
+                dataService.saveMatch($scope.match);
             }
         }else if ($scope.match.halftime === 2 ) {
             if (confirm("Opravdu chcete ukončit zápas?")) {
-                $scope.match.halftime = null;
                 $scope.timer.stop();
                 $scope.match.length = getTime();
+                $scope.match.halftime = null;
+                $scope.match.end = moment().format(datetimeFormat);
+                dataService.saveMatch($scope.match);
             }
         }
     };
 
-    var getTime = function () {
-        if ($scope.match.halftime === 1){
-            return $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
-        }else{
-            return $scope.match.halftime_length + $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
+    $scope.start = function () {
+        if ($scope.match.halftime === 0 ){
+            $scope.match.halftime = 1;
+            $scope.match.start = moment().format(datetimeFormat);
         }
+    };
+
+
+    var getTime = function () {
+        var ms = $scope.match.halftimeLenght * 60 * 1000 - Math.round($scope.timer.getTime());
+        if ($scope.match.halftime === 2){
+            ms = ms + moment.duration($scope.match.halftime_length).asMilliseconds();
+        }
+        return moment.utc(ms).format("HH:mm:ss");
     };
 
     $(document).foundation('reveal');

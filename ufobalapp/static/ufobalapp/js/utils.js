@@ -1,3 +1,4 @@
+var datetimeFormat = "YYYY-MM-DD HH:mm:ss";
 app.directive('stPersist', [function () {
     return {
         require: '^stTable',

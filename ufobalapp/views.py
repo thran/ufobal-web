@@ -196,7 +196,7 @@ def add_goal(request):
     if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
-    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%M:%S"),
+    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"),
                 type=data.get('type'))
     goal.assistance = Player.objects.filter(pk=data.get('assistence'))
     goal.save()
@@ -214,7 +214,7 @@ def add_shot(request):
     if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
-    shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
+    shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
     shot.save()
 
     return HttpResponse(shot.pk)
@@ -269,7 +269,7 @@ def add_penalty(request):
         return HttpResponseBadRequest("Hráč se nenachází ani v jednom z týmů.")
 
     penalty = Penalty(card=data.get('card'), match=match, player=player,
-                      reason=data.get('reason'), time=datetime.datetime.strptime(data.get('time'), "%M:%S"))
+                      reason=data.get('reason'), time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
     penalty.save()
 
     return HttpResponse(penalty.pk)
@@ -294,7 +294,7 @@ def edit_goal(request, goal_id):
         goal.match = match
 
     if data.get('time'):
-        goal.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+        goal.time = datetime.datetime.strptime(data.get('time'), "%H:%M:%S")
 
     if data.get('type'):
         goal.type = data.get('type')
@@ -319,7 +319,7 @@ def edit_shot(request, shot_id):
         shot.match = match
 
     if data.get('time'):
-        shot.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+        shot.time = datetime.datetime.strptime(data.get('time'), "%H:%M:%S")
 
     shot.save()
 
@@ -345,19 +345,16 @@ def edit_match(request, match_id):
         match.team_two = team_two
 
     if data.get('start'):
-        match.start = datetime.datetime.strptime(data.get('start'), "%M:%S")
+        match.start = datetime.datetime.strptime(data.get('start'), "%Y-%m-%d %H:%M:%S")
 
     if data.get('end'):
-        match.end = datetime.datetime.strptime(data.get('end'), "%M:%S")
-
-    if data.get('end'):
-        match.end = datetime.datetime.strptime(data.get('end'), "%M:%S")
+        match.end = datetime.datetime.strptime(data.get('end'), "%Y-%m-%d %H:%M:%S")
 
     if data.get('halftime_length'):
-        match.halftime_length = datetime.datetime.strptime(data.get('halftime_length'), "%M:%S")
+        match.halftime_length = datetime.datetime.strptime(data.get('halftime_length'), "%H:%M:%S")
 
     if data.get('length'):
-        match.halftime_length = datetime.datetime.strptime(data.get('length'), "%M:%S")
+        match.length = datetime.datetime.strptime(data.get('length'), "%H:%M:%S")
 
     match.save()
 
@@ -382,7 +379,7 @@ def edit_penalty(request, penalty_id):
         penalty.player = player
 
     if data.get('time'):
-        penalty.time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+        penalty.time = datetime.datetime.strptime(data.get('time'), "%H:%M:%S")
 
     if data.get('reason'):
         penalty.reason = data.get('reason')
@@ -431,7 +428,7 @@ def change_goalie(request, match_id, team_id):
     match = get_object_or_404(Match, pk=match_id)
     team_on_tournament = get_object_or_404(TeamOnTournament, pk=team_id)
     new_goalie = get_object_or_404(Player, pk=data.get('goalie'))
-    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+    time = datetime.datetime.strptime(data.get('time'), "%H:%M:%S")
 
     if new_goalie not in match.team_one.players.all() and new_goalie not in match.team_two.players.all():
         return HttpResponseBadRequest("Nový brankář se nenachází ani v jednom z týmů.")
@@ -456,7 +453,7 @@ def start_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
 
     # realny cas zacatku zapasu
-    time = datetime.datetime.strptime(data.get('time'), "%M:%S")
+    time = datetime.datetime.strptime(data.get('time'), "%H:%M:%S")
 
     match.start = time
     match.save()
@@ -471,10 +468,10 @@ def end_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
 
     # konecny cas delky zapasu
-    time_relative = datetime.datetime.strptime(data.get('time_relative'), "%M:%S")
+    time_relative = datetime.datetime.strptime(data.get('time_relative'), "%H:%M:%S")
 
     # realny cas konce zapasu
-    time_real = datetime.datetime.strptime(data.get('time_real'), "%M:%S")
+    time_real = datetime.datetime.strptime(data.get('time_real'), "%H:%M:%S")
 
     for goalie in GoalieInMatch.objects.filter(match=match).all():
         if goalie.end is None:

@@ -5,17 +5,17 @@
 
 <div ng-show="match">
     <div class="text-center">
-        <span ng-show="match.halftime">{{ match.halftime }}. poločas</span>
-        <span ng-hide="match.halftime">{{ match.halftime }}zápas ukončen</span>
-        <span ng-show="match.halftime" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
+        <span ng-show="match.halftime > 0">{{ match.halftime }}. poločas</span>
+        <span ng-show="match.halftime === null">zápas ukončen</span>
+        <span ng-show="match.halftime > 0" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
     </div>
-    <div class="timer" ng-show="match.halftime">
+    <div class="timer" ng-show="match.halftime !=   = null">
         <span ng-click="timer.addTime(-5000)" class="clickable fi-rewind"></span>
         <span ng-click="timer.addTime(-1000)" class="clickable line">&#9666;</span>
         &nbsp;&nbsp;&nbsp;
-        <span ng-click="timer.start()" ng-show="!timer.running" class="clickable fi-play"></span>
+        <span ng-click="timer.start();" ng-show="!timer.running" class="clickable fi-play"></span>
         <span ng-click="timer.stop()" ng-show="timer.running" class="clickable fi-pause"></span>
-        <timer ng-click="timer.switchState()" class="clickable" countdown="true" interface="timer">
+        <timer ng-click="timer.switchState(); start();" class="clickable" countdown="true" interface="timer">
             <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}</b>
         </timer>
         &nbsp;&nbsp;&nbsp;
