@@ -168,6 +168,7 @@ class Tournament(models.Model):
 
     date = models.DateField('Datum')
     registration_to = models.DateField('Přihlašování do', null=True, blank=True)
+    halftime_length = models.IntegerField('Délka poločasu', default=8)
     name = models.CharField('Název/místo', max_length=50)
 
     def to_json(self, teams=True, **kwargs):
@@ -178,6 +179,7 @@ class Tournament(models.Model):
             "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
+            "halftime_length": self.halftime_length,
             "year": self.date.year,
         }
 

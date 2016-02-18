@@ -120,18 +120,24 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
     $(document).foundation('reveal');
 }]);
 
-app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", function($scope, $routeParams, dataService){
+app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", function($scope, $routeParams, dataService, $timeout){
     var id = parseInt($routeParams.id);
     $scope.timer = {};
 
     dataService.getMatches().then(function (matches) {
-        angular.forEach(matches, function (match) {
-            if (id === match.pk){
-                $scope.match = match;
-                $scope.match.halftimeLenght = 8;
-                $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
-                $scope.match.halftime = 1;
-            }
+        dataService.getPlayers().then(function () {
+            dataService.getTeams().then(function () {
+                $timeout(function(){
+                    angular.forEach(matches, function (match) {
+                        if (id === match.pk){
+                            $scope.match = match;
+                            $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
+                            $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
+                            $scope.match.halftime = 1;
+                        }
+                    });
+                });
+            });
         });
     });
 
