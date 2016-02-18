@@ -3,28 +3,77 @@
 <hr>
 <div class="loader" ng-hide="match"></div>
 
-<div ng-show="match">
+<div ng-show="match" class="row">
     <div class="text-center">
         <span ng-show="match.halftime > 0">{{ match.halftime }}. poločas</span>
         <span ng-show="match.halftime === null">zápas ukončen</span>
         <span ng-show="match.halftime > 0" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
     </div>
-    <div class="timer" ng-show="match.halftime !=   = null">
+    <div class="timer" ng-show="match.halftime !== null">
         <span ng-click="timer.addTime(-5000)" class="clickable fi-rewind"></span>
         <span ng-click="timer.addTime(-1000)" class="clickable line">&#9666;</span>
-        &nbsp;&nbsp;&nbsp;
-        <span ng-click="timer.start();" ng-show="!timer.running" class="clickable fi-play"></span>
+        &nbsp;&nbsp;
+        <span ng-click="timer.start(); start();" ng-show="!timer.running" class="clickable fi-play"></span>
         <span ng-click="timer.stop()" ng-show="timer.running" class="clickable fi-pause"></span>
         <timer ng-click="timer.switchState(); start();" class="clickable" countdown="true" interface="timer">
             <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}</b>
         </timer>
-        &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;
         <span ng-click="timer.addTime(1000)" class="clickable line">&#9656;</span>
         <span ng-click="timer.addTime(5000)" class="clickable fi-fast-forward"></span>
     </div>
 
     <hr>
 
-   {{ match.team_one.name_pure }}
-   {{ match.team_two.name_pure }}
+    <div class="columns small-5 text-right" ><h3> {{ match.team_one.name_pure }} </h3></div>
+    <div class="columns small-2 text-center">&nbsp;</div>
+    <div class="columns small-5"><h3> {{ match.team_two.name_pure }} </h3></div>
+
+
+    <div class="columns small-5 text-right"><h1>{{ goalCount(1) }}</h1></div>
+    <div class="columns small-2">&nbsp;</div>
+    <div class="columns small-5"><h1>{{ goalCount(2) }}</h1></div>
+
+
+    <div class="columns small-5 text-right" ><h3>
+        <span class="pressbutton">střela</span>
+        <span class="pressbutton" ng-click="newGoal(match.team_one)">gól</span>
+    </h3></div>
+    <div class="columns small-2 text-center">&nbsp;</div>
+    <div class="columns small-5"><h3>
+        <span class="pressbutton" ng-click="newGoal(match.team_two)">gól</span>
+        <span class="pressbutton">střela</span>
+    </h3></div>
+
+    <hr>
+
+    <div ng-repeat="event in match.events" class="row">
+        <div class="columns small-5 text-right" ng-bind-html="getText(event, 1)"></div>
+        <div class="columns small-2 text-center">{{ event.time | limitTo : -5 }}</div>
+        <div class="columns small-5" ng-bind-html="getText(event, 2)"></div>
+    </div>
+
+</div>
+
+
+
+<div id="newGoal" class="small reveal-modal" data-reveal>
+    <h2 id="modalTitle">Gól - {{ goal.team.name_pure }} - <span ng-hide="goal.shooter">střelec</span><span ng-show="goal.shooter">asistence</span></h2>
+    <div class="row" ng-hide="goal.shooter">
+        <div
+                class="pressbutton columns medium-6 large-4"
+                ng-repeat="player in goal.team.players"
+                ng-click="goal.shooter = player"
+        ><h5>{{ player.nickname }}</h5></div>
+    </div>
+    <div class="row" ng-show="goal.shooter">
+        <div
+                class="pressbutton columns medium-6 large-4"
+                ng-repeat="player in goal.team.players"
+                ng-click="goal.assistance = player; saveGoal();"
+        ><h5>{{ player.nickname }}</h5></div>
+        <div class="pressbutton columns medium-6 large-4 red" ng-click="goal.assistance = null; saveGoal();"><h5>bez asistence</h5></div>
+    </div>
+
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

@@ -57,6 +57,10 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
         });
     });
 
+    dataService.getPlayers().then(function (players) {
+        $scope.players = players;
+    });
+
     $scope.computeAge = function(){
         if ($scope.newPlayer.birthdate){
             var ageDifMs = Date.now() - Date.parse($scope.newPlayer.birthdate);
@@ -120,7 +124,7 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
     $(document).foundation('reveal');
 }]);
 
-app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", function($scope, $routeParams, dataService, $timeout){
+app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", function($scope, $routeParams, dataService, $timeout, $sce){
     var id = parseInt($routeParams.id);
     $scope.timer = {};
 
@@ -131,6 +135,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     angular.forEach(matches, function (match) {
                         if (id === match.pk){
                             $scope.match = match;
+                            $scope.match.events = [];
                             $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                             $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                             $scope.match.halftime = match.halftime_length ? match.length ? null : 2 : 0;
@@ -169,6 +174,62 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         }
     };
 
+    $scope.newGoal = function (team) {
+         $scope.goal = {
+             team: team,
+             time: getTime(),
+             match: $scope.match
+         };
+        $('#newGoal').foundation('reveal', 'open');
+    };
+
+    $scope.saveGoal = function () {
+        $scope.match.events.push({
+            type: "goal",
+            time: $scope.goal.time,
+            data: $scope.goal,
+            saved: false
+        });
+        $scope.goal = null;
+        $('#newGoal').foundation('reveal', 'close');
+    };
+
+    $scope.getText = function (event, team) {
+        if (event.type === "goal"){
+            if (inTeam(team, event.data.shooter)){
+                if (event.data.assistance) {
+                    return $sce.trustAsHtml("<b>" + event.data.shooter.nickname + "</b> - " + event.data.assistance.nickname);
+                }
+                return $sce.trustAsHtml("<b>" + event.data.shooter.nickname + "</b>");
+            }else{
+                return $sce.trustAsHtml("&nbsp;");
+            }
+        }
+    };
+
+    $scope.goalCount = function (team) {
+        var count = 0;
+        if (!$scope.match){
+            return;
+        }
+        angular.forEach($scope.match.events, function (event) {
+            if (event.type === "goal" && inTeam(team, event.data.shooter)){
+                count++;
+            }
+        });
+        return count;
+    };
+
+    var inTeam = function (team, player) {
+        team = team === 1 ? $scope.match.team_one : $scope.match.team_two;
+        var result = false;
+        angular.forEach(team.players, function (p) {
+            if(p === player){
+                result = true;
+            }
+        });
+        return result;
+    };
 
     var getTime = function () {
         var ms = $scope.match.halftimeLenght * 60 * 1000 - Math.round($scope.timer.getTime());
