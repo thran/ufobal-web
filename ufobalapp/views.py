@@ -350,9 +350,14 @@ def edit_match(request, match_id):
     if data.get('end'):
         match.end = datetime.datetime.strptime(data.get('end'), "%M:%S")
 
-    if data.get('referee'):
-        referee = get_object_or_404(Player, data.get('referee'))
-        match.referee = referee
+    if data.get('end'):
+        match.end = datetime.datetime.strptime(data.get('end'), "%M:%S")
+
+    if data.get('halftime_length'):
+        match.halftime_length = datetime.datetime.strptime(data.get('halftime_length'), "%M:%S")
+
+    if data.get('length'):
+        match.halftime_length = datetime.datetime.strptime(data.get('length'), "%M:%S")
 
     match.save()
 

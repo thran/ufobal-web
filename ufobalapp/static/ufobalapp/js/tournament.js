@@ -139,7 +139,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", func
         if ($scope.match.halftime === 1 ) {
             if (confirm("Opravdu přejít do druhého poločasu?")) {
                 $scope.timer.stop();
-                $scope.match.halftimeAt = getTime();
+                $scope.match.halftime_length = getTime();
 
                 $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                 $scope.match.halftime = 2;
@@ -148,7 +148,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", func
             if (confirm("Opravdu chcete ukončit zápas?")) {
                 $scope.match.halftime = null;
                 $scope.timer.stop();
-                $scope.match.endAt = getTime();
+                $scope.match.length = getTime();
             }
         }
     };
@@ -157,7 +157,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", func
         if ($scope.match.halftime === 1){
             return $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
         }else{
-            return $scope.match.halftimeAt + $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
+            return $scope.match.halftime_length + $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
         }
     };
 

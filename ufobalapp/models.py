@@ -175,7 +175,7 @@ class Tournament(models.Model):
             "pk": self.pk,
             "name": self.name,
             "full_name": self.name + " " + str(self.date.year),
-            "date": str(self.date),
+            "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
             "year": self.date.year,
@@ -203,6 +203,8 @@ class Match(models.Model):
     team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='+', null=True, blank=True)
     start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
+    halftime_length = models.TimeField('Délka poločasu', null=True, blank=True)
+    length = models.TimeField('Délka zápasu', null=True, blank=True)
     goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
     referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)
     # TODO hodnoceni od tymu....
@@ -215,8 +217,10 @@ class Match(models.Model):
             "tournament": self.tournament_id,
             "team_one": self.team_one_id,
             "team_two": self.team_two_id,
-            "start": str(self.start),
-            "end": str(self.end),
+            "start": str(self.start) if self.start else None,
+            "end": str(self.end) if self.end else None,
+            "halftime_length": self.halftime_length,
+            "length": self.length,
             "referee": self.referee_id,
             "fake": self.fake,
         }
