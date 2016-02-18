@@ -10,6 +10,8 @@
     "angular-smart-table": "",
     "jquery-ui": "~1.11.4",
     "foundation-icon-fonts": "",
-    "angular-ui-sortable": "~0.13.4"
+    "angular-ui-sortable": "~0.13.4",
+    "humanize-duration": "~3.6.0",
+    "moment": "~2.11.2"
   }
 }

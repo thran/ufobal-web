@@ -13,6 +13,9 @@ grunt.initConfig({
                 'bower_components/angular-foundation/mm-foundation-tpls.min.js',
                 'bower_components/angular-route/angular-route.min.js',
                 'bower_components/angular-smart-table/dist/smart-table.min.js',
+                'bower_components/moment/min/moment.min.js',
+                'bower_components/moment/min/locales.min.js',
+                'bower_components/humanize-duration/humanize-duration.js',
                 'bower_components/foundation/js/foundation.min.js'
             ],
             dest: 'static/dist/libs.min.js'

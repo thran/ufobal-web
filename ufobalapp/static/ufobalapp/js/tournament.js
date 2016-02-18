@@ -122,15 +122,44 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
 
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", function($scope, $routeParams, dataService){
     var id = parseInt($routeParams.id);
+    $scope.timer = {};
 
     dataService.getMatches().then(function (matches) {
         angular.forEach(matches, function (match) {
             if (id === match.pk){
                 $scope.match = match;
-                console.log(match);
+                $scope.match.halftimeLenght = 8;
+                $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
+                $scope.match.halftime = 1;
             }
         });
     });
+
+    $scope.nextHalftime = function () {
+        if ($scope.match.halftime === 1 ) {
+            if (confirm("Opravdu přejít do druhého poločasu?")) {
+                $scope.timer.stop();
+                $scope.match.halftimeAt = getTime();
+
+                $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
+                $scope.match.halftime = 2;
+            }
+        }else if ($scope.match.halftime === 2 ) {
+            if (confirm("Opravdu chcete ukončit zápas?")) {
+                $scope.match.halftime = null;
+                $scope.timer.stop();
+                $scope.match.endAt = getTime();
+            }
+        }
+    };
+
+    var getTime = function () {
+        if ($scope.match.halftime === 1){
+            return $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
+        }else{
+            return $scope.match.halftimeAt + $scope.match.halftimeLenght * 60 - Math.round($scope.timer.getTime() / 1000);
+        }
+    };
 
     $(document).foundation('reveal');
 }]);

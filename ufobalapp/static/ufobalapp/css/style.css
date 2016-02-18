@@ -1,3 +1,10 @@
+.red{ color: darkred; }
+.clickable{
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 #container{
     min-height:100%;
     position:relative;
@@ -102,3 +109,20 @@ h5 {
 }
 fieldset > .fi-x{ top: 2em; right: 1.3em }
 .search-box > div:hover, fieldset > .fi-x:hover{ color: black}
+
+
+.timer{
+    text-align: center;
+    font-size: 3em;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.timer span.line{
+    position: relative;
+    top: -4px;
+}
+.timer .fi-play, .timer .fi-pause{
+    font-size: 0.5em;
+    position: relative;
+    top: -6px;
+}
