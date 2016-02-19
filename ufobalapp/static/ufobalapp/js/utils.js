@@ -60,11 +60,13 @@ app.directive('stRank', [function () {
     };
 }]);
 
-var shallow_copy = function(obj){
+var shallow_copy = function(obj, pks){
     var newObj = {};
     angular.forEach(obj, function(value, key){
         if (typeof value !== "object"){
             newObj[key] = value;
+        }else if (pks && value && value.pk){
+            newObj[key] = value.pk;
         }
     });
     return newObj;

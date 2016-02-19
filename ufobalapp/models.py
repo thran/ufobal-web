@@ -213,7 +213,7 @@ class Match(models.Model):
 
     fake = models.BooleanField('Importovaný zápas', default=False)
 
-    def to_json(self, **kwargs):
+    def to_json(self, goals=True,  **kwargs):
         data = {
             "pk": self.pk,
             "tournament": self.tournament_id,
@@ -226,6 +226,9 @@ class Match(models.Model):
             "referee": self.referee_id,
             "fake": self.fake,
         }
+
+        if goals:
+            data["goals"] = [goal.to_json() for goal in self.goals.all()]
 
         return data
 
@@ -282,6 +285,16 @@ class Goal(models.Model):
     time = models.TimeField('Čas v zápase', null=True, blank=True)
     type = models.CharField(max_length=20,
                             verbose_name='druh', choices=GOAL_TYPES, default=NORMAL)
+
+    def to_json(self):
+        data = {
+            "shooter": self.shooter_id,
+            "assistance": self.assistance_id,
+            "match": self.match_id,
+            "time": str(self.time) if self.time else None,
+            "type": self.type,
+        }
+        return  data
 
     def __str__(self):
         if self.match.fake:

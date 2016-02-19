@@ -196,9 +196,14 @@ def add_goal(request):
     if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
-    goal = Goal(shooter=shooter, math=match, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"),
-                type=data.get('type'))
-    goal.assistance = Player.objects.filter(pk=data.get('assistence'))
+    goal = Goal(shooter=shooter, match=match, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
+
+    if data.get("type"):
+        goal.type = data.get("type")
+
+    assistance = Player.objects.filter(pk=data.get('assistance'))
+    if len(assistance) > 0:
+        goal.assistance = assistance[0]
     goal.save()
 
     return HttpResponse(goal.pk)

@@ -463,10 +463,25 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return $http.post(djangoUrl.reverse("api:edit_match", {match_id: match.pk}), shallow_copy(match))
             .success(function () {
                 match.saving = false;
-                match.changed = false;
             }).error(function () {
                 match.saving = false;
             });
+    };
+
+    self.saveGoal = function(goal) {
+        if (!goal.pk){
+            goal.saving = true;
+            return $http.post(djangoUrl.reverse("api:add_goal"), shallow_copy(goal, true))
+                .success(function (pk) {
+                    goal.saving = false;
+                    goal.pk = pk;
+                })
+                .error(function () {
+                    goal.saving = false;
+                });
+        }else{
+            console.log("Not implemented");
+        }
     };
 }]);
 

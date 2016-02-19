@@ -135,7 +135,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     angular.forEach(matches, function (match) {
                         if (id === match.pk){
                             $scope.match = match;
-                            $scope.match.events = [];
+                            prepareEvents(match);
                             $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                             $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                             $scope.match.halftime = match.halftime_length ? match.length ? null : 2 : 0;
@@ -192,6 +192,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
         $scope.goal = null;
         $('#newGoal').foundation('reveal', 'close');
+        saveData();
     };
 
     $scope.getText = function (event, team) {
@@ -218,6 +219,30 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             }
         });
         return count;
+    };
+
+    var prepareEvents = function (match) {
+        match.events = [];
+        angular.forEach(match.goals, function (goal) {
+            goal.shooter = dataService.getObject("players", goal.shooter);
+            goal.assistance = dataService.getObject("players", goal.assistance);
+            match.events.push({
+                type: "goal",
+                time: goal.time,
+                data: goal,
+                saved: true
+            });
+        });
+    };
+
+    var saveData = function () {
+        angular.forEach($scope.match.events, function (event) {
+            if (event.type === "goal" && event.saved === false){
+                dataService.saveGoal(event.data).success(function () {
+                    event.saved = true;
+                });
+            }
+        });
     };
 
     var inTeam = function (team, player) {

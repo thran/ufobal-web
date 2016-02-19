@@ -49,7 +49,7 @@
 
     <div ng-repeat="event in match.events" class="row">
         <div class="columns small-5 text-right" ng-bind-html="getText(event, 1)"></div>
-        <div class="columns small-2 text-center">{{ event.time | limitTo : -5 }}</div>
+        <div class="columns small-2 text-center">{{ event.time | limitTo : -5 }} <span ng-hide="event.saved" class="fi-unlink"></span></div>
         <div class="columns small-5" ng-bind-html="getText(event, 2)"></div>
     </div>
 
