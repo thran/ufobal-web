@@ -124,7 +124,7 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
     $(document).foundation('reveal');
 }]);
 
-app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", function($scope, $routeParams, dataService, $timeout, $sce){
+app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", function($scope, $routeParams, dataService, $timeout, $sce, $filter){
     var id = parseInt($routeParams.id);
     $scope.timer = {};
 
@@ -233,6 +233,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 saved: true
             });
         });
+        match.events = $filter("orderBy")(match.events, "time");
     };
 
     var saveData = function () {
