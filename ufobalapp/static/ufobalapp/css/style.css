@@ -142,3 +142,10 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
     border: solid #7b080c 2px;
     background-color: rgba(123, 8, 12, 0.3);
 }
+
+.team-red{
+    color: darkred !important;
+}
+.team-blue{
+    color: darkblue !important;
+}

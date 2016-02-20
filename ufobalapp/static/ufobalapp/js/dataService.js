@@ -228,6 +228,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     };
 
     self.getObject = function(object, id){
+        if (typeof id === "object"){
+            return id;
+        }
         if (!dataMaps[object]){
             return null;
         }

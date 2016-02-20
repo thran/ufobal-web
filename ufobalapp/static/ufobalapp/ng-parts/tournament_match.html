@@ -25,14 +25,14 @@
 
     <hr>
 
-    <div class="columns small-5 text-right" ><h3> {{ match.team_one.name_pure }} </h3></div>
+    <div class="columns small-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
     <div class="columns small-2 text-center">&nbsp;</div>
-    <div class="columns small-5"><h3> {{ match.team_two.name_pure }} </h3></div>
+    <div class="columns small-5" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
 
 
-    <div class="columns small-5 text-right"><h1>{{ goalCount(1) }}</h1></div>
+    <div class="columns small-5 text-right" style="font-size: 3em;" ng-class="match.team_one.color">{{ goalCount(1) }}</div>
     <div class="columns small-2">&nbsp;</div>
-    <div class="columns small-5"><h1>{{ goalCount(2) }}</h1></div>
+    <div class="columns small-5" style="font-size: 3em;" ng-class="match.team_two.color">{{ goalCount(2) }}</div>
 
 
     <div class="columns small-5 text-right" ><h3>
@@ -48,9 +48,11 @@
     <hr>
 
     <div ng-repeat="event in match.events" class="row">
-        <div class="columns small-5 text-right" ng-bind-html="getText(event, 1)"></div>
-        <div class="columns small-2 text-center">{{ event.time | limitTo : -5 }} <span ng-hide="event.saved" class="fi-unlink"></span></div>
-        <div class="columns small-5" ng-bind-html="getText(event, 2)"></div>
+        <div class="columns small-2 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
+        <div class="columns small-2 text-right">{{ event.time | limitTo : -5 }}</div>
+        <div class="columns small-8">
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól - <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+        </div>
     </div>
 
 </div>
