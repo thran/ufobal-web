@@ -217,22 +217,21 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             saved: false,
             team: inTeam($scope.match.team_one, $scope.goal.shooter) ? $scope.match.team_one : $scope.match.team_two
         });
-        $scope.goal = null;
         $('#newGoal').foundation('reveal', 'close');
         saveData();
     };
 
-    $scope.goalCount = function (team) {
-        var count = 0;
+    var calculateEventCounts = function () {
+        $scope.counts = { teamOne: {'shots': 0, goals: 0}, teamTwo: {'shots': 0, goals: 0}};
         if (!$scope.match){
             return;
         }
         angular.forEach($scope.match.events, function (event) {
-            if (event.type === "goal" && inTeam(team, event.data.shooter)){
-                count++;
+            if (event.type === "goal" || event.type === "shot"){
+                $scope.counts[event.team === $scope.match.team_one ? 'teamOne' : 'teamTwo'][event.type+"s"]++;
             }
         });
-        return count;
+        return $scope.count;
     };
 
     var prepareEvents = function (match) {
@@ -259,9 +258,11 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             });
         });
         match.events = $filter("orderBy")(match.events, "time");
+        calculateEventCounts();
     };
 
     var saveData = function () {
+        calculateEventCounts();
         angular.forEach($scope.match.events, function (event) {
             if (event.type === "goal" && event.saved === false){
                 dataService.saveGoal(event.data).success(function () {
@@ -276,7 +277,6 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     var inTeam = function (team, player) {
-        team = team === 1 ? $scope.match.team_one : $scope.match.team_two;
         var result = false;
         angular.forEach(team.players, function (p) {
             if(p === player){

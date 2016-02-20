@@ -30,9 +30,20 @@
     <div class="columns small-5" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
 
 
-    <div class="columns small-5 text-right" style="font-size: 3em;" ng-class="match.team_one.color">{{ goalCount(1) }}</div>
+    <div class="columns small-5 text-right" ng-class="match.team_one.color"
+    ng-init="">
+        {{ counts.teamOne.goals / (counts.teamOne.goals + counts.teamOne.shots) * 100 | number:0 }}% -
+        {{ counts.teamOne.shots }}
+        &nbsp;&nbsp;&nbsp;
+        <span style="font-size: 3em;">{{ counts.teamOne.goals }}</span>
+    </div>
     <div class="columns small-2">&nbsp;</div>
-    <div class="columns small-3" style="font-size: 3em;" ng-class="match.team_two.color">{{ goalCount(2) }}</div>
+    <div class="columns small-3" ng-class="match.team_two.color">
+        <span style="font-size: 3em;">{{ counts.teamTwo.goals }}</span>
+        &nbsp;&nbsp;&nbsp;
+        {{ counts.teamTwo.shots }} -
+        {{ counts.teamTwo.goals / (counts.teamTwo.goals + counts.teamTwo.shots) * 100 | number:0 }}%
+    </div>
     <div class="columns small-2"><div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div></div>
 
 
