@@ -32,26 +32,28 @@
 
     <div class="columns small-5 text-right" style="font-size: 3em;" ng-class="match.team_one.color">{{ goalCount(1) }}</div>
     <div class="columns small-2">&nbsp;</div>
-    <div class="columns small-5" style="font-size: 3em;" ng-class="match.team_two.color">{{ goalCount(2) }}</div>
+    <div class="columns small-3" style="font-size: 3em;" ng-class="match.team_two.color">{{ goalCount(2) }}</div>
+    <div class="columns small-2"><div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div></div>
 
 
     <div class="columns small-5 text-right" ><h3>
-        <span class="pressbutton">střela</span>
+        <span class="pressbutton" ng-click="saveShot(match.team_one)">střela</span>
         <span class="pressbutton" ng-click="newGoal(match.team_one)">gól</span>
     </h3></div>
     <div class="columns small-2 text-center">&nbsp;</div>
     <div class="columns small-5"><h3>
         <span class="pressbutton" ng-click="newGoal(match.team_two)">gól</span>
-        <span class="pressbutton">střela</span>
+        <span class="pressbutton" ng-click="saveShot(match.team_two)">střela</span>
     </h3></div>
 
     <hr>
 
-    <div ng-repeat="event in match.events" class="row">
+    <div ng-repeat="event in match.events | filter : eventFilter" class="row">
         <div class="columns small-2 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
         <div class="columns small-2 text-right">{{ event.time | limitTo : -5 }}</div>
         <div class="columns small-8">
-            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól - <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
         </div>
     </div>
 

@@ -214,12 +214,15 @@ def add_shot(request):
     data = json.loads(str(request.body.decode('utf-8')))
 
     match = get_object_or_404(Match, pk=data.get('match'))
-    shooter = get_object_or_404(Player, pk=data.get('shooter'))
+    team = get_object_or_404(TeamOnTournament, pk=data.get('team'))
+    if data.get("shooter"):
+        shooter = get_object_or_404(Player, pk=data.get('shooter'))
+        if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
+            return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
+    else:
+        shooter = None
 
-    if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
-        return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
-
-    shot = Shot(match=match, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
+    shot = Shot(match=match, team=team, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
     shot.save()
 
     return HttpResponse(shot.pk)

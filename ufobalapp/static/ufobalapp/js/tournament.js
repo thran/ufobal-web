@@ -127,6 +127,15 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", function($scope, $routeParams, dataService, $timeout, $sce, $filter){
     var id = parseInt($routeParams.id);
     $scope.timer = {};
+    $scope.eventFilter = {type: "!shot"};
+
+    $scope.$watch("showShots", function (n, o) {
+        if (n){
+            $scope.eventFilter.type = "";
+        }else{
+            $scope.eventFilter.type = "!shot";
+        }
+    });
 
     dataService.getMatches().then(function (matches) {
         dataService.getPlayers().then(function () {
@@ -185,6 +194,21 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         $('#newGoal').foundation('reveal', 'open');
     };
 
+    $scope.saveShot = function (team) {
+         $scope.match.events.push({
+            type: "shot",
+            time: getTime(),
+            data: {
+                time: getTime(),
+                match: $scope.match,
+                team: team
+            },
+            saved: false,
+            team: team
+        });
+        saveData();
+    };
+
     $scope.saveGoal = function () {
         $scope.match.events.push({
             type: "goal",
@@ -224,6 +248,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 saved: true
             });
         });
+        angular.forEach(match.shots, function (shot) {
+            shot.shooter = dataService.getObject("players", shot.shooter);
+            match.events.push({
+                type: "shot",
+                time: shot.time,
+                data: shot,
+                team: dataService.getObject("teamontournaments", shot.team),
+                saved: true
+            });
+        });
         match.events = $filter("orderBy")(match.events, "time");
     };
 
@@ -231,6 +265,10 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         angular.forEach($scope.match.events, function (event) {
             if (event.type === "goal" && event.saved === false){
                 dataService.saveGoal(event.data).success(function () {
+                    event.saved = true;
+                });
+            }else if (event.type === "shot" && event.saved === false){
+                dataService.saveShot(event.data).success(function () {
                     event.saved = true;
                 });
             }

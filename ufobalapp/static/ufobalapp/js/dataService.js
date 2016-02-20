@@ -486,6 +486,22 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             console.log("Not implemented");
         }
     };
+
+    self.saveShot = function(shot) {
+        if (!shot.pk){
+            shot.saving = true;
+            return $http.post(djangoUrl.reverse("api:add_shot"), shallow_copy(shot, true))
+                .success(function (pk) {
+                    shot.saving = false;
+                    shot.pk = pk;
+                })
+                .error(function () {
+                    shot.saving = false;
+                });
+        }else{
+            console.log("Not implemented");
+        }
+    };
 }]);
 
 var genders = [
