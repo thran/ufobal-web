@@ -128,19 +128,26 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 }
 
 .pressbutton {
-    border: solid #008CBA 2px;
-    padding: 5px 20px;
-    display: inline-block;
-    border-radius: 15px;
+    border: solid #008CBA 1px;
+    padding: 10px 20px;
+    margin: 5px;
     background-color: rgba(0, 140, 186, 0.3);
     color: rgb(0, 39, 58);
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.19);
+}
+.pressbutton:hover {
+    background-color: rgba(0, 140, 186, 0.4);
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .pressbutton.red {
-    border: solid #7b080c 2px;
+    border: solid #7b080c 1px;
     background-color: rgba(123, 8, 12, 0.3);
+}
+.pressbutton.red:hover {
+    background-color: rgba(123, 8, 12, 0.4);
 }
 
 .team-red{

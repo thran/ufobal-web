@@ -49,9 +49,9 @@
     <hr>
 
     <div ng-repeat="event in match.events | filter : eventFilter" class="row">
-        <div class="columns small-2 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
-        <div class="columns small-2 text-right">{{ event.time | limitTo : -5 }}</div>
-        <div class="columns small-8">
+        <div class="columns small-2 medium-1 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
+        <div class="columns small-2 medium-1 text-right">{{ event.time | limitTo : -5 }}</div>
+        <div class="columns small-8 medium-10">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
         </div>
@@ -65,18 +65,18 @@
     <h2 id="modalTitle">Gól - {{ goal.team.name_pure }} - <span ng-hide="goal.shooter">střelec</span><span ng-show="goal.shooter">asistence</span></h2>
     <div class="row" ng-hide="goal.shooter">
         <div
-                class="pressbutton columns medium-6 large-4"
+                class="columns medium-6 large-4"
                 ng-repeat="player in goal.team.players"
                 ng-click="goal.shooter = player"
-        ><h5>{{ player.nickname }}</h5></div>
+        ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
     </div>
     <div class="row" ng-show="goal.shooter">
         <div
-                class="pressbutton columns medium-6 large-4"
+                class="columns medium-6 large-4"
                 ng-repeat="player in goal.team.players"
                 ng-click="goal.assistance = player; saveGoal();"
-        ><h5>{{ player.nickname }}</h5></div>
-        <div class="pressbutton columns medium-6 large-4 red" ng-click="goal.assistance = null; saveGoal();"><h5>bez asistence</h5></div>
+        ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
+        <div class="columns medium-6 large-4" ng-click="goal.assistance = null; saveGoal();"><div class="pressbutton red"><h5>nikdo</h5></div></div>
     </div>
 
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
