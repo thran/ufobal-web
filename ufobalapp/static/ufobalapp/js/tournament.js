@@ -128,6 +128,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     var id = parseInt($routeParams.id);
     $scope.timer = {};
     $scope.eventFilter = {type: "!shot"};
+    $scope.cards = cards;
 
     $scope.$watch("showShots", function (n, o) {
         if (n){
@@ -194,6 +195,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         $('#newGoal').foundation('reveal', 'open');
     };
 
+    $scope.newPenalty = function (team) {
+         $scope.penalty = {
+             team: team,
+             time: getTime(),
+             match: $scope.match,
+             card: "yellow"
+         };
+        $('#newPenalty').foundation('reveal', 'open');
+    };
+
     $scope.saveShot = function (team) {
          $scope.match.events.push({
             type: "shot",
@@ -218,6 +229,18 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             team: inTeam($scope.match.team_one, $scope.goal.shooter) ? $scope.match.team_one : $scope.match.team_two
         });
         $('#newGoal').foundation('reveal', 'close');
+        saveData();
+    };
+
+    $scope.savePenalty = function () {
+        $scope.match.events.push({
+            type: "penalty",
+            time: $scope.penalty.time,
+            data: $scope.penalty,
+            team: inTeam($scope.match.team_one, $scope.penalty.player) ? $scope.match.team_one : $scope.match.team_two,
+            saved: false
+        });
+        $('#newPenalty').foundation('reveal', 'close');
         saveData();
     };
 
@@ -257,6 +280,21 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 saved: true
             });
         });
+        angular.forEach(match.penalties, function (penalty) {
+            penalty.player = dataService.getObject("players", penalty.player);
+            angular.forEach(cards, function(card){
+                if (card.id === penalty.card){
+                    penalty.cardText = card.text;
+                }
+            });
+            match.events.push({
+                type: "penalty",
+                time: penalty.time,
+                data: penalty,
+                team: inTeam(match.team_one, penalty.player) ? match.team_one : match.team_two,
+                saved: true
+            });
+        });
         match.events = $filter("orderBy")(match.events, "time");
         calculateEventCounts();
     };
@@ -264,12 +302,8 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     var saveData = function () {
         calculateEventCounts();
         angular.forEach($scope.match.events, function (event) {
-            if (event.type === "goal" && event.saved === false){
-                dataService.saveGoal(event.data).success(function () {
-                    event.saved = true;
-                });
-            }else if (event.type === "shot" && event.saved === false){
-                dataService.saveShot(event.data).success(function () {
+            if (event.saved === false) {
+                dataService.saveEvent(event.data, event.type).success(function () {
                     event.saved = true;
                 });
             }

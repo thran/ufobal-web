@@ -213,7 +213,7 @@ class Match(models.Model):
 
     fake = models.BooleanField('Importovaný zápas', default=False)
 
-    def to_json(self, goals=True, shots=True, **kwargs):
+    def to_json(self, goals=True, shots=True, penalties=True, **kwargs):
         data = {
             "pk": self.pk,
             "tournament": self.tournament_id,
@@ -229,9 +229,10 @@ class Match(models.Model):
 
         if goals:
             data["goals"] = [goal.to_json() for goal in self.goals.all()]
-
         if shots:
             data["shots"] = [shot.to_json() for shot in self.shots.all()]
+        if penalties:
+            data["penalties"] = [penalty.to_json() for penalty in self.penalties.all()]
 
         return data
 
@@ -353,3 +354,12 @@ class Penalty(models.Model):
     time = models.TimeField('čas')
     player = models.ForeignKey(Player, verbose_name='hráč')
     reason = models.TextField('Důvod')
+
+    def to_json(self):
+        return {
+            "card": self.card,
+            "time": str(self.time),
+            "match": self.match_id,
+            "player": self.player_id,
+            "reason": self.reason,
+        }

@@ -471,32 +471,16 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             });
     };
 
-    self.saveGoal = function(goal) {
-        if (!goal.pk){
-            goal.saving = true;
-            return $http.post(djangoUrl.reverse("api:add_goal"), shallow_copy(goal, true))
+    self.saveEvent = function(event, type) {
+        if (!event.pk){
+            event.saving = true;
+            return $http.post(djangoUrl.reverse("api:add_"+type), shallow_copy(event, true))
                 .success(function (pk) {
-                    goal.saving = false;
-                    goal.pk = pk;
+                    event.saving = false;
+                    event.pk = pk;
                 })
                 .error(function () {
-                    goal.saving = false;
-                });
-        }else{
-            console.log("Not implemented");
-        }
-    };
-
-    self.saveShot = function(shot) {
-        if (!shot.pk){
-            shot.saving = true;
-            return $http.post(djangoUrl.reverse("api:add_shot"), shallow_copy(shot, true))
-                .success(function (pk) {
-                    shot.saving = false;
-                    shot.pk = pk;
-                })
-                .error(function () {
-                    shot.saving = false;
+                    event.saving = false;
                 });
         }else{
             console.log("Not implemented");
@@ -507,4 +491,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 var genders = [
     {id: 'man', text: "muž"},
     {id: 'woman', text: "žena"}
+];
+
+var cards = [
+    {id: 'yellow', text: "žlutá"},
+    {id: 'red', text: "červená"}
 ];
