@@ -68,7 +68,8 @@
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
-        </div>
+            <div ng-show="event.type == 'halftime'"><b>konec poločasu</b> <hr> </div>
+            <div ng-show="event.type == 'end'"><b>konec zápasu</b></div>
     </div>
 
 </div>

@@ -163,9 +163,9 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             if (confirm("Opravdu přejít do druhého poločasu?")) {
                 $scope.timer.stop();
                 $scope.match.halftime_length = getTime();
-
                 $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                 $scope.match.halftime = 2;
+                $scope.match.events.push({ type: "halftime", time: $scope.match.halftime_length, saved: true});
                 dataService.saveMatch($scope.match);
             }
         }else if ($scope.match.halftime === 2 ) {
@@ -174,6 +174,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 $scope.match.length = getTime();
                 $scope.match.halftime = null;
                 $scope.match.end = moment().format(datetimeFormat);
+                $scope.match.events.push({ type: "end", time: $scope.match.length, saved: true});
                 dataService.saveMatch($scope.match);
             }
         }
@@ -282,8 +283,8 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
         angular.forEach(match.penalties, function (penalty) {
             penalty.player = dataService.getObject("players", penalty.player);
-            angular.forEach(cards, function(card){
-                if (card.id === penalty.card){
+            angular.forEach(cards, function (card) {
+                if (card.id === penalty.card) {
                     penalty.cardText = card.text;
                 }
             });
@@ -295,6 +296,12 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 saved: true
             });
         });
+        if (match.halftime_length) {
+            match.events.push({ type: "halftime", time: match.halftime_length, saved: true});
+        }
+        if (match.length) {
+            match.events.push({ type: "end", time: match.length, saved: true});
+        }
         match.events = $filter("orderBy")(match.events, "time");
         calculateEventCounts();
     };
