@@ -322,6 +322,10 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     var prepareEvents = function (match) {
+        if (match.events){
+            calculateEventCounts();
+            return;
+        }
         match.events = [];
         angular.forEach(match.goals, function (goal) {
             goal.shooter = dataService.getObject("players", goal.shooter);
