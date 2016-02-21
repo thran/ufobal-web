@@ -302,7 +302,7 @@ class Goal(models.Model):
             "shooter": self.shooter_id,
             "assistance": self.assistance_id,
             "match": self.match_id,
-            "time": str(self.time) if self.time else None,
+            "time": str(self.time) if self.time is not None else None,
             "type": self.type,
         }
         return  data
