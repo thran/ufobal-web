@@ -15,6 +15,8 @@ app.run(["$rootScope", "$location", "$window", function ($rootScope, $location, 
             $location.path("/intro");
             $window.location.href = "/intro";
         }
+        $("#feedback").css('display', next.templateUrl === 'tournament_match.html' ? "none" : "block");
+        console.log(next);
     });
 }]);
 
