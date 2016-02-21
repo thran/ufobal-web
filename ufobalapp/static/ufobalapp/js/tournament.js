@@ -316,6 +316,22 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         saveData();
         $('#editGoal').foundation('reveal', 'close');
     };
+
+    $scope.startEditPenalty = function (event) {
+        $scope.penalty = event.data;
+        $scope.penalty.team = event.team;
+        $scope.editEvent = event;
+        $('#editPenalty').foundation('reveal', 'open');
+    };
+
+    $scope.editPenalty = function () {
+        $scope.editEvent.data = $scope.penalty;
+        $scope.editEvent.saved = false;
+        $scope.editEvent.time = $scope.penalty.time;
+        $scope.penalty = null;
+        saveData();
+        $('#editPenalty').foundation('reveal', 'close');
+    };
     
     $scope.remove = function (event) {
         if (confirm("Opravdu smazat?")) {

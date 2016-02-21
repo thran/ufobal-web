@@ -107,6 +107,8 @@
                   ng-click="remove(event)" class="fi-x clickable"></span>
             <span ng-show="edit && (event.type == 'goal')"
                   ng-click="startEditGoal(event)" class="fi-pencil clickable"></span>
+            <span ng-show="edit && (event.type == 'penalty')"
+                  ng-click="startEditPenalty(event)" class="fi-pencil clickable"></span>
         </div>
         <div class="columns small-2 medium-1 text-right"><hr ng-show="event.type == 'halftime'">{{ event.time | limitTo : -5 }}</div>
         <div class="columns small-8 medium-9">
@@ -163,6 +165,31 @@
             <div class="pressbutton" ng-show="player != goal.shooter"><h5>{{ player.nickname }}</h5></div></div>
         <div class="columns medium-6 large-4" ng-click="goal.assistance = null; saveGoal();"><div class="pressbutton red"><h5>nikdo</h5></div></div>
     </div>
+
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="editPenalty" class="small reveal-modal" data-reveal>
+    <h2 id="modalTitle">Karta - {{ penalty.team.name_pure }}</h2>
+    <label>Čas
+        <input type="text" ng-model="penalty.time">
+    </label>
+    <label>Hráč
+        <select
+                ng-model="penalty.player"
+                ng-options="player as player.nickname for player in penalty.team.players">
+        </select>
+    </label>
+    <label>Karta
+        <select
+                ng-model="penalty.card"
+                ng-options="card.id as card.text for card in cards">
+        </select>
+    </label>
+    <label>Odůvodnění
+        <textarea ng-model="penalty.reason"></textarea>
+    </label>
+    <button ng-click="editPenalty()">Upravit</button>
 
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
