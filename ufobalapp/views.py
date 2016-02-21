@@ -30,7 +30,8 @@ def get_json_all(request, model_class):
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
     if model_class == Match:
-        objs = objs.filter(fake=False).prefetch_related("goals", "goalies_in_match", "shots", "penalties")
+        objs = objs.filter(fake=False).prefetch_related("goals", "goalies_in_match", "shots",
+                                                        "penalties", "team_one__players", "team_two__players")
     if model_class == TeamOnTournament:
         objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
 
@@ -235,6 +236,7 @@ def add_match(request):
     tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
     team_one = get_object_or_404(TeamOnTournament, pk=data.get('team_one'))
     team_two = get_object_or_404(TeamOnTournament, pk=data.get('team_two'))
+    referee_team = get_object_or_404(TeamOnTournament, pk=data.get('referee_team'))
     if data.get('referee'):
         referee = get_object_or_404(Player, pk=data.get('referee'))
     else:
@@ -244,9 +246,11 @@ def add_match(request):
         return HttpResponseBadRequest("První tým není zaregistrovaný na turnaji.")
     if team_two not in tournament.teams.all():
         return HttpResponseBadRequest("Druhý tým není zaregistrovaný na turnaji.")
+    if referee_team not in tournament.teams.all():
+        return HttpResponseBadRequest("Rozhodčí tým není zaregistrovaný na turnaji.")
 
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
-                  referee=referee, start=data.get('start'), end=data.get('end'))
+                  referee=referee, referee_team=referee_team, start=data.get('start'), end=data.get('end'))
     match.save()
 
     if data.get('goalie_one'):
@@ -296,15 +300,15 @@ def edit_goal(request, goal_id):
     goal = get_object_or_404(Match, pk=goal_id)
 
     if data.get('shooter'):
-        shooter = get_object_or_404(Player, data.get('shooter'))
+        shooter = get_object_or_404(Player, pk=data.get('shooter'))
         goal.shooter = shooter
 
     if data.get('assistance'):
-        assistance = get_object_or_404(Player, data.get('assistance'))
+        assistance = get_object_or_404(Player, pk=data.get('assistance'))
         goal.assistance = assistance
 
     if data.get('match'):
-        match = get_object_or_404(Match, data.get('match'))
+        match = get_object_or_404(Match, pk=data.get('match'))
         goal.match = match
 
     if data.get('time'):
@@ -325,11 +329,11 @@ def edit_shot(request, shot_id):
     shot = get_object_or_404(Match, pk=shot_id)
 
     if data.get('shooter'):
-        shooter = get_object_or_404(Player, data.get('shooter'))
+        shooter = get_object_or_404(Player, pk=data.get('shooter'))
         shot.shooter = shooter
 
     if data.get('match'):
-        match = get_object_or_404(Match, data.get('match'))
+        match = get_object_or_404(Match, pk=data.get('match'))
         shot.match = match
 
     if data.get('time'):
@@ -347,16 +351,24 @@ def edit_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
 
     if data.get('tournament'):
-        tournament = get_object_or_404(Tournament, data.get('tournament'))
+        tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
         match.tournament = tournament
 
     if data.get('team_one'):
-        team_one = get_object_or_404(TeamOnTournament, data.get('team_one'))
+        team_one = get_object_or_404(TeamOnTournament, pk=data.get('team_one'))
         match.team_one = team_one
 
     if data.get('team_two'):
-        team_two = get_object_or_404(TeamOnTournament, data.get('team_two'))
+        team_two = get_object_or_404(TeamOnTournament, pk=data.get('team_two'))
         match.team_two = team_two
+
+    if data.get('referee'):
+        referee = get_object_or_404(Player, pk=data.get('referee'))
+        match.referee = referee
+
+    if data.get('referee_team'):
+        referee_team = get_object_or_404(TeamOnTournament, pk=data.get('referee_team'))
+        match.referee_team = referee_team
 
     if data.get('start'):
         match.start = datetime.datetime.strptime(data.get('start'), "%Y-%m-%d %H:%M:%S")
@@ -385,11 +397,11 @@ def edit_penalty(request, penalty_id):
         penalty.card = data.get('card')
 
     if data.get('match'):
-        match = get_object_or_404(Match, data.get('match'))
+        match = get_object_or_404(Match, pk=data.get('match'))
         penalty.match = match
 
     if data.get('player'):
-        player = get_object_or_404(Player, data.get('player'))
+        player = get_object_or_404(Player, pk=data.get('player'))
         penalty.player = player
 
     if data.get('time'):
@@ -513,6 +525,7 @@ def intro(request):
 # @user_passes_test(is_staff_check)
 @ensure_csrf_cookie
 def home(request):
+    get_json_all(request, Match)
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
         "DEBUG": settings.DEBUG,

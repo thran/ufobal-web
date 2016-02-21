@@ -24,6 +24,10 @@
     </div>
 
     <hr>
+    <div class="text-center"> <a href="" data-reveal-id="changeReferee">
+        píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b>
+    </a></div>
+
     <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
         <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
         <span ng-hide="match.team_one.goalie">bez brankáře</span>
@@ -156,6 +160,20 @@
         ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
     </div>
     <button ng-show="goalieChange.goalie" ng-click="saveGoalieChange()">{{ goalieChange.goalie.nickname }} - Změnit</button>
+
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+
+<div id="changeReferee" class="small reveal-modal" data-reveal>
+    <h2 id="modalTitle">Volba hlavního rozhodčího</h2>
+    <label>
+        <select
+                ng-model="match.referee"
+                ng-change="changeReferee()"
+                ng-options="player as player.nickname for player in match.referee_team.players">
+        </select>
+    </label>
 
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

@@ -7,19 +7,22 @@
     <h1>{{ tournament.full_name }}</h1>
     <hr>
     <div class="row">
-        <div class="columns medium-6">
+        <div class="columns large-6">
             <div class="text-right columns small-6"><h3>Zápasy</h3></div>
             <div class="columns small-6" style="padding-top: 12px;"><a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a></div>
             <hr>
 
-            <div ng-repeat="match in tournament.matches | orderBy:'start'" class="row">
-                <a href="/turnaj/zapas/{{ match.pk }}">
-                    <div class="text-right columns small-6">{{ match.team_one.name_pure }}</div>
-                    <div class="columns small-6">{{ match.team_two.name_pure }}</div>
-                </a>
+            <div ng-repeat="match in tournament.matches | orderBy:'start'" class="row hoverLight">
+                <div class="text-right columns small-3"><a href="/turnaj/zapas/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
+                <div class="columns small-3"><a href="/turnaj/zapas/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
+                <div class="columns small-3">({{ match.referee_team.name_pure }})</div>
+                <div class="columns small-3">
+                    <span ng-show="match.start && ! match.end">hraje se</span>
+                    <span ng-show="match.end">{{ match.score_one }}:{{ match.score_two }}</span>
+                </div>
             </div>
         </div>
-        <div class="columns medium-6">
+        <div class="columns large-6">
             <div class="text-right columns small-6"><h3>Týmy</h3></div>
             <hr>
             <ul>
@@ -44,8 +47,14 @@
             <option value="">----</option>
         </select>
     </label>
+    <label>Rozhodčí tým
+        <select ng-model="match.referee_team"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
 
-    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.team_two " ng-click="addMatch()">Vytvořit</button>
+    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.referee_team || !match.team_two " ng-click="addMatch()">Vytvořit</button>
     <div class="loader" ng-show="match.saving"></div>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

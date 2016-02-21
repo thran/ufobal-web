@@ -151,6 +151,9 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                             $scope.match.halftime = match.halftime_length ? match.length ? null : 2 : 0;
                             match.team_one.color = "team-blue";
                             match.team_two.color = "team-red";
+                            if (!match.referee){
+                                $('#changeReferee').foundation('reveal', 'open');
+                            }
                         }
                     });
                 });
@@ -166,7 +169,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 $scope.timer.setTime($scope.match.halftimeLenght * 60 * 1000);
                 $scope.match.halftime = 2;
                 $scope.match.events.push({ type: "halftime", time: $scope.match.halftime_length, saved: true});
-                dataService.saveMatch($scope.match);
+                saveMatch($scope.match);
             }
         }else if ($scope.match.halftime === 2 ) {
             if (confirm("Opravdu chcete ukončit zápas?")) {
@@ -175,9 +178,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 $scope.match.halftime = null;
                 $scope.match.end = moment().format(datetimeFormat);
                 $scope.match.events.push({ type: "end", time: $scope.match.length, saved: true});
-                dataService.saveMatch($scope.match);
+                saveMatch($scope.match);
             }
         }
+    };
+
+    var saveMatch = function (match) {
+        match.changed = true;
+        dataService.saveMatch(match).success(function () {
+            match.changed = false;
+        });
     };
 
     $scope.start = function () {
@@ -185,6 +195,11 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             $scope.match.halftime = 1;
             $scope.match.start = moment().format(datetimeFormat);
         }
+    };
+
+    $scope.changeReferee = function(){
+        saveMatch($scope.match);
+        $('#changeReferee').foundation('reveal', 'close');
     };
 
     $scope.newGoal = function (team) {

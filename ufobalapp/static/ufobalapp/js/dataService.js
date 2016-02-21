@@ -71,9 +71,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.tournament = self.getObject("tournaments", match.tournament);
             match.team_one = self.getObject("teamontournaments", match.team_one);
             match.team_two = self.getObject("teamontournaments", match.team_two);
+            match.referee_team = self.getObject("teamontournaments", match.referee_team);
             match.referee = self.getObject("players", match.referee);
-            match.start = match.start === null ? new Date(match.start) : null;
-            match.end = match.end === null ? new Date(match.end) : null;
+            match.start = match.start !== null ? new Date(match.start) : null;
+            match.end = match.end !== null ? new Date(match.end) : null;
 
             match.tournament.matches.push(match);
             match.team_one.matches.push(match);
@@ -252,7 +253,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     self.addPlayer = function(player){
         player.saving = true;
-        var player_to_save = shallow_copy(player);
+        var player_to_save = shallowCopy(player);
         player_to_save.birthdate = $filter('date')(player.birthdate, "yyyy-MM-dd");
         return $http.post(djangoUrl.reverse("api:add_player"), player_to_save)
             .success(function (pk) {
@@ -332,7 +333,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     self.savePlayer = function(player){
         player.saving = true;
-        var player_to_save = shallow_copy(player);
+        var player_to_save = shallowCopy(player);
         player_to_save.birthdate = $filter('date')(player.birthdate, "yyyy-MM-dd");
         return $http.post(djangoUrl.reverse("api:save_player"), player_to_save)
             .success(function(response){
@@ -446,11 +447,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     self.addMatch = function (match) {
         match.saving = true;
-        return $http.post(djangoUrl.reverse("api:add_match"), {
-            tournament: match.tournament.pk,
-            team_one: match.team_one.pk,
-            team_two: match.team_two.pk
-        }).success(function (pk) {
+        return $http.post(djangoUrl.reverse("api:add_match"), shallowCopy(match, true)).success(function (pk) {
             match.pk = parseInt(pk);
             match.tournament.matches.push(match);
             match.team_one.matches.push(match);
@@ -465,7 +462,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     self.saveMatch = function (match) {
         match.saving = true;
-        return $http.post(djangoUrl.reverse("api:edit_match", {match_id: match.pk}), shallow_copy(match))
+        return $http.post(djangoUrl.reverse("api:edit_match", {match_id: match.pk}), shallowCopy(match, true))
             .success(function () {
                 match.saving = false;
             }).error(function () {
@@ -493,7 +490,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.saveEvent = function(event, type) {
         if (!event.pk){
             event.saving = true;
-            return $http.post(djangoUrl.reverse("api:add_"+type), shallow_copy(event, true))
+            return $http.post(djangoUrl.reverse("api:add_"+type), shallowCopy(event, true))
                 .success(function (pk) {
                     event.saving = false;
                     event.pk = parseInt(pk);
@@ -511,7 +508,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return $http.post(djangoUrl.reverse("api:change_goalie", {
             match_id: goalieChange.match.pk,
             team_id: goalieChange.team.pk
-        }), shallow_copy(goalieChange, true))
+        }), shallowCopy(goalieChange, true))
             .success(function () {
                 goalieChange.saving = false;
             })

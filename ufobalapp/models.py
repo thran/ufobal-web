@@ -209,6 +209,7 @@ class Match(models.Model):
     length = models.TimeField('Délka zápasu', null=True, blank=True)
     goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
     referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)
+    referee_team = models.ForeignKey(TeamOnTournament, related_name='refereed', verbose_name='rozhodčí tým', null=True, blank=True)
     # TODO hodnoceni od tymu....
 
     fake = models.BooleanField('Importovaný zápas', default=False)
@@ -224,7 +225,10 @@ class Match(models.Model):
             "halftime_length": self.halftime_length,
             "length": self.length,
             "referee": self.referee_id,
+            "referee_team": self.referee_team_id,
             "fake": self.fake,
+            "score_one": self.score_one(),
+            "score_two": self.score_two(),
         }
 
         if events:
@@ -237,7 +241,7 @@ class Match(models.Model):
 
     def score_one(self):
         if self.team_one:
-            goals = Goal.objects.filter(shooter__in=self.team_one.players.all(), match=self)
+            goals = self.goals.filter(shooter__in=self.team_one.players.all(), match=self)
             return goals.count()
 
     score_one.short_description = 'tým 1 scóre'
