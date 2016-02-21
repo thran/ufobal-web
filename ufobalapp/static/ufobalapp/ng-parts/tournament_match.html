@@ -13,9 +13,9 @@
         <span ng-click="timer.addTime(-5000)" class="clickable fi-rewind"></span>
         <span ng-click="timer.addTime(-1000)" class="clickable line">&#9666;</span>
         &nbsp;&nbsp;
-        <span ng-click="timer.start(); start();" ng-show="!timer.running" class="clickable fi-play"></span>
+        <span ng-click="start();" ng-show="!timer.running" class="clickable fi-play"></span>
         <span ng-click="timer.stop()" ng-show="timer.running" class="clickable fi-pause"></span>
-        <timer ng-click="timer.switchState(); start();" class="clickable" countdown="true" interface="timer">
+        <timer ng-click="start(true);" class="clickable" countdown="true" interface="timer">
             <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}</b>
         </timer>
         &nbsp;&nbsp;

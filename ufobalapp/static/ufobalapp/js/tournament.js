@@ -202,11 +202,17 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
     };
 
-    $scope.start = function () {
+    $scope.start = function (switchState) {
+        var start = switchState ? $scope.timer.switchState: $scope.timer.start;
         if ($scope.match.halftime === 0 ){
-            $scope.match.halftime = 1;
-            $scope.match.start = moment().format(datetimeFormat);
-            saveMatch($scope.match);
+            if (confirm("Začít zápas?")){
+                $scope.match.halftime = 1;
+                $scope.match.start = moment().format(datetimeFormat);
+                saveMatch($scope.match);
+                start();
+            }
+        }else{
+            start();
         }
     };
 
