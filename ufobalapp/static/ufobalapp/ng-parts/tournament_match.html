@@ -24,6 +24,15 @@
     </div>
 
     <hr>
+    <div class="columns small-6 medium-5 text-right" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
+        <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
+        <span ng-hide="match.team_one.goalie">bez brankáře</span>
+    </div>
+    <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
+    <div class="columns small-6 medium-5" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
+        <b ng-show="match.team_two.goalie">{{ match.team_two.goalie.nickname }}</b>
+        <span ng-hide="match.team_two.goalie">bez brankáře</span>
+    </div>
 
     <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
     <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
@@ -70,6 +79,7 @@
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
             <div ng-show="event.type == 'halftime'"><b>konec poločasu</b> <hr> </div>
             <div ng-show="event.type == 'end'"><b>konec zápasu</b></div>
+            <div ng-show="event.type== 'goalieChange'" ng-class="event.team.color"><span class="fi-loop"> změna brankáře</span>: <b>{{ event.data.goalie.nickname }}</b></div>
         </div>
     </div>
 
@@ -104,7 +114,7 @@
     <div class="row" ng-hide="penalty.player">
         <div
                 class="columns medium-6 large-4"
-                ng-repeat="player in penalty.team.players"
+                ng-repeat="player in penalty.team.players"gru
                 ng-click="penalty.player = player"
         ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
     </div>
@@ -120,6 +130,21 @@
         </label>
         <button ng-show="penalty.reason" ng-click="savePenalty()">Udělit</button>
     </div>
+
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+
+<div id="newGoalieChange" class="small reveal-modal" data-reveal>
+    <h2 id="modalTitle">Změna brankáře - {{ goalieChange.team.name_pure }}</h2>
+    <div class="row" ng-hide="goalieChange.goalie" >
+        <div
+                class="columns medium-6 large-4"
+                ng-repeat="player in goalieChange.team.players"
+                ng-click="goalieChange.goalie = player"
+        ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
+    </div>
+    <button ng-show="goalieChange.goalie" ng-click="saveGoalieChange()">{{ goalieChange.goalie.nickname }} - Změnit</button>
 
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

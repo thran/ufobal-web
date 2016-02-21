@@ -213,7 +213,7 @@ class Match(models.Model):
 
     fake = models.BooleanField('Importovaný zápas', default=False)
 
-    def to_json(self, goals=True, shots=True, penalties=True, **kwargs):
+    def to_json(self, events=True, **kwargs):
         data = {
             "pk": self.pk,
             "tournament": self.tournament_id,
@@ -227,12 +227,11 @@ class Match(models.Model):
             "fake": self.fake,
         }
 
-        if goals:
+        if events:
             data["goals"] = [goal.to_json() for goal in self.goals.all()]
-        if shots:
             data["shots"] = [shot.to_json() for shot in self.shots.all()]
-        if penalties:
             data["penalties"] = [penalty.to_json() for penalty in self.penalties.all()]
+            data["goalies"] = [goalie.to_json() for goalie in self.goalies_in_match.all()]
 
         return data
 
@@ -265,9 +264,17 @@ class GoalieInMatch(models.Model):
         verbose_name_plural = "brankáři"
 
     goalie = models.ForeignKey(Player, verbose_name='brankář')
-    match = models.ForeignKey(Match, verbose_name='zápas')
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name="goalies_in_match")
     start = models.TimeField('Začátek chytání')
     end = models.TimeField('Konec chytání', null=True, blank=True)
+
+    def to_json(self):
+        return {
+            "goalie": self.goalie_id,
+            "match": self.match_id,
+            "start": str(self.start),
+            "end": str(self.end) if self.end else None,
+        }
 
 
 class Goal(models.Model):

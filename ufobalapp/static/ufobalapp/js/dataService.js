@@ -242,7 +242,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return $http.post(djangoUrl.reverse("api:add_team"), newTeam)
             .success(function (pk) {
                 newTeam.saving = false;
-                newTeam.pk = pk;
+                newTeam.pk = parseInt(pk);
                 dataProcessors.team(newTeam);
             })
             .error(function () {
@@ -257,7 +257,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return $http.post(djangoUrl.reverse("api:add_player"), player_to_save)
             .success(function (pk) {
                 player.saving = false;
-                player.pk = pk;
+                player.pk = parseInt(pk);
                 dataProcessors.players(player);
                 data.players.push(player);
                 dataMaps.players[pk] = player;
@@ -451,11 +451,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             team_one: match.team_one.pk,
             team_two: match.team_two.pk
         }).success(function (pk) {
-            match.pk = pk;
+            match.pk = parseInt(pk);
             match.tournament.matches.push(match);
             match.team_one.matches.push(match);
             match.team_two.matches.push(match);
             match.saving = false;
+            dataMaps.matchs[pk] = match.pk;
+            data.matchs.push(match);
         }).error(function () {
             match.saving = false;
         });
@@ -477,7 +479,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             return $http.post(djangoUrl.reverse("api:add_"+type), shallow_copy(event, true))
                 .success(function (pk) {
                     event.saving = false;
-                    event.pk = pk;
+                    event.pk = parseInt(pk);
                 })
                 .error(function () {
                     event.saving = false;
@@ -485,6 +487,20 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }else{
             console.log("Not implemented");
         }
+    };
+
+    self.goalieChange = function(goalieChange){
+        goalieChange.saving = true;
+        return $http.post(djangoUrl.reverse("api:change_goalie", {
+            match_id: goalieChange.match.pk,
+            team_id: goalieChange.team.pk
+        }), shallow_copy(goalieChange, true))
+            .success(function () {
+                goalieChange.saving = false;
+            })
+            .error(function () {
+                goalieChange.saving = false;
+            });
     };
 }]);
 

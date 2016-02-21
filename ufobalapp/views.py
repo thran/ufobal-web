@@ -30,7 +30,7 @@ def get_json_all(request, model_class):
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
     if model_class == Match:
-        objs = objs.filter(fake=False)
+        objs = objs.filter(fake=False).prefetch_related("goals", "goalies_in_match", "shots", "penalties")
     if model_class == TeamOnTournament:
         objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
 
@@ -255,12 +255,18 @@ def add_match(request):
             return HttpResponseBadRequest("První brankář se nenachází v prvním týmu.")
         goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match, start=datetime.time(0))
         goalie_one_in_match.save()
+    elif team_one.default_goalie:
+        goalie_one_in_match = GoalieInMatch(goalie=team_one.default_goalie, match=match, start=datetime.time(0))
+        goalie_one_in_match.save()
 
     if data.get('goalie_two'):
         goalie_two = Player.objects.get(pk=data.get('goalie_two'))
         if goalie_two and goalie_two not in team_two.players.all():
             return HttpResponseBadRequest("Druhý brankář se nenachází ve druhém týmu.")
         goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match, start=datetime.time(0))
+        goalie_two_in_match.save()
+    elif team_two.default_goalie:
+        goalie_two_in_match = GoalieInMatch(goalie=team_two.default_goalie, match=match, start=datetime.time(0))
         goalie_two_in_match.save()
 
     return HttpResponse(match.pk)
@@ -444,7 +450,12 @@ def change_goalie(request, match_id, team_id):
     for goalie in GoalieInMatch.objects.filter(match=match).all():
         if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
             goalie.end = time
-            goalie.save()
+            print(type(goalie.start), type(goalie.end))
+            if str(goalie.end).endswith(str(goalie.start)):
+                print("deleting")
+                goalie.delete()
+            else:
+                goalie.save()
             break
 
     new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match,

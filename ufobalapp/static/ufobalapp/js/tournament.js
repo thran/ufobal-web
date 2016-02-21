@@ -206,6 +206,15 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         $('#newPenalty').foundation('reveal', 'open');
     };
 
+    $scope.newGoalieChange = function (team) {
+         $scope.goalieChange = {
+             team: team,
+             time: getTime(),
+             match: $scope.match
+         };
+        $('#newGoalieChange').foundation('reveal', 'open');
+    };
+
     $scope.saveShot = function (team) {
          $scope.match.events.push({
             type: "shot",
@@ -227,7 +236,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             time: $scope.goal.time,
             data: $scope.goal,
             saved: false,
-            team: inTeam($scope.match.team_one, $scope.goal.shooter) ? $scope.match.team_one : $scope.match.team_two
+            team: $scope.goal.team
         });
         $('#newGoal').foundation('reveal', 'close');
         saveData();
@@ -238,9 +247,22 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             type: "penalty",
             time: $scope.penalty.time,
             data: $scope.penalty,
-            team: inTeam($scope.match.team_one, $scope.penalty.player) ? $scope.match.team_one : $scope.match.team_two,
+            team: $scope.penalty.team,
             saved: false
         });
+        $('#newPenalty').foundation('reveal', 'close');
+        saveData();
+    };
+
+    $scope.saveGoalieChange = function () {
+        $scope.match.events.push({
+            type: "goalieChange",
+            time: $scope.goalieChange.time,
+            data: $scope.goalieChange,
+            team: $scope.goalieChange.team,
+            saved: false
+        });
+        $scope.goalieChange.team.goalie = $scope.goalieChange.goalie;
         $('#newPenalty').foundation('reveal', 'close');
         saveData();
     };
@@ -296,6 +318,22 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 saved: true
             });
         });
+        angular.forEach($filter("orderBy")(match.goalies, "start"), function (goalie) {
+            goalie.goalie = dataService.getObject("players", goalie.goalie);
+            var team = inTeam(match.team_one, goalie.goalie) ? match.team_one : match.team_two;
+            team.goalie = goalie.goalie;
+            if (goalie.start === "00:00:00"){
+                return;
+            }
+            match.events.push({
+                type: "goalieChange",
+                time: goalie.start,
+                data: goalie,
+                team: team,
+                saved: true
+            });
+
+        });
         if (match.halftime_length) {
             match.events.push({ type: "halftime", time: match.halftime_length, saved: true});
         }
@@ -310,9 +348,15 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         calculateEventCounts();
         angular.forEach($scope.match.events, function (event) {
             if (event.saved === false) {
-                dataService.saveEvent(event.data, event.type).success(function () {
-                    event.saved = true;
-                });
+                if (event.type === "goalieChange"){
+                    dataService.goalieChange(event.data).success(function () {
+                        event.saved = true;
+                    });
+                }else {
+                    dataService.saveEvent(event.data, event.type).success(function () {
+                        event.saved = true;
+                    });
+                }
             }
         });
     };
