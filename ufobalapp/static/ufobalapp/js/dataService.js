@@ -499,7 +499,16 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     event.saving = false;
                 });
         }else{
-            console.log("Not implemented");
+            event.saving = true;
+            var params = {};
+            params[type + "_id"] = event.pk;
+            return $http.post(djangoUrl.reverse("api:edit_"+type, params), shallowCopy(event, true))
+                .success(function () {
+                    event.saving = false;
+                })
+                .error(function () {
+                    event.saving = false;
+                });
         }
     };
 

@@ -297,7 +297,7 @@ def add_penalty(request):
 def edit_goal(request, goal_id):
     data = json.loads(str(request.body.decode('utf-8')))
 
-    goal = get_object_or_404(Match, pk=goal_id)
+    goal = get_object_or_404(Goal, pk=goal_id)
 
     if data.get('shooter'):
         shooter = get_object_or_404(Player, pk=data.get('shooter'))
@@ -326,7 +326,7 @@ def edit_goal(request, goal_id):
 def edit_shot(request, shot_id):
     data = json.loads(str(request.body.decode('utf-8')))
 
-    shot = get_object_or_404(Match, pk=shot_id)
+    shot = get_object_or_404(Shot, pk=shot_id)
 
     if data.get('shooter'):
         shooter = get_object_or_404(Player, pk=data.get('shooter'))

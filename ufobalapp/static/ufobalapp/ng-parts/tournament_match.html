@@ -100,14 +100,16 @@
     <hr>
 
     <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row hoverLight">
-        <div class="columns small-2 medium-1 text-right">
+        <div class="columns small-2 medium-2 text-right">
             &nbsp;
             <span ng-hide="event.saved" class="fi-unlink"></span>
             <span ng-show="edit && (event.type == 'goal' || event.type == 'shot' || event.type == 'penalty')"
                   ng-click="remove(event)" class="fi-x clickable"></span>
+            <span ng-show="edit && (event.type == 'goal')"
+                  ng-click="startEditGoal(event)" class="fi-pencil clickable"></span>
         </div>
         <div class="columns small-2 medium-1 text-right"><hr ng-show="event.type == 'halftime'">{{ event.time | limitTo : -5 }}</div>
-        <div class="columns small-8 medium-10">
+        <div class="columns small-8 medium-9">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
@@ -119,7 +121,27 @@
 
 </div>
 
+<div id="editGoal" class="small reveal-modal" data-reveal>
+    <h2 id="modalTitle">Gól - {{ goal.team.name_pure }}</h2>
+    <label>Čas
+        <input type="text" ng-model="goal.time">
+    </label>
+    <label>Střelec
+        <select
+                ng-model="goal.shooter"
+                ng-options="player as player.nickname for player in goal.team.players">
+        </select>
+    </label>
+    <label>Asistence
+        <select
+                ng-model="goal.assistance"
+                ng-options="player as player.nickname for player in goal.team.players">
+        </select>
+    </label>
+    <button ng-click="editGoal()">Upravit</button>
 
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
 
 <div id="newGoal" class="small reveal-modal" data-reveal>
     <h2 id="modalTitle">Gól - {{ goal.team.name_pure }} - <span ng-hide="goal.shooter">střelec</span><span ng-show="goal.shooter">asistence</span></h2>
