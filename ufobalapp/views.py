@@ -250,7 +250,7 @@ def add_match(request):
         return HttpResponseBadRequest("Rozhodčí tým není zaregistrovaný na turnaji.")
 
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
-                  referee=referee, referee_team=referee_team, start=data.get('start'), end=data.get('end'))
+                  referee=referee, referee_team=referee_team, start=data.get('start'), place=data.get('place'), end=data.get('end'))
     match.save()
 
     if data.get('goalie_one'):
@@ -375,6 +375,9 @@ def edit_match(request, match_id):
 
     if data.get('end'):
         match.end = datetime.datetime.strptime(data.get('end'), "%Y-%m-%d %H:%M:%S")
+
+    if data.get('place'):
+        match.place = data.get('place')
 
     if data.get('halftime_length'):
         match.halftime_length = datetime.datetime.strptime(data.get('halftime_length'), "%H:%M:%S")

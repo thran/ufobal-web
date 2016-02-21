@@ -210,6 +210,7 @@ class Match(models.Model):
     goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
     referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)
     referee_team = models.ForeignKey(TeamOnTournament, related_name='refereed', verbose_name='rozhodčí tým', null=True, blank=True)
+    place = models.CharField(max_length=50, null=True, blank=True)
     # TODO hodnoceni od tymu....
 
     fake = models.BooleanField('Importovaný zápas', default=False)
@@ -229,6 +230,7 @@ class Match(models.Model):
             "fake": self.fake,
             "score_one": self.score_one(),
             "score_two": self.score_two(),
+            "place": self.place,
         }
 
         if events:
