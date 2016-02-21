@@ -70,14 +70,14 @@
 
     <hr>
 
-    <div ng-repeat="event in match.events | filter : eventFilter" class="row">
+    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row">
         <div class="columns small-2 medium-1 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
-        <div class="columns small-2 medium-1 text-right">{{ event.time | limitTo : -5 }}</div>
+        <div class="columns small-2 medium-1 text-right"><hr ng-show="event.type == 'halftime'">{{ event.time | limitTo : -5 }}</div>
         <div class="columns small-8 medium-10">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
-            <div ng-show="event.type == 'halftime'"><b>konec poločasu</b> <hr> </div>
+            <div ng-show="event.type == 'halftime'"><hr><b>konec poločasu</b> </div>
             <div ng-show="event.type == 'end'"><b>konec zápasu</b></div>
             <div ng-show="event.type== 'goalieChange'" ng-class="event.team.color"><span class="fi-loop"> změna brankáře</span>: <b>{{ event.data.goalie.nickname }}</b></div>
         </div>
