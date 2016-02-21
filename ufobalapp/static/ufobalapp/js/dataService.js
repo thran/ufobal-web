@@ -473,6 +473,23 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             });
     };
 
+    self.removeEvent = function(event, type) {
+        if (event.pk){
+            event.saving = true;
+            var params = {};
+            params[type + "_id"] = event.pk;
+            return $http.delete(djangoUrl.reverse("api:remove_"+type, params))
+                .success(function () {
+                    event.saving = false;
+                })
+                .error(function () {
+                    event.saving = false;
+                });
+        }else{
+            console.error("PK is missing");
+        }
+    };
+
     self.saveEvent = function(event, type) {
         if (!event.pk){
             event.saving = true;

@@ -24,19 +24,23 @@
     </div>
 
     <hr>
-    <div class="columns small-6 medium-5 text-right" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
+    <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
         <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
         <span ng-hide="match.team_one.goalie">bez brankáře</span>
     </div>
     <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-    <div class="columns small-6 medium-5" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
+    <div class="columns small-6 medium-5 clickable" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
         <b ng-show="match.team_two.goalie">{{ match.team_two.goalie.nickname }}</b>
         <span ng-hide="match.team_two.goalie">bez brankáře</span>
     </div>
 
     <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
     <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-    <div class="columns small-6 medium-5" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
+    <div class="columns small-4 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
+
+    <div class="columns small-2">
+        <div class="small switch right">editace <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
+    </div>
 
 
     <div class="columns small-6 medium-5 text-right" ng-class="match.team_one.color"
@@ -53,7 +57,9 @@
         {{ counts.teamTwo.shots }} -
         {{ counts.teamTwo.goals / (counts.teamTwo.goals + counts.teamTwo.shots) * 100 | number:0 }}%
     </div>
-    <div class="columns small-2"><div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div></div>
+    <div class="columns small-2">
+        <div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div>
+    </div>
 
 
     <div class="columns small-6 medium-5 text-right" ><h3>
@@ -70,8 +76,13 @@
 
     <hr>
 
-    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row">
-        <div class="columns small-2 medium-1 text-right">&nbsp;<span ng-hide="event.saved" class="fi-unlink"></span></div>
+    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row hoverLight">
+        <div class="columns small-2 medium-1 text-right">
+            &nbsp;
+            <span ng-hide="event.saved" class="fi-unlink"></span>
+            <span ng-show="edit && (event.type == 'goal' || event.type == 'shot' || event.type == 'penalty')"
+                  ng-click="remove(event)" class="fi-x clickable"></span>
+        </div>
         <div class="columns small-2 medium-1 text-right"><hr ng-show="event.type == 'halftime'">{{ event.time | limitTo : -5 }}</div>
         <div class="columns small-8 medium-10">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>

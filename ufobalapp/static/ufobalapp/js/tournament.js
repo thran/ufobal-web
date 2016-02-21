@@ -266,6 +266,19 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         $('#newPenalty').foundation('reveal', 'close');
         saveData();
     };
+    
+    $scope.remove = function (event) {
+        if (confirm("Opravdu smazat?")) {
+            if (event.data.pk) {
+                dataService.removeEvent(event.data, event.type).success(function () {
+                    $scope.match.events.splice($scope.match.events.indexOf(event), 1);
+                });
+            } else {
+                $scope.match.events.splice($scope.match.events.indexOf(event), 1);
+            }
+            calculateEventCounts();
+        }
+    };
 
     var calculateEventCounts = function () {
         $scope.counts = { teamOne: {'shots': 0, goals: 0}, teamTwo: {'shots': 0, goals: 0}};

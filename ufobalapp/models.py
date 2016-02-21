@@ -270,6 +270,7 @@ class GoalieInMatch(models.Model):
 
     def to_json(self):
         return {
+            "pk": self.pk,
             "goalie": self.goalie_id,
             "match": self.match_id,
             "start": str(self.start),
@@ -299,6 +300,7 @@ class Goal(models.Model):
 
     def to_json(self):
         data = {
+            "pk": self.pk,
             "shooter": self.shooter_id,
             "assistance": self.assistance_id,
             "match": self.match_id,
@@ -336,6 +338,7 @@ class Shot(models.Model):
 
     def to_json(self):
         return {
+            "pk": self.pk,
             "time": str(self.time),
             "match": self.match_id,
             "shooter": self.shooter_id,
@@ -364,6 +367,7 @@ class Penalty(models.Model):
 
     def to_json(self):
         return {
+            "pk": self.pk,
             "card": self.card,
             "time": str(self.time),
             "match": self.match_id,

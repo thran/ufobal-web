@@ -156,3 +156,7 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 .team-blue{
     color: darkblue !important;
 }
+
+.hoverLight:hover{
+    background-color: rgba(255, 255, 0, 0.24);
+}
