@@ -28,22 +28,26 @@
         píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b>
     </a></div>
 
-    <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
-        <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
-        <span ng-hide="match.team_one.goalie">bez brankáře</span>
-    </div>
-    <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-    <div class="columns small-6 medium-5 clickable" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
-        <b ng-show="match.team_two.goalie">{{ match.team_two.goalie.nickname }}</b>
-        <span ng-hide="match.team_two.goalie">bez brankáře</span>
+    <div class="row">
+        <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
+            <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
+            <span ng-hide="match.team_one.goalie">bez brankáře</span>
+        </div>
+        <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
+        <div class="columns small-6 medium-5 clickable" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
+            <b ng-show="match.team_two.goalie">{{ match.team_two.goalie.nickname }}</b>
+            <span ng-hide="match.team_two.goalie">bez brankáře</span>
+        </div>
     </div>
 
-    <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
-    <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-    <div class="columns small-4 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
+    <div class="row">
+        <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
+        <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
+        <div class="columns small-4 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
 
-    <div class="columns small-2">
-        <div class="small switch right">editace <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
+        <div class="columns small-2">
+            <div class="small switch right">editace <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
+        </div>
     </div>
 
 
