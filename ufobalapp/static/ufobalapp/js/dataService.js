@@ -34,7 +34,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             tournament.fields = [];
             console.log(tournament.field_count);
             for (var i = 1; i <= tournament.field_count; i++){
-                tournament.fields.push(i);
+                tournament.fields.push("" + i);
             }
         },
         liveTournament: function(liveTournament){
