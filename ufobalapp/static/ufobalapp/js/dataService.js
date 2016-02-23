@@ -82,7 +82,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
     };
 
-    var getData = function(object){
+    var getData = function(object, filter){
         if (deferredTmp[object]){
             return deferredTmp[object].promise;
         }
@@ -97,7 +97,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         } else if(object === "goals") {
             getGoals();
         } else {
-            getDataFromServer(object, deferred);
+            getDataFromServer(object, filter);
         }
         return deferred.promise;
     };
@@ -116,8 +116,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
     };
 
-    var getDataFromServer = function(object){
-        $http.get(djangoUrl.reverse("api:get_" + object))
+    var getDataFromServer = function(object, filter){
+        $http.get(djangoUrl.reverse("api:get_" + object), {params: filter})
             .success(function(response){
                 data[object] = response;
                 dataMaps[object] = {};
@@ -224,8 +224,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         self.getTeams();
         return getData("liveTournament");
     };
-    self.getMatches = function () {
-        return getData("matchs");
+    self.getMatches = function (tournament_pk) {
+        return getData("matchs", {"tournament": tournament_pk});
     };
 
     self.getObject = function(object, id){

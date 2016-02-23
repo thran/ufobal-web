@@ -35,6 +35,14 @@ def get_json_all(request, model_class):
     if model_class == TeamOnTournament:
         objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
 
+    filtering = dict(request.GET)
+    if len(filtering):
+        print(filtering)
+        if "html" in filtering:
+            del filtering["html"]
+        filtering = {key: value[0] for key, value in filtering.items()}
+        objs = objs.filter(**filtering)
+
     data = [obj.to_json(simple=True, staff=request.user.is_staff) for obj in objs]
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(data, indent=4)})

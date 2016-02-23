@@ -108,10 +108,8 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
         $scope.tournament = tournament;
         dataService.getTeams().then(function () {
         });
-    });
-
-    dataService.getMatches().then(function (matches) {
-        //dataService.getObject("matchs", )
+        dataService.getMatches($scope.tournament.pk).then(function (matches) {
+        });
     });
 
     $scope.addMatch = function () {
