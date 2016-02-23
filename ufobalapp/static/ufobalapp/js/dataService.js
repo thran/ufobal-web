@@ -32,7 +32,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             data.tournaments.push(tournament);
             tournament.teamOnTournaments = [];
             tournament.fields = [];
-            console.log(tournament.field_count);
             for (var i = 1; i <= tournament.field_count; i++){
                 tournament.fields.push("" + i);
             }
@@ -530,6 +529,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             .error(function () {
                 goalieChange.saving = false;
             });
+    };
+
+    self.ping = function () {
+        return $http.get(djangoUrl.reverse("api:ping"));
     };
 }]);
 

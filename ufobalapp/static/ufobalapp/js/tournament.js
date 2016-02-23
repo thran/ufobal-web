@@ -472,25 +472,27 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
     var saveData = function () {
         calculateEventCounts();
-        angular.forEach($scope.match.events, function (event) {
-            if (event.saved === false) {
-                if (event.type === "goalieChange"){
-                    dataService.goalieChange(event.data).success(function () {
-                        event.saved = true;
-                    }).finally(saveDataLocally);
-                }else {
-                    dataService.saveEvent(event.data, event.type).success(function () {
-                        event.saved = true;
-                        if (event.type === "goal"){
-                            if (event.team === $scope.match.team_one){
-                                $scope.match.score_one++;
-                            }else{
-                                $scope.match.score_two++;
+        dataService.ping().success(function () {
+            angular.forEach($scope.match.events, function (event) {
+                if (event.saved === false) {
+                    if (event.type === "goalieChange"){
+                        dataService.goalieChange(event.data).success(function () {
+                            event.saved = true;
+                        }).finally(saveDataLocally);
+                    }else {
+                        dataService.saveEvent(event.data, event.type).success(function () {
+                            event.saved = true;
+                            if (event.type === "goal"){
+                                if (event.team === $scope.match.team_one){
+                                    $scope.match.score_one++;
+                                }else{
+                                    $scope.match.score_two++;
+                                }
                             }
-                        }
-                    }).finally(saveDataLocally);
+                        }).finally(saveDataLocally);
+                    }
                 }
-            }
+            });
         });
     };
 
@@ -526,6 +528,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         localStorage.setItem("events" + $scope.match.pk, JSON.stringify(toSave));
     };
     $interval(saveDataLocally, 5 * 1000);
+    $interval(saveData, 15 * 1000);
 
     var loadMatchLocalData = function () {
         var match = localStorage.getItem("match" + $scope.match.pk);

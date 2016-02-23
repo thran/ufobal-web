@@ -534,6 +534,9 @@ def intro(request):
     })
 
 
+def ping(request):
+    return HttpResponse("OK")
+
 # @user_passes_test(is_staff_check)
 @ensure_csrf_cookie
 def home(request):
