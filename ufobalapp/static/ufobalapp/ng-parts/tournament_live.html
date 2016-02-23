@@ -32,6 +32,12 @@
             <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
         </div>
     </div>
+
+    <hr>
+
+    <div class="text-center">
+        <a href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
+    </div>
 </div>
 
 
