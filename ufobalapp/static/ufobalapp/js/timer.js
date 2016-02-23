@@ -23,6 +23,7 @@ app.directive("timer", function(){
                 }
 
                 $scope.sign = $scope.negative ? "-" : "";
+                $scope.deciseconds = Math.floor((millis / 100) % 10);
                 $scope.seconds = Math.floor((millis / 1000) % 60);
                 $scope.minutes = Math.floor(((millis / (60 * 1000)) % 60));
                 $scope.hours = Math.floor(((millis / (60 * 60 * 1000)) % 24));

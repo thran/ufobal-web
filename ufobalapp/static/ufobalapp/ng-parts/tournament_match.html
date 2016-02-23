@@ -16,8 +16,8 @@
         <span ng-class="{pressbutton: match.halftime === 0}">
             <span ng-click="start();" ng-show="!timer.running" class="clickable fi-play"></span>
             <span ng-click="timer.stop()" ng-show="timer.running" class="clickable fi-pause"></span>
-            <timer ng-click="start(true);" class="clickable" countdown="true" interface="timer">
-                <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}</b>
+            <timer ng-click="start(true);" class="clickable" countdown="true" interval="200" interface="timer">
+                <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}.{{ deciseconds }}</b>
             </timer>
         </span>
         &nbsp;&nbsp;
