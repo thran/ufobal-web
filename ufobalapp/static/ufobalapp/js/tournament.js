@@ -437,6 +437,13 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 }else {
                     dataService.saveEvent(event.data, event.type).success(function () {
                         event.saved = true;
+                        if (event.type === "goal"){
+                            if (event.team === $scope.match.team_one){
+                                $scope.match.score_one++;
+                            }else{
+                                $scope.match.score_two++;
+                            }
+                        }
                     });
                 }
             }
