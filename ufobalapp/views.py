@@ -37,7 +37,6 @@ def get_json_all(request, model_class):
 
     filtering = dict(request.GET)
     if len(filtering):
-        print(filtering)
         if "html" in filtering:
             del filtering["html"]
         filtering = {key: value[0] for key, value in filtering.items()}
@@ -392,6 +391,10 @@ def edit_match(request, match_id):
 
     if data.get('length'):
         match.length = datetime.datetime.strptime(data.get('length'), "%H:%M:%S")
+        for goalie in GoalieInMatch.objects.filter(match=match).all():
+            if goalie.end is None:
+                goalie.end = match.length
+                goalie.save()
 
     match.save()
 
@@ -473,9 +476,7 @@ def change_goalie(request, match_id, team_id):
     for goalie in GoalieInMatch.objects.filter(match=match).all():
         if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
             goalie.end = time
-            print(type(goalie.start), type(goalie.end))
             if str(goalie.end).endswith(str(goalie.start)):
-                print("deleting")
                 goalie.delete()
             else:
                 goalie.save()
