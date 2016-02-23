@@ -57,7 +57,7 @@
         <div class="columns small-6 medium-5 text-right" ng-class="match.team_one.color"
         ng-init="">
             {{ counts.teamOne.goals / (counts.teamOne.goals + counts.teamOne.shots) * 100 | number:0 }}% -
-            {{ counts.teamOne.shots }}
+            {{ counts.teamOne.shots + counts.teamOne.goals }}
             &nbsp;&nbsp;&nbsp;
             <span style="font-size: 3em;">{{ counts.teamOne.goals }}</span>
         </div>
@@ -65,7 +65,7 @@
         <div class="columns small-4 medium-3" ng-class="match.team_two.color">
             <span style="font-size: 3em;">{{ counts.teamTwo.goals }}</span>
             &nbsp;&nbsp;&nbsp;
-            {{ counts.teamTwo.shots }} -
+            {{ counts.teamTwo.shots + counts.teamTwo.goals }} -
             {{ counts.teamTwo.goals / (counts.teamTwo.goals + counts.teamTwo.shots) * 100 | number:0 }}%
         </div>
         <div class="columns small-2">
