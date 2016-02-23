@@ -29,8 +29,7 @@
                         </td>
                         <td>
                             <span ng-repeat="player in t.players">
-                                <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a>
-                                <span ng-hide="$last">, </span>
+                                <a ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{ player.nickname }}</a><span ng-hide="$last">, </span>
                             </span>
                         </td>
                     </tr>
