@@ -138,12 +138,12 @@ class TeamTournamentAdmin(admin.ModelAdmin):
 
 
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ['tournament', 'team_one', 'score_one', 'team_two', 'score_two', 'fake']
+    list_display = ['tournament', 'place', 'referee_team', 'team_one', 'score_one', 'team_two', 'score_two', 'fake']
     readonly_fields = ('score_one', 'score_two')  # carka vytvari tupple
 
 
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ['name', 'date']
+    list_display = ['name', 'date', 'registration_to', 'halftime_length', 'field_count']
     search_fields = ['name', 'date']
     inlines = [TeamOnTournamentInline]
 
@@ -153,6 +153,10 @@ class GoalAdmin(admin.ModelAdmin):
     search_fields = ['shooter__name', 'shooter__nickname', 'assistance__name', 'assistance__nickname']
 
 
+class GoalieInMatchAdmin(admin.ModelAdmin):
+    list_display = ('match', 'goalie', 'start', 'end')
+
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
@@ -160,5 +164,5 @@ admin.site.register(Tournament, TournamentAdmin)
 admin.site.register(Match, MatchAdmin)
 admin.site.register(Goal, GoalAdmin)
 admin.site.register(Shot)
-admin.site.register(GoalieInMatch)
+admin.site.register(GoalieInMatch, GoalieInMatchAdmin)
 admin.site.register(Penalty)
