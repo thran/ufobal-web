@@ -161,7 +161,7 @@
                 ng-repeat="player in goal.team.players"
                 ng-click="goal.assistance = player; saveGoal();"
         >
-            <span ng-show="player == goal.shooter">&nbsp;</span>
+            <div style="padding: 10px 20px; margin: 6px;" ng-show="player == goal.shooter"><h5>&nbsp;</h5></div>
             <div class="pressbutton" ng-show="player != goal.shooter"><h5>{{ player.nickname }}</h5></div></div>
         <div class="columns medium-6 large-4" ng-click="goal.assistance = null; saveGoal();"><div class="pressbutton red"><h5>nikdo</h5></div></div>
     </div>
