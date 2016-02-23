@@ -101,7 +101,7 @@
 
     <hr>
 
-    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row hoverLight">
+    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row hoverLight show-for-small-down">
         <div class="columns small-2 medium-2 text-right">
             &nbsp;
             <span ng-hide="event.saved" class="fi-unlink"></span>
@@ -114,6 +114,46 @@
         </div>
         <div class="columns small-2 medium-1 text-right"><hr ng-show="event.type == 'halftime'">{{ event.time | limitTo : -5 }}</div>
         <div class="columns small-8 medium-9">
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
+            <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
+            <div ng-show="event.type == 'halftime'"><hr><b>konec poločasu</b> </div>
+            <div ng-show="event.type == 'end'"><b>konec zápasu</b></div>
+            <div ng-show="event.type== 'goalieChange'" ng-class="event.team.color"><span class="fi-loop"> změna brankáře</span>: <b>{{ event.data.goalie.nickname }}</b></div>
+        </div>
+    </div>
+
+    <div ng-repeat="event in match.events | filter : eventFilter | orderBy : '-time'" class="row hoverLight show-for-medium-up">
+        <div class="columns medium-1 text-right">
+            &nbsp;
+            <span ng-hide="event.saved" class="fi-unlink"></span>
+        </div>
+
+        <div class="columns medium-4" ng-show="event.team === match.team_two">&nbsp;</div>
+        <div class="columns medium-4 text-right" ng-hide="event.team === match.team_two">
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
+            <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
+            <div ng-show="event.type == 'halftime'"><hr><b>konec poločasu</b> </div>
+            <div ng-show="event.type == 'end'"><b>konec zápasu</b></div>
+            <div ng-show="event.type== 'goalieChange'" ng-class="event.team.color"><span class="fi-loop"> změna brankáře</span>: <b>{{ event.data.goalie.nickname }}</b></div>
+        </div>
+
+        <div class="columns medium-2 text-center">
+            <span ng-show="edit && (event.type == 'goal')"
+                  ng-click="startEditGoal(event)" class="fi-pencil clickable"></span>
+            <span ng-show="edit && (event.type == 'penalty')"
+                  ng-click="startEditPenalty(event)" class="fi-pencil clickable"></span>
+
+            <hr ng-show="event.type === 'halftime'">
+            {{ event.time | limitTo : -5 }}
+
+            <span ng-show="edit && (event.type == 'goal' || event.type == 'shot' || event.type == 'penalty')"
+                  ng-click="remove(event)" class="fi-x clickable"></span>
+        </div>
+
+        <div class="columns medium-5" ng-show="event.team === match.team_one">&nbsp;</div>
+        <div class="columns medium-5" ng-hide="event.team === match.team_one">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
