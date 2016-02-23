@@ -206,6 +206,10 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
     $scope.start = function (switchState) {
         var start = switchState ? $scope.timer.switchState: $scope.timer.start;
+        if (!$scope.match.team_one.goalie || !$scope.match.team_two.goalie){
+            alert("Není nastaven brankář.");
+            return;
+        }
         if ($scope.match.halftime === 0 ){
             if (confirm("Začít zápas?")){
                 $scope.match.halftime = 1;
