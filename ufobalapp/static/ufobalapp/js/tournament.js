@@ -168,7 +168,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
         var halftime_length = match.halftime_length ? moment.duration(match.halftime_length).asMilliseconds() : 0;
         time = moment.duration(time).asMilliseconds();
-        match.halftime = match.length ? null : (match.halftime_length ?  2 : (time ? 1 : 0));
+        match.halftime = match.length ? null : (match.halftime_length ?  2 : (time || match.start ? 1 : 0));
         $scope.timer.setTime(match.halftimeLenght * 60 * 1000 - time + halftime_length);
     };
 
