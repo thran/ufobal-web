@@ -7,6 +7,8 @@
     <h1>{{ tournament.full_name }}</h1>
     <hr>
     <div class="row">
+
+        {{ tournament.fields }}
         <div class="columns large-6">
             <div class="text-right columns small-6"><h3>Zápasy</h3></div>
             <div class="columns small-6" style="padding-top: 12px;"><a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a></div>
@@ -60,11 +62,15 @@
             <option value="">----</option>
         </select>
     </label>
-    <label>Hřiště
-        <input type="text" ng-model="match.place">
-    </label>
+    <label>Hřiště</label>
+    <p>
+        <label ng-repeat="field in tournament.fields">
+            <input type="radio" name="x" ng-model="$parent.match.place" ng-value="field">
+            {{ field }}
+        </label>
+    </p>
 
-    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.referee_team || !match.team_two " ng-click="addMatch()">Vytvořit</button>
+    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.referee_team || !match.team_two || !match.place " ng-click="addMatch()">Vytvořit</button>
     <div class="loader" ng-show="match.saving"></div>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>

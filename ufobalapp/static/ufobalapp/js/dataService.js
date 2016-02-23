@@ -31,6 +31,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             dataMaps.tournaments[tournament.pk] = tournament;
             data.tournaments.push(tournament);
             tournament.teamOnTournaments = [];
+            tournament.fields = [];
+            console.log(tournament.field_count);
+            for (var i = 1; i <= tournament.field_count; i++){
+                tournament.fields.push(i);
+            }
         },
         liveTournament: function(liveTournament){
             if (dataMaps.tournaments[liveTournament.pk]){
