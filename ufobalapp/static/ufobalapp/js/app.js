@@ -126,7 +126,7 @@ app.controller("tournaments", ["$scope", "dataService", "$filter", function ($sc
     });
 }]);
 
-app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter", function ($scope, dataService, $routeParams, $filter) {
+app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter", "$timeout", function ($scope, dataService, $routeParams, $filter, $timeout) {
     var id = parseInt($routeParams.id);
     var allPlayers;
     $scope.man = $scope.woman = true;
@@ -135,6 +135,12 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         $scope.tournament = dataService.getObject("tournaments", id);
         dataService.getGoals().then(function(){
             dataService.getPlayers().then(function(players){
+                dataService.getMatches(id).then(function () {
+                    $timeout(function(){
+                        $scope.goalies = getGoalieScore($scope.tournament);
+                    });
+                });
+
                 angular.forEach(players, function(player) {
                     player.goalsSumFiltered = player.goals[$scope.tournament.pk];
                     player.assistsSumFiltered = player.assists[$scope.tournament.pk];
@@ -153,7 +159,57 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     $scope.filterGender = function () {
         $scope.players = filterGender(allPlayers, $scope.man, $scope.woman, $filter);
     };
+
+    var getGoalieScore = function (tournament) {
+        var goalies = {};
+        angular.forEach(tournament.matches, function (match) {
+            if (!match.length){
+                return;
+            }
+            angular.forEach(match.goalies, function (goalieOnMatch) {
+                if (!goalies[goalieOnMatch.goalie]){
+                    var player = dataService.getObject("players", goalieOnMatch.goalie);
+                    goalies[goalieOnMatch.goalie] = {
+                        player: player,
+                        matches: {},
+                        totalTime: 0,
+                        shots: 0,
+                        goals: 0,
+                        team: inTeam(match.team_one, player) ? match.team_one : match.team_two
+                    };
+                }
+                var goalie = goalies[goalieOnMatch.goalie];
+                goalie.matches[match.pk] = 1;
+                goalie.totalTime = goalie.totalTime + moment.duration(goalieOnMatch.end).asMilliseconds() - moment.duration(goalieOnMatch.start).asMilliseconds();
+                angular.forEach(match.goals, function (goal) {
+                    if (!goal.team){
+                        goal.team = inTeam(match.team_one, goal.shooter) ? match.team_one : match.team_two;
+                    }
+                    if (goal.team !== goalie.team && goalieOnMatch.start < goal.time  && goal.time <= goalieOnMatch.end){
+                        goalie.goals++;
+                        goalie.shots++;
+                    }
+                });
+                angular.forEach(match.shots, function (shot) {
+                    if (shot.team !== goalie.team.pk && goalieOnMatch.start < shot.time  && shot.time <= goalieOnMatch.end){
+                        goalie.shots++;
+                    }
+                });
+            });
+        });
+        goalies = Object.keys(goalies).map(function(key){ return goalies[key]; });
+        angular.forEach(goalies, function (goalie) {
+            goalie.success = 1 - goalie.goals / (goalie.shots);
+            goalie.matches = Object.keys(goalie.matches).length;
+        });
+        goalies = $filter("orderBy")(goalies, "-success");
+        if (goalies.length === 0){
+            return null;
+        }
+        return goalies;
+    };
 }]);
+
 
 var filterGender = function (allPlayers, man, woman, $filter) {
     var players = allPlayers;

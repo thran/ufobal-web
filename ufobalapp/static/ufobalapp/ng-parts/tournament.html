@@ -36,6 +36,18 @@
                     </tr>
                 </tbody>
             </table>
+
+            <h3 ng-show="tournament.matches.length > 1">Zápasy</h3>
+            <table style="margin: auto" ng-show="tournament.matches.length">
+                <tbody>
+                    <tr ng-repeat="match in tournament.matches | filter: {length: ''}| orderBy:'start'">
+                        <td class="text-right">{{ match.team_one.name_pure }}</td>
+                        <td class="text-right"><b>{{ match.score_one }}</b></td>
+                        <td><b>{{ match.score_two }}</b></td>
+                        <td>{{ match.team_two.name_pure }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="columns medium-5">
             <label class="man" style="float: right !important; margin-left: 10px;"> <input type="checkbox" ng-change="filterGender()" ng-model="man"> </label>
@@ -71,30 +83,32 @@
                 </table>
             </div>
 
-            <h3>Nejlepší brankáři</h3>
-            <div st-rank st-table="rows" st-safe-src="goalies" ng-cloak ng-show="goalies">
+            <h3 ng-show="goalies">Nejlepší brankáři</h3>
+            <div st-rank st-table="rows2" st-safe-src="goalies" ng-cloak ng-show="goalies">
                 <table class="smart-table">
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th st-sort="nickname">Jméno</th>
-                        <th class="text-right" st-sort="goalsSumFiltered">góly</th>
-                        <th class="text-right" st-sort="assistsSumFiltered">asistence</th>
-                        <th class="text-right" st-sort="canadaFiltered">kanada</th>
+                        <th st-sort="player.nickname">Jméno</th>
+                        <th class="text-right" st-sort="matches">zápasů</th>
+                        <th class="text-right" st-sort="shots">střel</th>
+                        <th class="text-right" st-sort="goals">gólů</th>
+                        <th class="text-right" st-sort="success">úspěšnost</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="player in rows">
-                        <th>{{ player.rank }}.</th>
-                        <td><a ng-class="player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
-                        <td class="text-right"> {{ player.goalsSumFiltered }}</td>
-                        <td class="text-right">{{ player.assistsSumFiltered }}</td>
-                        <td class="text-right">{{ player.canadaFiltered }}</td>
+                    <tr ng-repeat="goalie in rows2">
+                        <th>{{ goalie.rank }}.</th>
+                        <td><a ng-class="goalie.player.gender" href="" ng-href="hrac/{{ goalie.player.pk }}/{{ goalie.player.nickname }}">{{goalie.player.nickname}}</a></td>
+                        <td class="text-right"> {{ goalie.matches }}</td>
+                        <td class="text-right"> {{ goalie.shots }}</td>
+                        <td class="text-right"> {{ goalie.goals }}</td>
+                        <td class="text-right"> {{ goalie.success * 100 | number:1 }}%</td>
                     </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="5" class="text-center">
+                            <td colspan="6" class="text-center">
                                 <div st-pagination="" st-items-by-page="15" st-displayed-pages="5" st-template="utils/st-pagination.html"></div>
                             </td>
                         </tr>

@@ -82,22 +82,23 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
     };
 
-    var getData = function(object, filter){
-        if (deferredTmp[object]){
-            return deferredTmp[object].promise;
+    var getData = function(object, filter, cache_suffix){
+        var cacheName = object + (cache_suffix ? cache_suffix : "");
+        if (deferredTmp[cacheName]){
+            return deferredTmp[cacheName].promise;
         }
         var deferred = $q.defer();
-        if (data[object]){
-            deferred.resolve(data[object]);
+        if (data[cacheName]){
+            deferred.resolve(data[cacheName]);
             return deferred.promise;
         }
-        deferredTmp[object] = deferred;
+        deferredTmp[cacheName] = deferred;
         if (object === "teams" || object === "tournaments"){
             getData("teamontournaments");
         } else if(object === "goals") {
             getGoals();
         } else {
-            getDataFromServer(object, filter);
+            getDataFromServer(object, cacheName, filter);
         }
         return deferred.promise;
     };
@@ -116,10 +117,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
     };
 
-    var getDataFromServer = function(object, filter){
+    var getDataFromServer = function(object, cacheName, filter){
         $http.get(djangoUrl.reverse("api:get_" + object), {params: filter})
             .success(function(response){
-                data[object] = response;
+                data[cacheName] = response;
                 dataMaps[object] = {};
                 if (object === "teamontournaments") {
                     data.teams = [];
@@ -167,10 +168,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     resolvePromise("teams");
                     resolvePromise("tournaments");
                 }
-                resolvePromise(object);
+                resolvePromise(cacheName);
             })
             .error(function (response, status, headers, config) {
-                rejectPromise(object, response, status);
+                rejectPromise(cacheName, response, status);
                 if (object === "teamontournaments"){
                     rejectPromise("teams", response, status);
                     rejectPromise("tournaments", response, status);
@@ -225,7 +226,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return getData("liveTournament");
     };
     self.getMatches = function (tournament_pk) {
-        return getData("matchs", {"tournament": tournament_pk});
+        return getData("matchs", {"tournament": tournament_pk}, tournament_pk);
     };
 
     self.getObject = function(object, id){

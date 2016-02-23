@@ -442,16 +442,6 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
     };
 
-    var inTeam = function (team, player) {
-        var result = false;
-        angular.forEach(team.players, function (p) {
-            if(p === player){
-                result = true;
-            }
-        });
-        return result;
-    };
-
     var getTime = function () {
         var ms = $scope.match.halftimeLenght * 60 * 1000 - Math.round($scope.timer.getTime());
         if ($scope.match.halftime === 2){

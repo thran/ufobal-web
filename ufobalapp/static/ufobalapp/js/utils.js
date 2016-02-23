@@ -94,3 +94,13 @@ function unique(arr){
     }
     return newArray;
 }
+
+var inTeam = function (team, player) {
+    var result = false;
+    angular.forEach(team.players, function (p) {
+        if(p === player || p.pk === player){
+            result = true;
+        }
+    });
+    return result;
+};
