@@ -124,6 +124,7 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
 
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", function($scope, $routeParams, dataService, $timeout, $sce, $filter){
     var id = parseInt($routeParams.id);
+    var tournamentId = parseInt($routeParams.tournamentId);
     $scope.timer = {};
     $scope.eventFilter = {type: "!shot"};
     $scope.cards = cards;
@@ -136,7 +137,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         }
     });
 
-    dataService.getMatches().then(function (matches) {
+    dataService.getMatches(tournamentId).then(function (matches) {
         dataService.getPlayers().then(function () {
             dataService.getTeams().then(function () {
                 $timeout(function(){
