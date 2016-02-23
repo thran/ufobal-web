@@ -455,7 +455,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.team_two.matches.push(match);
             match.saving = false;
             dataMaps.matchs[pk] = match.pk;
-            data.matchs.push(match);
+            data["matchs" + match.tournament.pk].push(match);
         }).error(function () {
             match.saving = false;
         });
