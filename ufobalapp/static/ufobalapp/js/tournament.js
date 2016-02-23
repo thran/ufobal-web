@@ -122,7 +122,8 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
     $(document).foundation('reveal');
 }]);
 
-app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", function($scope, $routeParams, dataService, $timeout, $sce, $filter){
+app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", "$interval",
+                    function($scope, $routeParams, dataService, $timeout, $sce, $filter, $interval){
     var id = parseInt($routeParams.id);
     var tournamentId = parseInt($routeParams.tournamentId);
     $scope.timer = {};
@@ -144,6 +145,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     angular.forEach(matches, function (match) {
                         if (id === match.pk){
                             $scope.match = match;
+                            loadMatchLocalData();
                             prepareEvents(match);
                             $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                             setTime(match);
@@ -160,7 +162,8 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     });
 
     var setTime = function (match) {
-        var time = "00:00:00";
+        var savedTime = localStorage.getItem("time" + match.pk);
+        var time = savedTime ? savedTime : "00:00:00";
         angular.forEach(match.events, function (event) {
             if (event.time > time){
                 time = event.time;
@@ -198,7 +201,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         match.changed = true;
         dataService.saveMatch(match).success(function () {
             match.changed = false;
-        });
+        }).finally(saveDataLocally);
     };
 
     $scope.start = function (switchState) {
@@ -364,7 +367,38 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             return;
         }
         match.events = [];
+
+        var cachedPKs = [];
+        angular.forEach(JSON.parse(localStorage.getItem("events" + match.pk)), function (event) {
+            event = angular.copy(event);
+            event.team = dataService.getObject("teamontournaments", event.team);
+            if (event.type === "goal"){
+                event.data.shooter = dataService.getObject("players", event.data.shooter);
+                event.data.assistance = dataService.getObject("players", event.data.assistance);
+                event.data.team = event.team;
+            }
+            if (event.type === "shot"){
+                event.data.shooter = dataService.getObject("players", event.data.shooter);
+            }
+            if (event.type === "penalty"){
+                event.data.player = dataService.getObject("players", event.data.player);
+            }
+            if (event.type === "goalieChange"){
+                event.data.goalie = dataService.getObject("players", event.data.goalie);
+                event.data.match = match;
+                event.data.team = event.team;
+            }
+            if (event.data.pk){
+                cachedPKs.push(event.type + event.data.pk);
+            }
+            match.events.push(event);
+        });
+        saveData();
+
         angular.forEach(match.goals, function (goal) {
+            if (cachedPKs.indexOf("goal" + goal.pk) > -1){
+                return;
+            }
             goal.shooter = dataService.getObject("players", goal.shooter);
             goal.assistance = dataService.getObject("players", goal.assistance);
             match.events.push({
@@ -376,6 +410,9 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             });
         });
         angular.forEach(match.shots, function (shot) {
+            if (cachedPKs.indexOf("shot" + shot.pk) > -1){
+                return;
+            }
             shot.shooter = dataService.getObject("players", shot.shooter);
             match.events.push({
                 type: "shot",
@@ -386,6 +423,9 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             });
         });
         angular.forEach(match.penalties, function (penalty) {
+            if (cachedPKs.indexOf("penalty" + penalty.pk) > -1){
+                return;
+            }
             penalty.player = dataService.getObject("players", penalty.player);
             angular.forEach(cards, function (card) {
                 if (card.id === penalty.card) {
@@ -433,7 +473,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 if (event.type === "goalieChange"){
                     dataService.goalieChange(event.data).success(function () {
                         event.saved = true;
-                    });
+                    }).finally(saveDataLocally);
                 }else {
                     dataService.saveEvent(event.data, event.type).success(function () {
                         event.saved = true;
@@ -444,7 +484,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                                 $scope.match.score_two++;
                             }
                         }
-                    });
+                    }).finally(saveDataLocally);
                 }
             }
         });
@@ -459,4 +499,37 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $(document).foundation('reveal');
+
+    var saveDataLocally = function(){
+        localStorage.setItem("time" + $scope.match.pk, getTime());
+
+        if ($scope.match.changed){
+            var match = shallowCopy($scope.match);
+            match.referee = $scope.match.referee.pk;
+            localStorage.setItem("match" + $scope.match.pk, JSON.stringify(match));
+        }else{
+            localStorage.removeItem("match" + $scope.match.pk);
+        }
+
+        var toSave = [];
+        angular.forEach($scope.match.events, function (event) {
+            if (event.saved === false) {
+                var eventPure = shallowCopy(event, true);
+                eventPure.data = shallowCopy(event.data, true);
+                toSave.push(eventPure);
+            }
+        });
+        localStorage.setItem("events" + $scope.match.pk, JSON.stringify(toSave));
+    };
+    $interval(saveDataLocally, 5 * 1000);
+
+    var loadMatchLocalData = function () {
+        var match = localStorage.getItem("match" + $scope.match.pk);
+        if (match){
+            match = JSON.parse(match);
+            angular.extend($scope.match, match);
+            $scope.match.referee = dataService.getObject("players", match.referee);
+            saveMatch($scope.match);
+        }
+    };
 }]);
