@@ -165,7 +165,7 @@
 
 </div>
 
-<div id="editGoal" class="small reveal-modal" data-reveal>
+<div id="editGoal" class="medium reveal-modal" data-reveal>
     <h2 id="modalTitle">Gól - {{ goal.team.name_pure }}</h2>
     <label>Čas
         <input type="text" ng-model="goal.time">
@@ -269,7 +269,7 @@
         <div
                 class="columns medium-6 large-4"
                 ng-repeat="player in goalieChange.team.players"
-                ng-click="goalieChange.goalie = player"
+                ng-click="goalieChange.goalie = player;"
         ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
     </div>
     <button ng-show="goalieChange.goalie" ng-click="saveGoalieChange()">{{ goalieChange.goalie.nickname }} - Změnit</button>
