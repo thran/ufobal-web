@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import json
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Prefetch, Count, Max, Min
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
@@ -17,6 +18,13 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
+# testovani na staff nekdy ze driv, patrne ale funguje i @staff_member_required
+# @user_passes_test(is_staff_check)
+
+
+# @user_passes_test(is_paired_check)
+def is_paired_check(user):
+    return user.player
 
 def get_json_one(request, model_class, pk):
     obj = get_object_or_404(model_class, pk=pk)
@@ -255,6 +263,8 @@ def add_match(request):
         return HttpResponseBadRequest("Druhý tým není zaregistrovaný na turnaji.")
     if referee_team not in tournament.teams.all():
         return HttpResponseBadRequest("Rozhodčí tým není zaregistrovaný na turnaji.")
+    if team_one == team_two or team_one == referee_team or team_two == referee_team:
+        return HttpResponseBadRequest("Některý z vybraných týmů se shoduje.")
 
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
                   referee=referee, referee_team=referee_team, start=data.get('start'), place=data.get('place'), end=data.get('end'))
@@ -534,16 +544,16 @@ def pair_user(request, pairing_token):
     if request.user.is_authenticated():
         try:
             if request.user.player:
-                return HttpResponse("user already paired")
+                return HttpResponseBadRequest("user already paired")
         except Player.DoesNotExist:
             if player.user:
-                return HttpResponse("already used token")
+                return HttpResponseBadRequest("already used token")
 
             player.user = request.user
             player.save()
             return HttpResponse("OK")
     else:
-        return HttpResponse("user not logged in")
+        return HttpResponseBadRequest("user not logged in")
 
 
 def intro(request):
@@ -556,7 +566,7 @@ def intro(request):
 def ping(request):
     return HttpResponse("OK")
 
-# @user_passes_test(is_staff_check)
+
 @ensure_csrf_cookie
 def home(request):
     get_json_all(request, Match)
