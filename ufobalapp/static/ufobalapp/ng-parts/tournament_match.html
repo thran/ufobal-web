@@ -269,11 +269,9 @@
         <div
                 class="columns medium-6 large-4"
                 ng-repeat="player in goalieChange.team.players"
-                ng-click="goalieChange.goalie = player;"
+                ng-click="goalieChange.goalie = player; saveGoalieChange()"
         ><div class="pressbutton"><h5>{{ player.nickname }}</h5></div></div>
     </div>
-    <button ng-show="goalieChange.goalie" ng-click="saveGoalieChange()">{{ goalieChange.goalie.nickname }} - Změnit</button>
-
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
