@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^start_match/(?P<match_id>\d+)$', views.start_match, name='start_match'),
     url(r'^end_match/(?P<match_id>\d+)$', views.end_match, name='end_match'),
     url(r'^pair_user/(?P<pairing_token>\w+)$', views.pair_user, name='pair_user'),
+    url(r'^user_profile$', views.user_profile, name='user_profile'),
 ]
 
 

@@ -1,6 +1,6 @@
-{% load staticfiles %}
-<script src="{% static "dist/libs.min.js" %}"></script>
-<script src="{% static "dist/ufobalapp.min.js" %}"></script>
 <script type="text/javascript">
-    closePopupAndUpdateOpener("{% url "home" %}");
+    if (window.opener) {
+        window.opener.social_auth_callback();
+        window.close();
+    }
 </script>

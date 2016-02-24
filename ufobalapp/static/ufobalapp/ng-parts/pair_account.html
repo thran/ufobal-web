@@ -1,0 +1,15 @@
+<h2>Párování</h2>
+<p>Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, zadej kód. Pokud svůj kód neznáš, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.</p>
+
+<div class="row">
+    <div class="row collapse">
+        <div class="small-9 columns">
+            <input type="text" placeholder="kód" ng-model="token" class="columns medium-6">
+        </div>
+        <div class="small-3 columns">
+            <a href="#" ng-click="pairUser(token)" ng-disabled="!token" class="button postfix">Spárovat</a>
+        </div>
+    </div>
+</div>
+
+<span class="fi-alert" ng-show="error">{{ error }}</span>

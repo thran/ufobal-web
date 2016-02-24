@@ -1,0 +1,21 @@
+<a href="#" ng-show="userService.status.logged">{{ user.first_name }} {{ user.last_name }} <span ng-show="user.player">- {{ user.player.nickname }}</span></a>
+<ul class="dropdown" ng-show="userService.status.logged">
+    <li><a href="#" ng-click="openProfile()">Profil hráče</a></li>
+    <li><a ng-click="userService.logout()">Odhlásit se</a></li>
+</ul>
+
+<a href="#" ng-hide="userService.status.logged"> Přihlášení </a>
+<ul class="dropdown" ng-hide="userService.status.logged">
+    <li>
+        <a class="login-provider" id="login-google" ng-click="userService.loginGoogle()">
+            <img width="24" height="24" class="provider-signup-img" src="static/google-icon.png">
+            <span class="provider-signup-text">přes <b>Google</b></span>
+        </a>
+    </li>
+    <li>
+        <a class="login-provider" id="login-facebook" ng-click="userService.loginFacebook()">
+            <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
+            <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        </a>
+    </li>
+</ul>

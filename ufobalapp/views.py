@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 def is_paired_check(user):
     return user.player
 
+
 def get_json_one(request, model_class, pk):
     obj = get_object_or_404(model_class, pk=pk)
     if request.GET.get("html", False):
@@ -539,7 +540,10 @@ def end_match(request, match_id):
 
 @require_http_methods(["POST"])
 def pair_user(request, pairing_token):
-    player = get_object_or_404(Player, pairing_token=pairing_token)
+    try:
+        player = Player.objects.get(pairing_token=pairing_token)
+    except Player.DoesNotExist:
+        return HttpResponseBadRequest("bad token")
 
     if request.user.is_authenticated():
         try:
@@ -551,7 +555,7 @@ def pair_user(request, pairing_token):
 
             player.user = request.user
             player.save()
-            return HttpResponse("OK")
+            return JsonResponse(player.to_json(simple=True))
     else:
         return HttpResponseBadRequest("user not logged in")
 
@@ -567,10 +571,28 @@ def ping(request):
     return HttpResponse("OK")
 
 
+def get_user_data(request):
+    user = request.user
+    if user.is_anonymous():
+        return None
+    else:
+        return {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "is_staff": user.is_staff,
+            "player": user.player.to_json(simple=True) if hasattr(user, "player") else None
+        }
+
+
+def user_profile(request):
+    return JsonResponse(get_user_data(request))
+
+
 @ensure_csrf_cookie
 def home(request):
     get_json_all(request, Match)
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
         "DEBUG": settings.DEBUG,
+        "user": json.dumps(get_user_data(request)),
     })

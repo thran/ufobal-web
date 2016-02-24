@@ -19,6 +19,9 @@
     {% endif %}
 
     <base href="/">
+    <script>
+        var user = {{ user | safe | default:"null" }};
+    </script>
 </head>
 <body ng-app="ufoIS">
 <a href="https://docs.google.com/forms/d/1AcEV9XoB__lzwH9sN71xINuW0r6bsnyIMRUMyLJByHM/viewform" target="_blank"><div id="feedback">Hlášení chyby</div></a>
@@ -44,32 +47,7 @@
             <ul class="right">
                 <li><a href="/faq">Co a jak?</a></li>
                 <li><a href="/managestats/" target="_self">Admin</a></li>
-                <li class="has-dropdown">
-                    {% if user.is_authenticated %}
-                        <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
-                        <ul class="dropdown">
-                            <li><a href="javascript:openPopup('{% url "logout" %}', {% url 'login_popup_close' %})">Odhlásit se</a></li>
-                        </ul>
-                    {% else %}
-                        <a href="#"> Přihlášení </a>
-                        <ul class="dropdown">
-                        <li>
-                            <a class="login-provider" id="login-google"
-                               href="javascript:openPopup('{% url "social:begin" "google-oauth2" %}', {% url 'login_popup_close' %})">
-                                <img width="24" height="24" class="provider-signup-img" src="{% static "google-icon.png" %}">
-                                <span class="provider-signup-text">přes <b>Google</b></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="login-provider" id="login-facebook"
-                               href="javascript:openPopup('{% url "social:begin" "facebook" %}', {% url 'login_popup_close' %})">
-                                <img width="24" height="24" class="provider-signup-img" src="{% static "facebook-icon.png" %}">
-                                <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            </a>
-                        </li>
-                        </ul>
-                    {% endif %}
-                </li>
+                <li class="has-dropdown" ng-controller="auth" ng-include="'auth.html'"></li>
             </ul>
         </section>
     </nav>

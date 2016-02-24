@@ -26,6 +26,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'home.html',
                 controller: "home"
             }).
+            when('/sparovat_ucet', {
+                templateUrl: 'pair_account.html',
+                controller: "auth"
+            }).
             when('/hraci', {
                 templateUrl: 'players.html',
                 controller: "players"
