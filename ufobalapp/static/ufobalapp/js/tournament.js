@@ -152,7 +152,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                             match.team_one.color = "team-blue";
                             match.team_two.color = "team-red";
                             if (!match.referee){
-                                $('#changeReferee').foundation('reveal', 'open');
+                                $scope.startChangeReferee();
                             }
                         }
                     });
@@ -247,12 +247,22 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $scope.newGoalieChange = function (team) {
+         if (!$scope.edit && $scope.match.halftime === null){
+             return;
+         }
          $scope.goalieChange = {
              team: team,
              time: getTime(),
              match: $scope.match
          };
         $('#newGoalieChange').foundation('reveal', 'open');
+    };
+
+    $scope.startChangeReferee = function () {
+         if (!$scope.edit && $scope.match.halftime === null){
+             return;
+         }
+        $('#changeReferee').foundation('reveal', 'open');
     };
 
     $scope.saveShot = function (team) {

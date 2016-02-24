@@ -26,7 +26,7 @@
     </div>
 
     <hr>
-    <div class="text-center"> <a href="" data-reveal-id="changeReferee">
+    <div class="text-center"> <a href="" ng-click="startChangeReferee()">
         píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b>
     </a></div>
 
@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" ng-show="edit || match.halftime !== null">
         <div class="show-for-small columns small-6 medium-5 text-right"><h3>
             <span class="pressbutton" ng-click="saveShot(match.team_one)">střela</span>
             <br><br>
