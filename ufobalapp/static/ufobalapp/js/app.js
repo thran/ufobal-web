@@ -277,7 +277,7 @@ app.controller("player", ["$scope", "dataService", "$routeParams", function ($sc
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     var tournaments;
     var defaultFilter = {
-        yearFrom: 2010,
+        yearFrom: new Date().getFullYear()-6,
         yearTo: new Date().getFullYear(),
         nizkov: true,
         brno: true,
