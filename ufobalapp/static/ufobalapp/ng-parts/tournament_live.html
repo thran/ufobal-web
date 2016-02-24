@@ -28,9 +28,9 @@
 
     <hr>
 
-    <div class="columns large-6 row">
+    <div class="row">
         <h3>Týmy</h3>
-        <div class="medium-6 columns" ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></div>
+        <div class="small-6 medium-4 large-3 columns" ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></div>
         <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
     </div>
 </div>

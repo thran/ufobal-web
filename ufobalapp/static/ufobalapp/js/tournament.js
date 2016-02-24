@@ -116,6 +116,7 @@ app.controller("tournamentLive", ["$scope", "dataService", function($scope, data
         $scope.match.tournament = $scope.tournament;
         dataService.addMatch($scope.match).success(function () {
             $('#newMatch').foundation('reveal', 'close');
+            $scope.match = null;
         });
     };
 
