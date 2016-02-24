@@ -5,7 +5,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     var deferredTmp = {};
     var dataProcessors = {
         players: function(player){
-            player.birthdate = player.birthdate === null ? new Date(player.birthdate) : null;
+            player.birthdate = player.birthdate !== null ? new Date(player.birthdate) : null;
             player.tournaments = [];
             player.goals = {};
             player.assists = {};
