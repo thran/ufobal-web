@@ -7,6 +7,19 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
+
+
+# generovani pairing tokenu pro hrace pri vytvoreni instance
+def generate_pair():
+    # aby nemohli mit dva hraci stejnej token
+    while True:
+        token = get_random_string(length=10)
+
+        try:
+            player = Player.objects.get(pairing_token=token)
+        except ObjectDoesNotExist:
+            return token
 
 
 class Player(models.Model):
@@ -26,7 +39,8 @@ class Player(models.Model):
     nickname = models.CharField('Přezdívka', max_length=50)
     birthdate = models.DateField('Datum narození', null=True, blank=True)
     gender = models.CharField(max_length=10, verbose_name='pohlaví', choices=GENDERS, null=True, blank=True)
-    pairing_token = models.CharField('Párovací token', max_length=10, null=True, blank=True)
+    pairing_token = models.CharField('Párovací token', max_length=10, null=True, blank=True, default=generate_pair)
+    user = models.OneToOneField(User, null=True, blank=True)
 
     def to_json(self, tournaments=True, simple=False, staff=False, **kwargs):
         data = {
@@ -87,20 +101,6 @@ class Player(models.Model):
         if len(name_parts) == 0:
             return self.nickname
         return "{} - {}".format(self.nickname, " ".join(name_parts))
-
-    # generovani pairing tokenu pro hrace pri vytvoreni instance
-    def save(self, *args, **kwargs):
-        # aby nemohli mit dva hraci stejnej token
-        while True:
-            token = get_random_string(length=10)
-
-            try:
-                player = Player.objects.get(pairing_token=token)
-            except ObjectDoesNotExist:
-                self.pairing_token = token
-                break
-
-        super(Player, self).save(*args, **kwargs)
 
     def __str__(self):
         return "%s" % (self.nickname)

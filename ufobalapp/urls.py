@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^change_goalie/(?P<match_id>\d+)-(?P<team_id>\d+)$', views.change_goalie, name='change_goalie'),
     url(r'^start_match/(?P<match_id>\d+)$', views.start_match, name='start_match'),
     url(r'^end_match/(?P<match_id>\d+)$', views.end_match, name='end_match'),
+    url(r'^pair_user/(?P<pairing_token>\w+)$', views.pair_user, name='pair_user'),
 ]
 
 

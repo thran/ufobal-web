@@ -527,6 +527,23 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
+@require_http_methods(["GET"])
+def pair_user(request, pairing_token):
+    player = get_object_or_404(Player, pairing_token=pairing_token)
+
+    if request.user.is_authenticated():
+        try:
+            if request.user.player:
+                return HttpResponse("already paired")
+        except Player.DoesNotExist:
+            player.user = request.user
+            player.save()
+
+            return HttpResponse("OK")
+    else:
+        return HttpResponse("not logged in")
+
+
 def intro(request):
     return render(request, "intro.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
