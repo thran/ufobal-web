@@ -527,21 +527,23 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def pair_user(request, pairing_token):
     player = get_object_or_404(Player, pairing_token=pairing_token)
 
     if request.user.is_authenticated():
         try:
             if request.user.player:
-                return HttpResponse("already paired")
+                return HttpResponse("user already paired")
         except Player.DoesNotExist:
+            if player.user:
+                return HttpResponse("already used token")
+
             player.user = request.user
             player.save()
-
             return HttpResponse("OK")
     else:
-        return HttpResponse("not logged in")
+        return HttpResponse("user not logged in")
 
 
 def intro(request):
