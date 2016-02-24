@@ -26,9 +26,12 @@
     </div>
 
     <hr>
-    <div class="text-center"> <a href="" ng-click="startChangeReferee()">
-        píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b>
-    </a></div>
+    <div class="text-center">
+        <span class="clickable" ng-click="startChangeReferee()">píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b></span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="edit"> editace</span></label>
+        <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="showShots"> střely</span></label>
+    </div>
 
     <div class="row">
         <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
@@ -45,9 +48,9 @@
     <div class="row">
         <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-4 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
+        <div class="columns small-6 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
 
-        <div class="columns small-2">
+        <div class="columns medium-2 show-for-medium-up">
             <div class="small switch right" style="margin-bottom: 0">editace <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
         </div>
     </div>
@@ -62,13 +65,13 @@
             <span style="font-size: 3em;">{{ counts.teamOne.goals }}</span>
         </div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-4 medium-3" ng-class="match.team_two.color">
+        <div class="columns small-6 medium-3" ng-class="match.team_two.color">
             <span style="font-size: 3em;">{{ counts.teamTwo.goals }}</span>
             &nbsp;&nbsp;&nbsp;
             {{ counts.teamTwo.shots + counts.teamTwo.goals }} -
             {{ counts.teamTwo.goals / (counts.teamTwo.goals + counts.teamTwo.shots) * 100 | number:0 }}%
         </div>
-        <div class="columns small-2">
+        <div class="columns medium-2 show-for-medium-up">
             <div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div>
         </div>
     </div>
