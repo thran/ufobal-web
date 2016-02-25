@@ -170,9 +170,9 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 .login-provider.standalone {
     display: inline-block; color: white;
     height: 2.8125rem;
-    width: 130px;
     line-height: 2.8125rem;
     padding-left: 10px;
+    padding-right: 25px;
 }
 .login-provider {
     transition: box-shadow 0.25s, border-color 0.25s, background-color 0.25s;
