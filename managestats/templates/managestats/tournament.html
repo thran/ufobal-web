@@ -22,6 +22,7 @@
                     {{ team.rank }}
                     <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
                     <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={{ team.name }}">vyhledat</a>
+                    <a target="_blank" href="{% url "managestats:generate_pairing_info" 'teamtour' team.id %}">QR kody</a>
                 </li>
             {% endfor %}
         </ul>

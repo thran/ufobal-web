@@ -3,7 +3,7 @@
 
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 
@@ -212,3 +212,28 @@ def set_tournament_ranking(request):
         team_object.save()
     return HttpResponse("OK")
 
+
+@user_passes_test(is_staff_check)
+def generate_pairing_info(request, object_type, object_id):
+    players_list = []
+    team = None
+
+    if object_type == "teamtour":
+        team_tour = get_object_or_404(TeamOnTournament, pk=object_id)
+        team = team_tour
+        for player in team_tour.players.all():
+            player_ret = {'qr': player.get_qr(request),
+                          'link': player.get_pairing_link(request),
+                          'player': player}
+            players_list.append(player_ret)
+    elif object_type == "player":
+        player = get_object_or_404(Player, pk=object_id)
+        player_ret = {'qr': player.get_qr(request),
+                      'link': player.get_pairing_link(request),
+                      'player': player}
+        players_list.append(player_ret)
+    else:
+        return HttpResponseBadRequest("wrong object")
+
+    context = {'players': players_list, 'team': team}
+    return render(request, 'managestats/pairing_info.html', context)

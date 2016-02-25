@@ -14,6 +14,7 @@
                 <a target="_blank" href="{% url "admin:ufobalapp_player_change" player.id %}">{{ player }}</a> -
                 <a target="_blank" href="{% url "admin:ufobalapp_player_changelist" %}?q={{ player.nickname }}">vyhledat</a>
                 <a target="_blank" href="{% url "managestats:player_detail" player.pk %}">veřejný</a>
+                <a target="_blank" href="{% url "managestats:generate_pairing_info" 'player' player.pk %}">QR kod</a>
             </li>
         {% endfor %}
     </ul>

@@ -10,7 +10,6 @@ from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
-
 # generovani pairing tokenu pro hrace pri vytvoreni instance
 from ufobal import settings
 
@@ -113,11 +112,16 @@ class Player(models.Model):
         dir_path = os.path.join(settings.MEDIA_ROOT, "QR_codes")
         path = os.path.join(dir_path, "{}.png".format(self.pairing_token))
 
-        if not os.path.exists(path):
+        if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-            img = qrcode.make(request.build_absolute_uri("sparovat_ucet/"+self.pairing_token))
+
+        if not os.path.exists(path):
+            img = qrcode.make(request.get_host()+"/sparovat_ucet/"+self.pairing_token)
             img.save(path)
         return settings.MEDIA_URL + "QR_codes/" + "{}.png".format(self.pairing_token)
+
+    def get_pairing_link(self, request):
+        return request.get_host()+"/sparovat_ucet/"+self.pairing_token
 
 
 class Team(models.Model):
