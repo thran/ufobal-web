@@ -11,7 +11,7 @@ app.run(["$rootScope", "$location", "$window", function ($rootScope, $location, 
     });
 
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
-        if (!localStorage.getItem("checked") && next.originalPath !== "/intro"){
+        if (!localStorage.getItem("checked") && next.originalPath === "/"){
             $location.path("/intro");
             $window.location.href = "/intro";
         }
@@ -27,6 +27,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 controller: "home"
             }).
             when('/sparovat_ucet', {
+                templateUrl: 'pair_account.html',
+                controller: "auth"
+            }).
+            when('/sparovat_ucet/:token', {
                 templateUrl: 'pair_account.html',
                 controller: "auth"
             }).

@@ -167,21 +167,25 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 
 /* Login providers*/
 
+.login-provider.standalone {
+    display: inline-block; color: white;
+    height: 2.8125rem;
+    width: 130px;
+    line-height: 2.8125rem;
+    padding-left: 10px;
+}
 .login-provider {
     transition: box-shadow 0.25s, border-color 0.25s, background-color 0.25s;
 }
-
 .login-provider:hover{
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 }
-
 #login-google{
     background: #2CAFE2 linear-gradient(to bottom, #2CAFE2, #1C9CCE);
 }
 #login-google:hover{
     background: #2ec9fe none;
 }
-
 #login-facebook{
     background: #3B5998 linear-gradient(to bottom, #406298, #3B5998);
 }

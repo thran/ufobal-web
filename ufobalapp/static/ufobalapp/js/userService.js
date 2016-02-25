@@ -91,7 +91,15 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
 
 }]);
 
-app.controller("auth", ["$scope", "userService", "$location", function($scope, userService, $location){
+app.controller("auth", ["$scope", "userService", "$location", "$routeParams", function($scope, userService, $location, $routeParams){
+    var token = $routeParams.token;
+    if (token){
+        localStorage.setItem("token", token);
+        $scope.token = token;
+    }else if (localStorage.getItem("token")){
+        $scope.token = localStorage.getItem("token");
+    }
+
     $scope.userService = userService;
     $scope.user = userService.user;
 

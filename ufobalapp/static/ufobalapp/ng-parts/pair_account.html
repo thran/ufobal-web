@@ -1,7 +1,21 @@
 <h2>Párování</h2>
-<p>Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, zadej kód. Pokud svůj kód neznáš, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.</p>
+<p ng-show="userService.status.logged">Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, zadej kód. Pokud svůj kód neznáš, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.</p>
 
-<div class="row">
+<p ng-hide="userService.status.logged">Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, musíš se nejdříve přihlásit.</p>
+
+<div ng-hide="userService.status.logged">
+    <a class="login-provider standalone" id="login-google" ng-click="userService.loginGoogle()">
+        <img width="24" height="24" class="provider-signup-img" src="static/google-icon.png">
+        <span class="provider-signup-text"><b>Google</b></span>
+    </a>
+        <a class="login-provider standalone" id="login-facebook" ng-click="userService.loginFacebook()">
+        <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
+        <span class="provider-signup-text"><b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    </a>
+</div>
+
+
+<div class="row" ng-show="userService.status.logged">
     <div class="row collapse">
         <div class="small-9 columns">
             <input type="text" placeholder="kód" ng-model="token" class="columns medium-6">
