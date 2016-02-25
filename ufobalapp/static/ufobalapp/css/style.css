@@ -192,3 +192,8 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 #login-facebook:hover{
     background: #4476bb none;
 }
+
+.stripes:nth-child(2n){
+    background-color: rgba(0, 0, 0, 0.10);
+    border-right: 1px white solid;
+}
