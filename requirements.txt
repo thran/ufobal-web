@@ -6,3 +6,5 @@ django-angular==0.7.15
 raven==5.7.2
 python-memcached==1.57
 python-social-auth==0.2.14
+qrcode==5.2.2
+Pillow==3.1.1

@@ -1,16 +1,11 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import json
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Prefetch, Count, Max, Min
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
-from django.shortcuts import render_to_response
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from managestats.views import is_staff_check
-from django.views.decorators.csrf import csrf_exempt
 from ufobal import settings
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal,\
     Match, Shot, GoalieInMatch, Penalty
@@ -590,7 +585,6 @@ def user_profile(request):
 
 @ensure_csrf_cookie
 def home(request):
-    get_json_all(request, Match)
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
         "DEBUG": settings.DEBUG,

@@ -2,15 +2,19 @@
 # -*- coding: UTF-8 -*-
 
 import datetime
+import os
 
+import qrcode
 from django.db import models
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
 
 # generovani pairing tokenu pro hrace pri vytvoreni instance
+from ufobal import settings
+
+
 def generate_pair():
     # aby nemohli mit dva hraci stejnej token
     while True:
@@ -105,8 +109,15 @@ class Player(models.Model):
     def __str__(self):
         return "%s" % (self.nickname)
 
+    def get_qr(self, request):
+        dir_path = os.path.join(settings.MEDIA_ROOT, "QR_codes")
+        path = os.path.join(dir_path, "{}.png".format(self.pairing_token))
 
-
+        if not os.path.exists(path):
+            os.makedirs(dir_path)
+            img = qrcode.make(request.build_absolute_uri("sparovat_ucet/"+self.pairing_token))
+            img.save(path)
+        return settings.MEDIA_URL + "QR_codes/" + "{}.png".format(self.pairing_token)
 
 
 class Team(models.Model):

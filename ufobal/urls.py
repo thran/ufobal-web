@@ -14,10 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 
-urlpatterns = [
+from ufobal import settings
+
+urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('social.apps.django_app.urls', namespace='social')),
     url(r'^logout$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name="logout"),
