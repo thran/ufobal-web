@@ -14,7 +14,7 @@
             <h4>Hřiště {{ field }}</h4>
 
             <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['-pk']" class="row hoverLight stripes">
-                <div class="text-right columns small-3"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
+                <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
                 <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
                 <div class="columns small-3 one-line">({{ match.referee_team.name_pure }})</div>
                 <div class="columns small-3 one-line">
