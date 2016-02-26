@@ -360,9 +360,12 @@ class Goal(models.Model):
                     (self.assistance and self.assistance in self.match.team_one.players.all()):
                 teams = "{0} ---> {1}"
 
-            elif (self.shooter and  self.shooter in self.match.team_two.players.all()) or \
+            elif (self.shooter and self.shooter in self.match.team_two.players.all()) or \
                     (self.assistance and self.assistance in self.match.team_two.players.all()):
                 teams = "{1} ---> {0}"
+
+            else:
+                teams = "{0} ??? {1}"
 
             return (teams + ": {2} ({3})").format(self.match.team_one.get_name(), self.match.team_two.get_name(),
                                                   self.shooter.nickname if self.shooter else "-",
