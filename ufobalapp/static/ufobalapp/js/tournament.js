@@ -484,6 +484,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     var saveData = function () {
         calculateEventCounts();
         dataService.ping().success(function () {
+            loadMatchLocalData();
             angular.forEach($scope.match.events, function (event) {
                 if (event.saved === false) {
                     if (event.type === "goalieChange"){
