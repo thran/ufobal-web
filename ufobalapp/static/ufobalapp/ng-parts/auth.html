@@ -1,19 +1,24 @@
-<a href="#" ng-show="userService.status.logged">{{ user.first_name }} {{ user.last_name }} <span ng-show="user.player">- {{ user.player.nickname }}</span></a>
-<a href="#" ng-hide="userService.status.logged"> Přihlášení </a>
+<li><a href="/faq">Co a jak?</a></li>
+<li ng-show="user.is_staff"><a href="/managestats/" target="_self">Admin</a></li>
 
-<ul class="dropdown">
-    <li ng-show="userService.status.logged"><a href="#" ng-click="openProfile()">Profil hráče</a></li>
-    <li ng-show="userService.status.logged"><a ng-click="userService.logout()">Odhlásit se</a></li>
-    <li ng-hide="userService.status.logged">
-        <a class="login-provider" id="login-google" ng-click="userService.loginGoogle()">
-            <img width="24" height="24" class="provider-signup-img" src="static/google-icon.png">
-            <span class="provider-signup-text">přes <b>Google</b></span>
-        </a>
-    </li>
-    <li ng-hide="userService.status.logged">
-        <a class="login-provider" id="login-facebook" ng-click="userService.loginFacebook()">
-            <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
-            <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        </a>
-    </li>
-</ul>
+<li class="has-dropdown not-click">
+    <a href="#" ng-show="userService.status.logged">{{ user.first_name }} {{ user.last_name }} <span ng-show="user.player">- {{ user.player.nickname }}</span></a>
+    <a href="#" ng-hide="userService.status.logged"> Přihlášení </a>
+
+    <ul class="dropdown">
+        <li ng-show="userService.status.logged"><a href="#" ng-click="openProfile()">Profil hráče</a></li>
+        <li ng-show="userService.status.logged"><a ng-click="userService.logout()">Odhlásit se</a></li>
+        <li ng-hide="userService.status.logged">
+            <a class="login-provider" id="login-google" ng-click="userService.loginGoogle()">
+                <img width="24" height="24" class="provider-signup-img" src="static/google-icon.png">
+                <span class="provider-signup-text">přes <b>Google</b></span>
+            </a>
+        </li>
+        <li ng-hide="userService.status.logged">
+            <a class="login-provider" id="login-facebook" ng-click="userService.loginFacebook()">
+                <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
+                <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </a>
+        </li>
+    </ul>
+</li>

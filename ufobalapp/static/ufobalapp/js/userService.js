@@ -119,6 +119,8 @@ app.controller("auth", ["$scope", "userService", "$location", "$routeParams", fu
             $scope.error = "Spárování se nezdařilo  - " + response;
         });
     };
+
+    $(document).foundation();
 }]);
 
 
