@@ -9,10 +9,10 @@
         <span ng-show="match.halftime === null">zápas ukončen</span>
         <span ng-show="match.halftime > 0" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
     </div>
-    <div class="timer" ng-show="match.halftime !== null">
+    <div class="timer one-line" ng-show="match.halftime !== null">
         <span ng-click="timer.addTime(5000)" class="clickable fi-rewind"></span>
         <span ng-click="timer.addTime(1000)" class="clickable line">&#9666;</span>
-        &nbsp;&nbsp;
+        <span><span class="hide-for-small">&nbsp;&nbsp;</span></span>
         <span ng-class="{pressbutton: match.halftime === 0}">
             <span ng-click="start();" ng-show="!timer.running" class="clickable fi-play"></span>
             <span ng-click="timer.stop()" ng-show="timer.running" class="clickable fi-pause"></span>
@@ -20,7 +20,7 @@
                 <b ng-class="{red: negative}">{{ sign }}{{ mminutes }}:{{ sseconds }}.{{ deciseconds }}</b>
             </timer>
         </span>
-        &nbsp;&nbsp;
+        <span><span class="hide-for-small">&nbsp;&nbsp;</span></span>
         <span ng-click="timer.addTime(-1000)" class="clickable line">&#9656;</span>
         <span ng-click="timer.addTime(-5000)" class="clickable fi-fast-forward"></span>
     </div>
