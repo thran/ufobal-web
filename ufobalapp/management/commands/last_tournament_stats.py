@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 results[match.team_two]["points"] += 3
                 results[match.team_one]["looses"] += 1
 
-        for team, res in results.items():
+        for team, res in sorted(results.items(), key=lambda t: t[1]["points"]):
             print("{points} {0}: wins:{wins}, looses:{looses}, draws:{draws}".format(team, **res))
 
 
