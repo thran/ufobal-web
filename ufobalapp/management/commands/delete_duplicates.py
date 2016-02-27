@@ -14,5 +14,5 @@ class Command(BaseCommand):
         for goal in Goal.objects.filter(match__fake=False):
             if Goal.objects.filter(match=goal.match, time=goal.time, shooter=goal.shooter, assistance=goal.assistance).count() > 1:
                 print(Goal.objects.filter(match=goal.match, time=goal.time, shooter=goal.shooter, assistance=goal.assistance))
-                shot.delete()
+                goal.delete()
 
