@@ -202,3 +202,19 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
     white-space: nowrap;
     overflow: hidden;
 }
+
+.arrow-left, .arrow-right{
+    border-style: solid;
+    height: 0;
+    width: 0;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+.arrow-left{
+    border-color: transparent #000000 transparent transparent;
+    border-width: 12px 20px 12px 0;
+}
+.arrow-right{
+    border-color: transparent transparent transparent #000000 ;
+    border-width: 12px 0 12px 20px;
+}

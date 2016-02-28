@@ -11,7 +11,7 @@
     </div>
     <div class="timer one-line" ng-show="match.halftime !== null">
         <span ng-click="timer.addTime(5000)" class="clickable fi-rewind"></span>
-        <span ng-click="timer.addTime(1000)" class="clickable line">&#9666;</span>
+        <span ng-click="timer.addTime(1000)" class="clickable line arrow-left"></span>
         <span><span class="hide-for-small">&nbsp;&nbsp;</span></span>
         <span ng-class="{pressbutton: match.halftime === 0}">
             <span ng-click="start();" ng-show="!timer.running" class="clickable fi-play"></span>
@@ -21,7 +21,7 @@
             </timer>
         </span>
         <span><span class="hide-for-small">&nbsp;&nbsp;</span></span>
-        <span ng-click="timer.addTime(-1000)" class="clickable line">&#9656;</span>
+        <span ng-click="timer.addTime(-1000)" class="clickable line arrow-right"></span>
         <span ng-click="timer.addTime(-5000)" class="clickable fi-fast-forward"></span>
     </div>
 
