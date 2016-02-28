@@ -12,6 +12,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             player.goalsSum = 0;
             player.assistsSum = 0;
             player.canada = 0;
+            player.search = player.nickname + "###" + removeDiacritics(player.nickname);
         },
         team: function (team) {
             if (dataMaps.teams[team.pk]){
@@ -372,7 +373,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     team: teamOnTournament.team,
                     count: 0
                 });
-                teamsSearch += teamOnTournament.team.name + "###";
+                teamsSearch += teamOnTournament.team.name + "###" + removeDiacritics(teamOnTournament.team.name) + "###";
             }
         teams[pkMap[teamOnTournament.team.pk]].count += 1;
         });
@@ -404,7 +405,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     name: teamOnTournament.name_pure,
                     count: 0
                 });
-                namesSearch += teamOnTournament.name_pure + "###";
+                namesSearch += teamOnTournament.name_pure + "###" + removeDiacritics(teamOnTournament.name_pure) + "###";
             }
             names[pkMap[teamOnTournament.name]].count += 1;
         });
