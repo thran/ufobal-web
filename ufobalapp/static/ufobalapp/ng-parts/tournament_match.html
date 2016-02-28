@@ -6,7 +6,7 @@
 <div ng-show="match">
     <div class="text-center">
         <span ng-show="match.halftime > 0">{{ match.halftime }}. poločas</span>
-        <span ng-show="match.halftime === null">zápas ukončen</span>
+        <span ng-show="match.halftime === null">zápas ukončen &nbsp;&nbsp;&nbsp;&nbsp; <a href back>&lsaquo; zpět na přehled</a></span>
         <span ng-show="match.halftime > 0" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
     </div>
     <div class="timer one-line" ng-show="match.halftime !== null">
