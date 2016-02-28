@@ -31,24 +31,30 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="edit">úpravy</span></label>
         <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="showShots">střely</span></label>
+        <span class="show-for-small-only">
+            <label style="display: inline !important;"><span style="display: inline;"><input type="checkbox" ng-model="edit">úpravy</span></label>
+            <label style="display: inline !important;"><span style="display: inline;"><input type="checkbox" ng-model="showShots"> střely</span></label>
+            &nbsp;&nbsp;&nbsp;
+            <i class="fi-loop" ng-click="switchTeamSides();"></i>
+        </span>
     </div>
 
     <div class="row">
-        <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team_one.color" ng-click="newGoalieChange(match.team_one)">
-            <b ng-show="match.team_one.goalie">{{ match.team_one.goalie.nickname }}</b>
-            <span ng-hide="match.team_one.goalie">bez brankáře</span>
+        <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team1.color" ng-click="newGoalieChange(match.team1)">
+            <b ng-show="match.team1.goalie">{{ match.team1.goalie.nickname }}</b>
+            <span ng-hide="match.team1.goalie">bez brankáře</span>
         </div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-6 medium-5 clickable" ng-class="match.team_two.color" ng-click="newGoalieChange(match.team_two)">
-            <b ng-show="match.team_two.goalie">{{ match.team_two.goalie.nickname }}</b>
-            <span ng-hide="match.team_two.goalie">bez brankáře</span>
+        <div class="columns small-6 medium-5 clickable" ng-class="match.team2.color" ng-click="newGoalieChange(match.team2)">
+            <b ng-show="match.team2.goalie">{{ match.team2.goalie.nickname }}</b>
+            <span ng-hide="match.team2.goalie">bez brankáře</span>
         </div>
     </div>
 
     <div class="row">
-        <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team_one.color"><b>{{ match.team_one.name_pure }}</b></div>
-        <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-6 medium-3" style="font-size: 2em;" ng-class="match.team_two.color"><b>{{ match.team_two.name_pure }}</b></div>
+        <div class="columns small-6 medium-5 text-right" style="font-size: 2em;" ng-class="match.team1.color"><b>{{ match.team1.name_pure }}</b></div>
+        <div class="columns medium-2 show-for-medium-up text-center"><i class="fi-loop" ng-click="switchTeamSides();"></i></div>
+        <div class="columns small-6 medium-3" style="font-size: 2em;" ng-class="match.team2.color"><b>{{ match.team2.name_pure }}</b></div>
 
         <div class="columns medium-2 show-for-medium-up">
             <div class="small switch right" style="margin-bottom: 0">úpravy <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
@@ -57,19 +63,19 @@
 
 
     <div class="row">
-        <div class="columns small-6 medium-5 text-right" ng-class="match.team_one.color"
+        <div class="columns small-6 medium-5 text-right" ng-class="match.team1.color"
         ng-init="">
-            {{ counts.teamOne.goals / (counts.teamOne.goals + counts.teamOne.shots) * 100 | number:0 }}% -
-            {{ counts.teamOne.shots + counts.teamOne.goals }}
+            {{ match.team1.counts.goals / (match.team1.counts.goals + match.team1.counts.shots) * 100 | number:0 }}% -
+            {{ match.team1.counts.shots + match.team1.counts.goals }}
             &nbsp;&nbsp;&nbsp;
-            <span style="font-size: 3em;">{{ counts.teamOne.goals }}</span>
+            <span style="font-size: 3em;">{{ match.team1.counts.goals }}</span>
         </div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-6 medium-3" ng-class="match.team_two.color">
-            <span style="font-size: 3em;">{{ counts.teamTwo.goals }}</span>
+        <div class="columns small-6 medium-3" ng-class="match.team2.color">
+            <span style="font-size: 3em;">{{ match.team2.counts.goals }}</span>
             &nbsp;&nbsp;&nbsp;
-            {{ counts.teamTwo.shots + counts.teamTwo.goals }} -
-            {{ counts.teamTwo.goals / (counts.teamTwo.goals + counts.teamTwo.shots) * 100 | number:0 }}%
+            {{ match.team2.counts.shots + match.team2.counts.goals }} -
+            {{ match.team2.counts.goals / (match.team2.counts.goals + match.team2.counts.shots) * 100 | number:0 }}%
         </div>
         <div class="columns medium-2 show-for-medium-up">
             <div class="small switch right">střely <br><input id='showShots' type="checkbox" ng-model="showShots"><label for="showShots"></label></div>
@@ -78,27 +84,27 @@
 
     <div class="row" ng-show="edit || match.halftime !== null">
         <div class="show-for-small columns small-6 medium-5 text-right"><h3>
-            <span class="pressbutton" ng-click="saveShot(match.team_one)">střela</span>
+            <span class="pressbutton" ng-click="saveShot(match.team1)">střela</span>
             <br><br>
-            <span ng-click="newPenalty(match.team_one)" class="clickable fi-alert"></span>
-            <span class="pressbutton" ng-click="newGoal(match.team_one)">gól</span>
+            <span ng-click="newPenalty(match.team1)" class="clickable fi-alert"></span>
+            <span class="pressbutton" ng-click="newGoal(match.team1)">gól</span>
         </h3></div>
         <div class="columns small-6 medium-5 show-for-medium-up text-right"><h3>
-            <span ng-click="newPenalty(match.team_one)" class="clickable fi-alert"></span>
-            <span class="pressbutton" ng-click="saveShot(match.team_one)">střela</span>
-            <span class="pressbutton" ng-click="newGoal(match.team_one)">gól</span>
+            <span ng-click="newPenalty(match.team1)" class="clickable fi-alert"></span>
+            <span class="pressbutton" ng-click="saveShot(match.team1)">střela</span>
+            <span class="pressbutton" ng-click="newGoal(match.team1)">gól</span>
         </h3></div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
         <div class="show-for-small columns small-6 medium-5"><h3>
-            <span class="pressbutton" ng-click="saveShot(match.team_two)">střela</span>
+            <span class="pressbutton" ng-click="saveShot(match.team2)">střela</span>
             <br><br>
-            <span class="pressbutton" ng-click="newGoal(match.team_two)">gól</span>
-            <span ng-click="newPenalty(match.team_two)" class="clickable fi-alert"></span>
+            <span class="pressbutton" ng-click="newGoal(match.team2)">gól</span>
+            <span ng-click="newPenalty(match.team2)" class="clickable fi-alert"></span>
         </h3></div>
         <div class="columns small-6 medium-5 show-for-medium-up"><h3>
-            <span class="pressbutton" ng-click="newGoal(match.team_two)">gól</span>
-            <span class="pressbutton" ng-click="saveShot(match.team_two)">střela</span>
-            <span ng-click="newPenalty(match.team_two)" class="clickable fi-alert"></span>
+            <span class="pressbutton" ng-click="newGoal(match.team2)">gól</span>
+            <span class="pressbutton" ng-click="saveShot(match.team2)">střela</span>
+            <span ng-click="newPenalty(match.team2)" class="clickable fi-alert"></span>
         </h3></div>
     </div>
 
@@ -132,8 +138,8 @@
             <span ng-hide="event.saved" class="fi-unlink"></span>
         </div>
 
-        <div class="columns medium-4" ng-show="event.team === match.team_two">&nbsp;</div>
-        <div class="columns medium-4 text-right" ng-hide="event.team === match.team_two">
+        <div class="columns medium-4" ng-show="event.team === match.team2">&nbsp;</div>
+        <div class="columns medium-4 text-right" ng-hide="event.team === match.team2">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
@@ -155,8 +161,8 @@
                   ng-click="remove(event)" class="fi-x clickable"></span>
         </div>
 
-        <div class="columns medium-5" ng-show="event.team === match.team_one">&nbsp;</div>
-        <div class="columns medium-5" ng-hide="event.team === match.team_one">
+        <div class="columns medium-5" ng-show="event.team === match.team1">&nbsp;</div>
+        <div class="columns medium-5" ng-hide="event.team === match.team1">
             <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>

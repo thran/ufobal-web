@@ -152,6 +152,8 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                             setTime(match);
                             match.team_one.color = "team-blue";
                             match.team_two.color = "team-red";
+                            match.team1 = match.team_one;
+                            match.team2 = match.team_two;
                             if (!match.referee){
                                 $scope.startChangeReferee();
                             }
@@ -364,16 +366,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     var calculateEventCounts = function () {
-        $scope.counts = { teamOne: {'shots': 0, goals: 0}, teamTwo: {'shots': 0, goals: 0}};
+        $scope.match.team_one.counts = {'shots': 0, goals: 0};
+        $scope.match.team_two.counts = {'shots': 0, goals: 0};
         if (!$scope.match){
             return;
         }
         angular.forEach($scope.match.events, function (event) {
             if (event.type === "goal" || event.type === "shot"){
-                $scope.counts[event.team === $scope.match.team_one ? 'teamOne' : 'teamTwo'][event.type+"s"]++;
+                event.team.counts[event.type+"s"]++;
             }
         });
-        return $scope.count;
     };
 
     var prepareEvents = function (match) {
@@ -550,5 +552,11 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             $scope.match.referee = dataService.getObject("players", match.referee);
             saveMatch($scope.match);
         }
+    };
+
+    $scope.switchTeamSides = function () {
+        var tmp = $scope.match.team1;
+        $scope.match.team1 = $scope.match.team2;
+        $scope.match.team2 = tmp;
     };
 }]);
