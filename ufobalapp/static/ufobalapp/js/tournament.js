@@ -376,6 +376,13 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             if (event.data.pk) {
                 dataService.removeEvent(event.data, event.type).success(function () {
                     $scope.match.events.splice($scope.match.events.indexOf(event), 1);
+                    if (event.type === "goal"){
+                        if (event.team === $scope.match.team_one){
+                            $scope.match.score_one--;
+                        }else{
+                            $scope.match.score_two--;
+                        }
+                    }
                 });
             } else {
                 $scope.match.events.splice($scope.match.events.indexOf(event), 1);
