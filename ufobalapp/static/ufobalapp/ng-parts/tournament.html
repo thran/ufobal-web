@@ -57,10 +57,10 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th st-sort="nickname">Jméno</th>
-                        <th class="text-right" st-sort="goalsSumFiltered">góly</th>
-                        <th class="text-right" st-sort="assistsSumFiltered">asistence</th>
-                        <th class="text-right" st-sort="canadaFiltered">kanada</th>
+                        <th st-sort="nickname" class="clickable">Jméno</th>
+                        <th class="text-right clickable" st-sort="goalsSumFiltered" st-descending-first="true">góly</th>
+                        <th class="text-right clickable" st-sort="assistsSumFiltered" st-descending-first="true">asistence</th>
+                        <th class="text-right clickable" st-sort="canadaFiltered" st-descending-first="true">kanada</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -88,11 +88,11 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th st-sort="player.nickname">Jméno</th>
-                        <th class="text-right" st-sort="matches">zápasů</th>
-                        <th class="text-right" st-sort="shots">střel</th>
-                        <th class="text-right" st-sort="goals">gólů</th>
-                        <th class="text-right" st-sort="success">úspěšnost</th>
+                        <th st-sort="player.nickname" class="clickable">Jméno</th>
+                        <th class="text-right clickable" st-sort="matches" st-descending-first="true">zápasů</th>
+                        <th class="text-right clickable" st-sort="shots" st-descending-first="true">střel</th>
+                        <th class="text-right clickable" st-sort="goals" st-descending-first="true">gólů</th>
+                        <th class="text-right clickable" st-sort="success" st-descending-first="true">úspěšnost</th>
                     </tr>
                     </thead>
                     <tbody>
