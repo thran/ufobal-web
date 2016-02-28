@@ -218,3 +218,7 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
     border-color: transparent transparent transparent #000000 ;
     border-width: 12px 0 12px 20px;
 }
+
+.toast-top-center {
+  top: 3rem;
+}

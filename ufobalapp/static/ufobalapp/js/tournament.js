@@ -131,6 +131,20 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     $scope.eventFilter = {type: "!shot"};
     $scope.cards = cards;
 
+    toastr.options = {
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "2000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
     $scope.$watch("showShots", function (n, o) {
         if (n){
             $scope.eventFilter.type = "";
@@ -210,7 +224,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     $scope.start = function (switchState) {
         var start = switchState ? $scope.timer.switchState: $scope.timer.start;
         if (!$scope.match.team_one.goalie || !$scope.match.team_two.goalie){
-            alert("Není nastaven brankář.");
+            toastr.error("Není nastaven brankář.");
             return;
         }
         if ($scope.match.halftime === 0 ){
@@ -280,6 +294,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             saved: false,
             team: team
         });
+        toastr.success('Střela uložena');
         saveData();
     };
 
@@ -292,6 +307,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             team: $scope.goal.team
         });
         $('#newGoal').foundation('reveal', 'close');
+        toastr.success('Gól uložen');
         saveData();
     };
 
@@ -304,6 +320,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             saved: false
         });
         $('#newPenalty').foundation('reveal', 'close');
+        toastr.success('Penalta uložena');
         saveData();
     };
 
@@ -317,6 +334,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
         $scope.goalieChange.team.goalie = $scope.goalieChange.goalie;
         $('#newPenalty').foundation('reveal', 'close');
+        toastr.success('Brankář změněn');
         saveData();
     };
 

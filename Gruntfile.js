@@ -15,7 +15,8 @@ grunt.initConfig({
                 'bower_components/angular-smart-table/dist/smart-table.min.js',
                 'bower_components/moment/min/moment.min.js',
                 'bower_components/humanize-duration/humanize-duration.js',
-                'bower_components/foundation/js/foundation.min.js'
+                'bower_components/foundation/js/foundation.min.js',
+                'bower_components/toastr/toastr.min.js'
             ],
             dest: 'static/dist/libs.min.js'
         },
@@ -65,6 +66,7 @@ grunt.initConfig({
                     "bower_components/foundation/css/normalize.css",
                     "bower_components/foundation/css/foundation.css",
                     "bower_components/foundation-icon-fonts/foundation-icons.css",
+                    "bower_components/toastr/toastr.css",
                     'ufobalapp/static/ufobalapp/css/*.css'
                 ]
             }
