@@ -128,6 +128,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     function($scope, $routeParams, dataService, $timeout, $sce, $filter, $interval){
     var id = parseInt($routeParams.id);
     var tournamentId = parseInt($routeParams.tournamentId);
+    $scope.onlyView = !$routeParams.edit;
     $scope.timer = {};
     $scope.eventFilter = {type: "!shot"};
     $scope.cards = cards;
@@ -265,7 +266,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $scope.newGoalieChange = function (team) {
-         if (!$scope.edit && $scope.match.halftime === null){
+         if ($scope.onlyView || (!$scope.edit && $scope.match.halftime === null)){
              return;
          }
          $scope.goalieChange = {
@@ -277,7 +278,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $scope.startChangeReferee = function () {
-         if (!$scope.edit && $scope.match.halftime === null){
+         if ($scope.onlyView || (!$scope.edit && $scope.match.halftime === null)){
              return;
          }
         $('#changeReferee').foundation('reveal', 'open');

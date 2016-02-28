@@ -74,6 +74,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournament_match.html',
                 controller: "tournamentMatch"
             }).
+            when('/turnaj/zapas/:tournamentId/:id/:edit', {
+                templateUrl: 'tournament_match.html',
+                controller: "tournamentMatch"
+            }).
             when('/turnaj/:id/:turnaj', {
                 templateUrl: 'tournament.html',
                 controller: "tournament"

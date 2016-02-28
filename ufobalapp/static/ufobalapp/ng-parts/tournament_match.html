@@ -7,9 +7,9 @@
     <div class="text-center">
         <span ng-show="match.halftime > 0">{{ match.halftime }}. poločas</span>
         <span ng-show="match.halftime === null">zápas ukončen &nbsp;&nbsp;&nbsp;&nbsp; <a href back>&lsaquo; zpět na přehled</a></span>
-        <span ng-show="match.halftime > 0" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
+        <span ng-show="match.halftime > 0 && !onlyView" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>
     </div>
-    <div class="timer one-line" ng-show="match.halftime !== null">
+    <div class="timer one-line" ng-show="match.halftime !== null" ng-hide="onlyView">
         <span ng-click="timer.addTime(5000)" class="clickable fi-rewind"></span>
         <span ng-click="timer.addTime(1000)" class="clickable line arrow-left"></span>
         <span><span class="hide-for-small">&nbsp;&nbsp;</span></span>
@@ -32,7 +32,11 @@
         <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="edit">úpravy</span></label>
         <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="showShots">střely</span></label>
         <span class="show-for-small-only">
+<<<<<<< 39b32fe10ad25007ded1f63c1203ca13e314c77c
             <label style="display: inline !important;"><span style="display: inline;"><input type="checkbox" ng-model="edit">úpravy</span></label>
+=======
+            <label style="display: inline !important;"><span style="display: inline;" ng-hide="onlyView"><input type="checkbox" ng-model="edit" ng-hide="onlyView"> editace</span></label>
+>>>>>>> spectator mode of match - related to issue #25
             <label style="display: inline !important;"><span style="display: inline;"><input type="checkbox" ng-model="showShots"> střely</span></label>
             &nbsp;&nbsp;&nbsp;
             <i class="fi-loop" ng-click="switchTeamSides();"></i>
@@ -57,7 +61,7 @@
         <div class="columns small-6 medium-3 one-line" style="font-size: 2em;" ng-class="match.team2.color"><b>{{ match.team2.name_pure }}</b></div>
 
         <div class="columns medium-2 show-for-medium-up">
-            <div class="small switch right" style="margin-bottom: 0">úpravy <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
+            <div class="small switch right" style="margin-bottom: 0" ng-hide="onlyView">úpravy <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
         </div>
     </div>
 
@@ -82,7 +86,7 @@
         </div>
     </div>
 
-    <div class="row" ng-show="edit || match.halftime !== null">
+    <div class="row" ng-show="!onlyView && (edit || match.halftime !== null)">
         <div class="show-for-small columns small-6 medium-5 text-right"><h3>
             <span class="pressbutton" ng-click="saveShot(match.team1)">střela</span>
             <br><br>
