@@ -39,11 +39,12 @@
             <h3 ng-show="tournament.matches.length > 1">Zápasy</h3>
             <table style="margin: auto" ng-show="tournament.matches.length">
                 <tbody>
-                    <tr ng-repeat="match in tournament.matches | filter: {length: ''}| orderBy:'start'">
-                        <td class="text-right">{{ match.team_one.name_pure }}</td>
-                        <td class="text-right"><b>{{ match.score_one }}</b></td>
-                        <td><b>{{ match.score_two }}</b></td>
-                        <td>{{ match.team_two.name_pure }}</td>
+                    <tr class="hoverLight" ng-repeat="match in tournament.matches | filter: {length: ''}| orderBy:'start'">
+                            <td class="text-right"> {{ match.team_one.name_pure }}</td>
+                            <td class="text-right"><b>{{ match.score_one }}</b></td>
+                            <td><b>{{ match.score_two }}</b></td>
+                            <td>{{ match.team_two.name_pure }}</td>
+                            <td><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}">detail</a></td>
                     </tr>
                 </tbody>
             </table>
