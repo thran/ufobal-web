@@ -5,7 +5,7 @@
     <div>
         <a href back class="left">&lsaquo; zpět</a>
         <hr>
-        <a ng-hide="edit" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
+        <a ng-hide="edit || !(user.is_staff || user.player.pk === player.pk)" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
 
         <h1> &nbsp; {{ player.nickname }} </h1>
         <h2 ng-class="{man: player.gender=='man', woman: player.gender=='woman'}">
@@ -97,12 +97,12 @@
                     <span ng-show="t.rank">{{ t.rank }}.</span>
                     <span ng-hide="t.rank">-</span>
                 </td>
-                <td class="text-right"><a class="fi-x" ng-click="removeAttendance(t)"></a></td>
+                <td class="text-right"><a class="fi-x" ng-show="user.is_staff || user.player.pk === player.pk" ng-click="removeAttendance(t)"></a></td>
             </tr>
         </tbody>
     </table>
     <hr>
-    <div class="row">
+    <div class="row" ng-show="user.is_staff || user.player.pk === player.pk">
         <div class="text-right columns small-2">
             <select
                 ng-model="selectedTournament"

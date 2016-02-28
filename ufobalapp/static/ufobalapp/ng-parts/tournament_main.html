@@ -2,7 +2,8 @@
 
 <hr>
 <div class="loader" ng-hide="matchesLoaded"></div>
-<div ng-show="matchesLoaded">
+<div ng-hide="user.is_authorized">Přihlaš se prosím účtem, který je spárovaný s nějakým hráčem.</div>
+<div class="text-center" ng-show="matchesLoaded && user.is_authorized">
 
     <a class="right" href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
     <a class="right" style="margin-right: 10px;" href="/turnaj-zive"><button>Divácký pohled</button></a>

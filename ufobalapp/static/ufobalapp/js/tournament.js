@@ -1,4 +1,5 @@
-app.controller("tournamentRegistration", ["$scope", "dataService", "$location", function($scope, dataService, $location){
+app.controller("tournamentRegistration", ["$scope", "dataService", "$location", "userService", function($scope, dataService, $location, userService){
+    $scope.user = userService.user;
     $scope.registration = {};
 
     dataService.getLiveTournament().then(function (tournament) {
@@ -102,7 +103,8 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
 }]);
 
 
-app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$location", function($scope, dataService, $interval, $location){
+app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$location", "userService", function($scope, dataService, $interval, $location, userService){
+    $scope.user = userService.user;
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;

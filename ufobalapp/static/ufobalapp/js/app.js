@@ -249,8 +249,9 @@ app.controller("players", ["$scope", "dataService", "$filter", function ($scope,
     });
 }]);
 
-app.controller("player", ["$scope", "dataService", "$routeParams", function ($scope, dataService, $routeParams) {
+app.controller("player", ["$scope", "dataService", "$routeParams", "userService", function ($scope, dataService, $routeParams, userService) {
     var id = parseInt($routeParams.id);
+    $scope.user = userService.user;
     $scope.genders = genders;
     $scope.getPlayerTeams = dataService.getPlayerTeams;
     $scope.getScoreWithoutTeam = dataService.getScoreWithoutTeam;

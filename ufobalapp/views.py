@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import json
+
 from django.db.models import Prefetch, Count, Max, Min
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.utils.six import wraps
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+
+from managestats.views import is_staff_check
 from ufobal import settings
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal,\
     Match, Shot, GoalieInMatch, Penalty
@@ -13,13 +17,26 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-# testovani na staff nekdy ze driv, patrne ale funguje i @staff_member_required
-# @user_passes_test(is_staff_check)
+
+def user_passes_test_or_401(test_func):
+    """
+    Decorator for views that checks that the user passes the given test,
+    returning 401 if necessary. The test should be a callable
+    that takes the user object and returns True if the user passes.
+    """
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if test_func(request.user):
+                return view_func(request, *args, **kwargs)
+            return HttpResponse('Unauthorized', status=401)
+        return _wrapped_view
+    return decorator
 
 
-# @user_passes_test(is_paired_check)
-def is_paired_check(user):
-    return user.player
+def is_authorized(user):
+    return user.is_staff or hasattr(user, "player")
 
 
 def get_json_one(request, model_class, pk):
@@ -85,10 +102,13 @@ def live_tournament(request):
     return JsonResponse(Tournament.objects.all().order_by("-date")[0].to_json(teams=False), safe=False)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def save_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
     player = get_object_or_404(Player, pk=data["pk"])
+    if not (request.user.is_staff or player.user == request.user):
+        return HttpResponse('Unauthorized', status=401)
 
     for field in ["nickname", "lastname", "name", "gender", "birthdate"]:
         # TODO better birthdate validation
@@ -107,6 +127,7 @@ def save_player(request):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 def remove_attendance(request, player, team):
     if request.method != "DELETE":
         return HttpResponseNotAllowed(["DELETE"])
@@ -125,6 +146,7 @@ def remove_attendance(request, player, team):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_attendance(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -136,6 +158,7 @@ def add_attendance(request):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def set_captain_or_goalie(request, goalie=False):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -156,7 +179,7 @@ def set_captain_or_goalie(request, goalie=False):
     return HttpResponse("OK")
 
 
-# @csrf_exempt # aby nebyl potreba csrf token (test)
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_team(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -171,6 +194,7 @@ def add_team(request):
     return HttpResponse(team.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_team_on_tournament(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -191,6 +215,7 @@ def add_team_on_tournament(request):
     return HttpResponse(tour_team.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -205,6 +230,7 @@ def add_player(request):
     return HttpResponseBadRequest("Chybí přezdívka")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_goal(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -228,6 +254,7 @@ def add_goal(request):
     return HttpResponse(goal.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_shot(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -247,6 +274,7 @@ def add_shot(request):
     return HttpResponse(shot.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_match(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -296,6 +324,7 @@ def add_match(request):
     return HttpResponse(match.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_penalty(request):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -313,6 +342,7 @@ def add_penalty(request):
     return HttpResponse(penalty.pk)
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def edit_goal(request, goal_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -342,6 +372,7 @@ def edit_goal(request, goal_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def edit_shot(request, shot_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -364,6 +395,7 @@ def edit_shot(request, shot_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def edit_match(request, match_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -414,6 +446,7 @@ def edit_match(request, match_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def edit_penalty(request, penalty_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -442,6 +475,7 @@ def edit_penalty(request, penalty_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["DELETE"])
 def remove_goal(request, goal_id):
     goal = get_object_or_404(Goal, pk=goal_id)
@@ -450,6 +484,7 @@ def remove_goal(request, goal_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["DELETE"])
 def remove_shot(request, shot_id):
     shot = get_object_or_404(Shot, pk=shot_id)
@@ -458,6 +493,7 @@ def remove_shot(request, shot_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_staff_check)
 @require_http_methods(["DELETE"])
 def remove_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
@@ -466,6 +502,7 @@ def remove_match(request, match_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["DELETE"])
 def remove_penalty(request, penalty_id):
     penalty = get_object_or_404(Penalty, pk=penalty_id)
@@ -474,6 +511,7 @@ def remove_penalty(request, penalty_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def change_goalie(request, match_id, team_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -502,6 +540,7 @@ def change_goalie(request, match_id, team_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def start_match(request, match_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -517,6 +556,7 @@ def start_match(request, match_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def end_match(request, match_id):
     data = json.loads(str(request.body.decode('utf-8')))
@@ -540,6 +580,7 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def pair_user(request, pairing_token):
     try:
@@ -582,6 +623,7 @@ def get_user_data(request):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "is_staff": user.is_staff,
+            "is_authorized": is_authorized(user),
             "player": user.player.to_json(simple=True) if hasattr(user, "player") else None
         }
 

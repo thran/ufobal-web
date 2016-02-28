@@ -5,7 +5,11 @@
         Přihlašování na turnaj bylo již uzavřeno.
     </div>
 
-    <div ng-show="tournament.registration_open">
+    <div ng-cloak class="text-center" ng-hide="user.is_authorized">
+        Přihlaš se prosím účtem, který je spárovaný s nějakým hráčem.
+    </div>
+
+    <div ng-show="tournament.registration_open && user.is_authorized">
         <h3>{{ tournament.full_name }}</h3>
         <p ng-show="error" class="red">{{ error }}</p>
         <div class="row">
