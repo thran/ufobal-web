@@ -486,7 +486,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         dataService.ping().success(function () {
             loadMatchLocalData();
             angular.forEach($scope.match.events, function (event) {
-                if (event.saved === false) {
+                if (!event.saved && !event.data.saving) {
                     if (event.type === "goalieChange"){
                         dataService.goalieChange(event.data).success(function () {
                             event.saved = true;
@@ -521,7 +521,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     var saveDataLocally = function(){
         localStorage.setItem("time" + $scope.match.pk, getTime());
 
-        if ($scope.match.changed){
+        if ($scope.match && $scope.match.changed){
             var match = shallowCopy($scope.match);
             match.referee = $scope.match.referee.pk;
             localStorage.setItem("match" + $scope.match.pk, JSON.stringify(match));
