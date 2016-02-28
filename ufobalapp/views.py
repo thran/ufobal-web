@@ -115,6 +115,13 @@ def remove_attendance(request, player, team):
     team = get_object_or_404(TeamOnTournament, pk=team)
     player.tournaments.remove(team)
 
+    if team.captain == player:
+        team.captain = None
+        team.save()
+    if team.default_goalie == player:
+        team.default_goalie = None
+        team.save()
+
     return HttpResponse("OK")
 
 
