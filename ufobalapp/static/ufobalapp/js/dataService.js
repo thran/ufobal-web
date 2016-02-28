@@ -78,12 +78,15 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.team_two = self.getObject("teamontournaments", match.team_two);
             match.referee_team = self.getObject("teamontournaments", match.referee_team);
             match.referee = self.getObject("players", match.referee);
-            match.startDatetime = match.start !== null ? new Date(match.start) : null;
-            match.endDatetime = match.end !== null ? new Date(match.end) : null;
+            match.state = match.end ? "ended" : (match.start ?  "ongoing" : "waiting");
+            match.start = match.start !== null ? new Date(match.start) : null;
+            match.end = match.end !== null ? new Date(match.end) : null;
 
             match.tournament.matches.push(match);
-            match.team_one.matches.push(match);
-            match.team_two.matches.push(match);
+
+            // need to handle refreshing
+            // match.team_one.matches.push(match);
+            // match.team_two.matches.push(match);
         }
     };
 
@@ -242,6 +245,16 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             return null;
         }
         return dataMaps[object][id];
+    };
+
+    self.refreshTournament = function(tournament){
+        return $http.get(djangoUrl.reverse("api:get_matchs"), {params: {"tournament": tournament.pk}})
+            .success(function(matches){
+                tournament.matches = [];
+                angular.forEach(matches, function (match) {
+                    dataProcessors.matchs(match);
+                });
+            });
     };
 
     self.addTeam = function(newTeam){

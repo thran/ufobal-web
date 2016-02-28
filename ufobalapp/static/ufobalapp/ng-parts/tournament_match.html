@@ -5,6 +5,7 @@
 
 <div ng-show="match">
     <div class="text-center">
+        <div class="small switch text-right right" style="margin-bottom: 0" ng-show="onlyView">živě<br><input id='refresh' type="checkbox" ng-model="refresh"><label for="refresh"></label></div>
         <span ng-show="match.halftime > 0">{{ match.halftime }}. poločas</span>
         <span ng-show="match.halftime === null">zápas ukončen &nbsp;&nbsp;&nbsp;&nbsp; <a href back>&lsaquo; zpět na přehled</a></span>
         <span ng-show="match.halftime > 0 && !onlyView" ng-click="nextHalftime()" class="clickable fi-arrow-right"></span>

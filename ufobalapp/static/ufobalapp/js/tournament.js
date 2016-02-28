@@ -102,7 +102,7 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
 }]);
 
 
-app.controller("tournamentMain", ["$scope", "dataService", function($scope, dataService){
+app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$location", function($scope, dataService, $interval, $location){
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;
@@ -110,6 +110,18 @@ app.controller("tournamentMain", ["$scope", "dataService", function($scope, data
         });
         dataService.getMatches($scope.tournament.pk).then(function (matches) {
             $scope.matchesLoaded = true;
+
+
+            if ($location.path() === "/turnaj-zive"){
+                var i = $interval(function () {
+                    if ($scope.refresh) {
+                        dataService.refreshTournament($scope.tournament);
+                    }
+                }, 15 * 1000);
+                $scope.$on('$destroy', function() {
+                    $interval.cancel(i);
+                });
+            }
         });
     });
 
@@ -128,7 +140,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     function($scope, $routeParams, dataService, $timeout, $sce, $filter, $interval){
     var id = parseInt($routeParams.id);
     var tournamentId = parseInt($routeParams.tournamentId);
-    $scope.onlyView = !$routeParams.edit;
+    $scope.onlyView = $routeParams.edit !== "edit";
     $scope.timer = {};
     $scope.eventFilter = {type: "!shot"};
     $scope.cards = cards;
@@ -159,26 +171,50 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         dataService.getPlayers().then(function () {
             dataService.getTeams().then(function () {
                 $timeout(function(){
-                    angular.forEach(matches, function (match) {
-                        if (id === match.pk){
-                            $scope.match = match;
-                            loadMatchLocalData();
-                            prepareEvents(match);
-                            $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
-                            setTime(match);
-                            match.team_one.color = "team-blue";
-                            match.team_two.color = "team-red";
-                            match.team1 = match.team_one;
-                            match.team2 = match.team_two;
-                            if (!match.referee){
-                                $scope.startChangeReferee();
+                    prepareMatch(matches);
+                    if ($scope.onlyView){
+                        var i = $interval(function () {
+                            if ($scope.refresh) {
+                                var tournament = dataService.getObject("tournaments", tournamentId);
+                                dataService.refreshTournament(tournament).success(function () {
+                                    prepareMatch(tournament.matches);
+                                });
                             }
-                        }
-                    });
+                        }, 15 * 1000);
+                        $scope.$on('$destroy', function() {
+                            $interval.cancel(i);
+                        });
+                    }else{
+                        var i1 = $interval(saveDataLocally, 5 * 1000);
+                        var i2 = $interval(saveData, 15 * 1000);
+                        $scope.$on('$destroy', function() {
+                            $interval.cancel(i1);
+                            $interval.cancel(i2);
+                        });
+                    }
                 });
             });
         });
     });
+
+    var prepareMatch = function (matches){
+        angular.forEach(matches, function (match) {
+            if (id === match.pk){
+                $scope.match = match;
+                loadMatchLocalData();
+                prepareEvents(match);
+                $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
+                setTime(match);
+                match.team_one.color = "team-blue";
+                match.team_two.color = "team-red";
+                match.team1 = match.team_one;
+                match.team2 = match.team_two;
+                if (!match.referee){
+                    $scope.startChangeReferee();
+                }
+            }
+        });
+    };
 
     var setTime = function (match) {
         var savedTime = localStorage.getItem("time" + match.pk);
@@ -512,6 +548,9 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
     var saveData = function () {
         calculateEventCounts();
+        if ($scope.onlyView){
+            return;
+        }
         dataService.ping().success(function () {
             loadMatchLocalData();
             angular.forEach($scope.match.events, function (event) {
@@ -568,8 +607,6 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         });
         localStorage.setItem("events" + $scope.match.pk, JSON.stringify(toSave));
     };
-    $interval(saveDataLocally, 5 * 1000);
-    $interval(saveData, 15 * 1000);
 
     var loadMatchLocalData = function () {
         var match = localStorage.getItem("match" + $scope.match.pk);

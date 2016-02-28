@@ -5,11 +5,13 @@
 <div ng-show="matchesLoaded">
 
     <a class="right" href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
-    <a class="right" style="margin-right: 10px;" href="/turnaj"><button>Správa turnaje</button></a>
+    <a class="right" style="margin: 0 10px;" href="/turnaj"><button>Správa turnaje</button></a>
+    <div class="small switch right text-right" style="margin-bottom: 0">živě<br><input id='refresh' type="checkbox" ng-model="refresh"><label for="refresh"></label></div>
+
     <h1>{{ tournament.full_name }}</h1>
     <hr>
     <h4>Probíhající zápasy </h4>
-    <div ng-repeat="match in tournament.matches | filter:{start: '!!', end: '!'} | orderBy:['-pk']" class="row hoverLight stripes">
+    <div ng-repeat="match in tournament.matches | filter:{state: 'ongoing'} | orderBy:['-pk']" class="row hoverLight stripes">
         <div class="columns small-1 one-line">{{ match.place }}</div>
         <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
         <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
@@ -22,7 +24,7 @@
 
     <br>
     <h4>Ukončené zápasy </h4>
-    <div ng-repeat="match in tournament.matches | filter:{start: '!!', end: '!!'} | orderBy:['-pk']" class="row hoverLight stripes">
+    <div ng-repeat="match in tournament.matches | filter:{state: 'ended'} | orderBy:['-pk']" class="row hoverLight stripes">
         <div class="columns small-1 one-line">{{ match.place }}</div>
         <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
         <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
@@ -35,9 +37,9 @@
 
     <br>
     <h4>Budoucí zápasy </h4>
-    <div ng-repeat="match in tournament.matches | filter:{start: '!', end: '!'} | orderBy:['-pk']" class="row hoverLight stripes">
-        <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
+    <div ng-repeat="match in tournament.matches | filter:{state: 'waiting'} | orderBy:['-pk']" class="row hoverLight stripes">
         <div class="columns small-1 one-line">{{ match.place }}</div>
+        <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
         <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
         <div class="columns small-2 one-line">
             <span ng-show="match.start"><b>{{ match.score_one }}:{{ match.score_two }}</b></span>
