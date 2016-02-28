@@ -102,13 +102,14 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
 }]);
 
 
-app.controller("tournamentLive", ["$scope", "dataService", function($scope, dataService){
+app.controller("tournamentMain", ["$scope", "dataService", function($scope, dataService){
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;
         dataService.getTeams().then(function () {
         });
         dataService.getMatches($scope.tournament.pk).then(function (matches) {
+            $scope.matchesLoaded = true;
         });
     });
 

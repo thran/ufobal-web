@@ -1,0 +1,70 @@
+<a href back class="left">&lsaquo; zpět</a>
+
+<hr>
+<div class="loader" ng-hide="matchesLoaded"></div>
+<div ng-show="matchesLoaded">
+
+    <a class="right" href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
+    <a class="right" style="margin-right: 10px;" href="/turnaj-zive"><button>Divácký pohled</button></a>
+    <h1>{{ tournament.full_name }}</h1>
+    <hr>
+    <h3>Zápasy</h3>
+    <a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a>
+    <div class="row">
+        <div class="columns large-6" ng-repeat="field in tournament.fields">
+            <h4>Hřiště {{ field }}</h4>
+
+            <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['-pk']" class="row hoverLight stripes">
+                <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.name_pure }}</b></a></div>
+                <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_two.name_pure }}</b></a></div>
+                <div class="columns small-3 one-line">({{ match.referee_team.name_pure }})</div>
+                <div class="columns small-3 one-line">
+                    <span ng-show="match.start"><b>{{ match.score_one }}:{{ match.score_two }}</b></span>
+                    <span ng-show="match.start && ! match.end">hraje se</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <h3>Týmy</h3>
+        <div class="small-6 medium-4 large-3 columns" ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/tym/{{ team.pk }}">{{ team.name }}</a></div>
+        <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
+    </div>
+</div>
+
+
+<div id="newMatch" class="small reveal-modal" data-reveal>
+    <label>Tým 1
+        <select ng-model="match.team_one"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
+    <label>Tým 2
+        <select ng-model="match.team_two"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
+    <label>Rozhodčí tým
+        <select ng-model="match.referee_team"
+                ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
+            <option value="">----</option>
+        </select>
+    </label>
+    <label>Hřiště</label>
+    <p>
+        <label ng-repeat="field in tournament.fields">
+            <input type="radio" name="x" ng-model="$parent.match.place" ng-value="field">
+            {{ field }}
+        </label>
+    </p>
+
+    <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.referee_team || !match.team_two || !match.place " ng-click="addMatch()">Vytvořit</button>
+    <div class="loader" ng-show="match.saving"></div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>

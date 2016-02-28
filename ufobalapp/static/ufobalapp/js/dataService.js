@@ -78,8 +78,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.team_two = self.getObject("teamontournaments", match.team_two);
             match.referee_team = self.getObject("teamontournaments", match.referee_team);
             match.referee = self.getObject("players", match.referee);
-            match.start = match.start !== null ? new Date(match.start) : null;
-            match.end = match.end !== null ? new Date(match.end) : null;
+            match.startDatetime = match.start !== null ? new Date(match.start) : null;
+            match.endDatetime = match.end !== null ? new Date(match.end) : null;
 
             match.tournament.matches.push(match);
             match.team_one.matches.push(match);

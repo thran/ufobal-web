@@ -55,8 +55,12 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 controller: "tournaments"
             }).
             when('/turnaj', {
+                templateUrl: 'tournament_main.html',
+                controller: "tournamentMain"
+            }).
+            when('/turnaj-zive', {
                 templateUrl: 'tournament_live.html',
-                controller: "tournamentLive"
+                controller: "tournamentMain"
             }).
             when('/turnaj/tym/:id', {
                 templateUrl: 'tournament_team.html',
