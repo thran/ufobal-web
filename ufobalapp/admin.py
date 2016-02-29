@@ -6,7 +6,7 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Count
 from django.contrib.auth.models import Group
 from .models import Player, Team, TeamOnTournament, Tournament, \
-    Match, Goal, Shot, GoalieInMatch, Penalty
+    Match, Goal, Shot, GoalieInMatch, Penalty, Log
 
 
 def merge(modeladmin, request, queryset):
@@ -157,6 +157,10 @@ class GoalieInMatchAdmin(admin.ModelAdmin):
     list_display = ('match', 'goalie', 'start', 'end')
 
 
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'url')
+    search_fields = ['user__username', 'url']
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
@@ -166,3 +170,4 @@ admin.site.register(Goal, GoalAdmin)
 admin.site.register(Shot)
 admin.site.register(GoalieInMatch, GoalieInMatchAdmin)
 admin.site.register(Penalty)
+admin.site.register(Log, LogAdmin)

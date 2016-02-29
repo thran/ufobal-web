@@ -17,7 +17,7 @@ from ufobal import settings
 def generate_pair():
     # aby nemohli mit dva hraci stejnej token
     while True:
-        token = get_random_string(length=10)
+        token = get_random_string(length=5)
 
         try:
             player = Player.objects.get(pairing_token=token)
@@ -420,3 +420,14 @@ class Penalty(models.Model):
             "player": self.player_id,
             "reason": self.reason,
         }
+
+
+class Log(models.Model):
+    class Meta:
+        verbose_name = "log"
+        verbose_name_plural = "logy"
+
+    user = models.ForeignKey(User, related_name='logs', verbose_name="uživatel")
+    url = models.TextField("url")
+    data = models.TextField("data")
+    timestamp = models.DateTimeField('timestamp', auto_now_add=True)
