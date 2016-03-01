@@ -7,6 +7,7 @@ from django.db.models import Count
 from django.contrib.auth.models import Group
 from .models import Player, Team, TeamOnTournament, Tournament, \
     Match, Goal, Shot, GoalieInMatch, Penalty, Log
+from django.contrib.auth.admin import UserAdmin
 
 
 def merge(modeladmin, request, queryset):
@@ -171,3 +172,6 @@ admin.site.register(Shot)
 admin.site.register(GoalieInMatch, GoalieInMatchAdmin)
 admin.site.register(Penalty)
 admin.site.register(Log, LogAdmin)
+
+UserAdmin.list_display += ('player', )
+# jak pridat vyber hrace do Usera stejne jako v Player de vybirat User
