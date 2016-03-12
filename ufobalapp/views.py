@@ -580,7 +580,6 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
-@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def pair_user(request, pairing_token):
     try:
