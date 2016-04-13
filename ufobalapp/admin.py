@@ -150,7 +150,7 @@ class TournamentAdmin(admin.ModelAdmin):
 
 
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ('shooter', 'assistance', 'match', 'type')
+    list_display = ('shooter', 'assisttance', 'match', 'type')
     search_fields = ['shooter__name', 'shooter__nickname', 'assistance__name', 'assistance__nickname']
 
 
@@ -161,6 +161,7 @@ class GoalieInMatchAdmin(admin.ModelAdmin):
 class LogAdmin(admin.ModelAdmin):
     list_display = ('user', 'url')
     search_fields = ['user__username', 'url']
+    readonly_fields = ('timestamp',)
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
