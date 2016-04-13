@@ -150,7 +150,7 @@ class TournamentAdmin(admin.ModelAdmin):
 
 
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ('shooter', 'assisttance', 'match', 'type')
+    list_display = ('shooter', 'assistance', 'match', 'type')
     search_fields = ['shooter__name', 'shooter__nickname', 'assistance__name', 'assistance__nickname']
 
 
