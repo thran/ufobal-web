@@ -159,7 +159,7 @@ class GoalieInMatchAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'url')
+    list_display = ('user', 'url', 'timestamp')
     search_fields = ['user__username', 'url']
     readonly_fields = ('timestamp',)
 
