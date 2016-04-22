@@ -606,11 +606,12 @@ def create_pairing_request(request, player_id):
         except Player.DoesNotExist:
             pass
 
-    pairing_req = PairingRequest(player=player, user=user, text=json.loads(str(request.body.decode('utf-8')))["text"])
+    text = json.loads(str(request.body.decode('utf-8')))["text"]
+    pairing_req = PairingRequest(player=player, user=user, text=text)
     pairing_req.save()
 
-    send_mail('Nová žádost o spárování', 'Tady bude odkaz.', 'info@is.ufobal.cz',
-              ['ufois-admin@googlegroups.com'], fail_silently=False)
+    send_mail('Nová žádost o spárování', '{} - {} - {} - http://is.ufobal.cz/managestats/pairing_requests/'
+              .format(player, user, text), 'info@is.ufobal.cz', ['ufois-admin@googlegroups.com'], fail_silently=False)
 
     return HttpResponse("OK")
 
