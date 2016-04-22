@@ -1,20 +1,22 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import datetime
 import json
+import logging
 
 from django.db.models import Prefetch, Count, Max, Min
-from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.shortcuts import render, get_object_or_404
 from django.utils.six import wraps
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail
 
 from managestats.views import is_staff_check
 from ufobal import settings
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal,\
-    Match, Shot, GoalieInMatch, Penalty
-import datetime
-import logging
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal, \
+    Match, Shot, GoalieInMatch, Penalty, PairingRequest
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +33,9 @@ def user_passes_test_or_401(test_func):
             if test_func(request.user):
                 return view_func(request, *args, **kwargs)
             return HttpResponse('Unauthorized', status=401)
+
         return _wrapped_view
+
     return decorator
 
 
@@ -70,8 +74,10 @@ def get_json_all(request, model_class):
 
 
 def goals(request):
-    shooter = Goal.objects.values("shooter", "match__tournament").filter(shooter__isnull=False).annotate(count=Count("pk"))
-    assistance = Goal.objects.values("assistance", "match__tournament").filter(assistance__isnull=False).annotate(count=Count("pk"))
+    shooter = Goal.objects.values("shooter", "match__tournament").filter(shooter__isnull=False).annotate(
+        count=Count("pk"))
+    assistance = Goal.objects.values("assistance", "match__tournament").filter(assistance__isnull=False).annotate(
+        count=Count("pk"))
     data = {
         "goals": list(shooter),
         "assists": list(assistance),
@@ -298,7 +304,8 @@ def add_match(request):
         return HttpResponseBadRequest("Některý z vybraných týmů se shoduje.")
 
     match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
-                  referee=referee, referee_team=referee_team, start=data.get('start'), place=data.get('place'), end=data.get('end'))
+                  referee=referee, referee_team=referee_team, start=data.get('start'), place=data.get('place'),
+                  end=data.get('end'))
     match.save()
 
     if data.get('goalie_one'):
@@ -576,6 +583,88 @@ def end_match(request, match_id):
 
     match.end = time_real
     match.save()
+
+    return HttpResponse("OK")
+
+
+@user_passes_test_or_401(is_authorized)
+@require_http_methods(["POST"])
+def create_pairing_request(request, player_id):
+    player = get_object_or_404(Player, pk=player_id)
+    user = request.user
+
+    pairing_req = PairingRequest.objects.filter(user=user).filter(state=PairingRequest.PENDING)
+    if pairing_req:
+        return HttpResponseBadRequest("user alread has pending request")
+
+    if player.user:
+        return HttpResponseBadRequest("player already paired")
+
+    if request.user.is_authenticated():
+        try:
+            if request.user.player:
+                return HttpResponseBadRequest("user already paired")
+        except Player.DoesNotExist:
+            pass
+
+    pairing_req = PairingRequest(player=player, user=user)
+    pairing_req.save()
+
+    '''
+    send_mail('Nová žádost o spárování', 'Here is the message.', 'info@is.ufobal.cz',
+              ['jojkos@gmail.com'], fail_silently=False)
+    '''
+
+    return HttpResponse("OK")
+
+
+@user_passes_test_or_401(is_staff_check)
+@require_http_methods(["POST"])
+def approve_pairing_request(request, request_id):
+    pairing_req = get_object_or_404(PairingRequest, pk=request_id)
+
+    if pairing_req.state != PairingRequest.PENDING:
+        return HttpResponseBadRequest("already resolved")
+
+    pairing_req.state = PairingRequest.APPROVED
+    pairing_req.save()
+    pairing_req.player.user = pairing_req.user
+    pairing_req.player.save()
+
+    recepient = pairing_req.user.email
+    if recepient:
+        '''
+        send_mail('Váš účet byl spárován', 'Here is the message.', 'info@is.ufobal.cz',
+                  ['jojkos@gmail.com'], fail_silently=False)
+        '''
+        pass
+
+    other_reqs = PairingRequest.objects.filter(player=pairing_req.play).filter(state=PairingRequest.PENDING)
+    for req in other_reqs:
+        req.state = PairingRequest.DENIED
+        req.save()
+
+    return HttpResponse("OK")
+
+
+@user_passes_test_or_401(is_staff_check)
+@require_http_methods(["POST"])
+def deny_pairing_request(request, request_id):
+    pairing_req = get_object_or_404(PairingRequest, pk=request_id)
+
+    if pairing_req.state != PairingRequest.PENDING:
+        return HttpResponseBadRequest("already resolved")
+
+    pairing_req.state = PairingRequest.DENIED
+    pairing_req.save()
+
+    recepient = pairing_req.user.email
+    if recepient:
+        '''
+        send_mail('Žádost o spárování zamítnuta', 'Here is the message.', 'info@is.ufobal.cz',
+                  ['jojkos@gmail.com'], fail_silently=False)
+        '''
+        pass
 
     return HttpResponse("OK")
 

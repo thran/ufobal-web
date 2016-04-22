@@ -33,6 +33,9 @@ urlpatterns = [
     url(r'^end_match/(?P<match_id>\d+)$', views.end_match, name='end_match'),
     url(r'^pair_user/(?P<pairing_token>\w+)$', views.pair_user, name='pair_user'),
     url(r'^user_profile$', views.user_profile, name='user_profile'),
+    url(r'^create_pairing_request/(?P<player_id>\d+)$', views.create_pairing_request, name='create_pairing_request'),
+    url(r'^approve_pairing_request/(?P<request_id>\d+)$', views.approve_pairing_request, name='approve_pairing_request'),
+    url(r'^deny_pairing_request/(?P<request_id>\d+)$', views.deny_pairing_request, name='deny_pairing_request'),
 ]
 
 

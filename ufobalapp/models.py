@@ -162,7 +162,7 @@ class PairingRequest(models.Model):
         (PENDING, 'rozhoduje se')
     )
 
-    state = models.CharField(max_length=15, verbose_name='stav', choices=STATES)
+    state = models.CharField(max_length=15, verbose_name='stav', choices=STATES, default=PENDING)
     player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request')
     user = models.ForeignKey(User, verbose_name="Uživatel", related_name='pairing_request')
     timestamp = models.DateTimeField(auto_now_add=True)
