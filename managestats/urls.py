@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^match/(?P<match_id>[0-9]+)/$', views.match, name='match'),
     url(r'^goal/add/(?P<match_id>[0-9]+)/$', views.goal_add, name='goal_add'),
     url(r'^generate_pairing_info/(?P<object_type>\w+)/(?P<object_id>\d+)/$', views.generate_pairing_info, name='generate_pairing_info'),
+    url(r'^pairing_requests/$', views.pairing_requests, name='pairing_requests'),
 
     url(r'^player_detail/(?P<pk>\d+)$',
         ensure_csrf_cookie(TemplateView.as_view(template_name="managestats/player_detail.html")), name='player_detail'),

@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from django.db.models import Q
 
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest
 
 import datetime
 import logging
@@ -237,3 +237,9 @@ def generate_pairing_info(request, object_type, object_id):
 
     context = {'players': players_list, 'team': team}
     return render(request, 'managestats/pairing_info.html', context)
+
+
+def pairing_requests(request):
+    return render(request, 'managestats/pairing_requests.html', {
+        "requests": PairingRequest.objects.filter(state=PairingRequest.PENDING).select_related("player", "user")
+    })

@@ -58,6 +58,14 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
         return $http.post(djangoUrl.reverse("managestats:set_tournament_ranking"), teams_to_save);
     };
 
+    this.approvePairingRequest = function(id){
+        return $http.post(djangoUrl.reverse("api:approve_pairing_request", [id]), {});
+    };
+
+    this.denyPairingRequest = function(id){
+        return $http.post(djangoUrl.reverse("api:deny_pairing_request", [id]), {});
+    };
+
 }]);
 
 
@@ -71,6 +79,29 @@ app.controller("sortableController", ["$scope", "$window", "backend", function($
   };
   */
     $scope.save_team_ranks = backend.save_team_ranks;
+}]);
+
+
+app.controller("pairing", ["$scope", "backend", function($scope, backend){
+    $scope.approve = function (id) {
+        backend.approvePairingRequest(id)
+            .success(function () {
+                alert("Spárováno");
+            })
+            .error(function (response) {
+                alert("Chyba: " + response);
+            });
+    };
+
+    $scope.deny = function (id) {
+        backend.denyPairingRequest(id)
+            .success(function () {
+                alert("Zamítnuto");
+            })
+            .error(function (response) {
+                alert("Chyba: " + response);
+            });
+    };
 }]);
 
 

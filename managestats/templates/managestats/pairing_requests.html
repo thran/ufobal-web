@@ -1,0 +1,22 @@
+{% extends "managestats/base.html" %}
+
+
+{% block content %}
+    <div ng-app="ufobal-manage-stats">
+        <div ng-controller="pairing">
+            <h1>Žádosti o spárování</h1>
+            {% for request in requests %}
+                <b>
+                    <a href="/hrac/{{ request.player.pk }}/{{ request.player.nickname }}">{{ request.player }}</a> -
+                    <a href="{%  url 'admin:auth_user_change' request.user.pk %}">{{ request.user }}</a>
+                </b> - {{ request.text }} -
+                <i class="fi-check clickable" ng-click="approve({{ request.pk }})"></i>
+                <i class="fi-x clickable" ng-click="deny({{ request.pk }})"></i>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
+

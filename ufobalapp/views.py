@@ -630,13 +630,10 @@ def approve_pairing_request(request, request_id):
 
     recepient = pairing_req.user.email
     if recepient:
-        '''
-        send_mail('Váš účet byl spárován', 'Here is the message.', 'info@is.ufobal.cz',
+        send_mail('Váš účet byl spárován', 'Ahoj, nyní můžeš využívat is.ufobal.cz na plno.', 'info@is.ufobal.cz',
                   [recepient], fail_silently=False)
-        '''
-        pass
 
-    other_reqs = PairingRequest.objects.filter(player=pairing_req.play).filter(state=PairingRequest.PENDING)
+    other_reqs = PairingRequest.objects.filter(player=pairing_req.player).filter(state=PairingRequest.PENDING)
     for req in other_reqs:
         req.state = PairingRequest.DENIED
         req.save()
@@ -654,14 +651,6 @@ def deny_pairing_request(request, request_id):
 
     pairing_req.state = PairingRequest.DENIED
     pairing_req.save()
-
-    recepient = pairing_req.user.email
-    if recepient:
-        '''
-        send_mail('Žádost o spárování zamítnuta', 'Here is the message.', 'info@is.ufobal.cz',
-                  [recepient], fail_silently=False)
-        '''
-        pass
 
     return HttpResponse("OK")
 
