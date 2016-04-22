@@ -148,6 +148,26 @@ class TeamOnTournamentManager(models.Manager):
         return super(TeamOnTournamentManager, self).get_queryset().select_related('team', 'tournament')
 
 
+class PairingRequest(models.Model):
+    class Meta:
+        verbose_name = "žádost o spárování"
+        verbose_name_plural = "žádosti o spárování"
+
+    APPROVED = 'approved'
+    DENIED = 'denied'
+    PENDING = 'pending'
+    STATES = (
+        (APPROVED, 'schváleno'),
+        (DENIED, 'odmítnuto'),
+        (PENDING, 'rozhoduje se')
+    )
+
+    state = models.CharField(max_length=15, verbose_name='stav', choices=STATES)
+    player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request')
+    user = models.ForeignKey(User, verbose_name="Uživatel", related_name='pairing_request')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
 class TeamOnTournament(models.Model):
     class Meta:
         verbose_name = "tým na turnaji"
@@ -155,7 +175,8 @@ class TeamOnTournament(models.Model):
 
     team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments')
     captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
-    default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie', null=True, blank=True)
+    default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie',
+                                       null=True, blank=True)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments', blank=True)

@@ -6,7 +6,7 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Count
 from django.contrib.auth.models import Group
 from .models import Player, Team, TeamOnTournament, Tournament, \
-    Match, Goal, Shot, GoalieInMatch, Penalty, Log
+    Match, Goal, Shot, GoalieInMatch, Penalty, Log, PairingRequest
 from django.contrib.auth.admin import UserAdmin
 
 
@@ -158,6 +158,12 @@ class GoalieInMatchAdmin(admin.ModelAdmin):
     list_display = ('match', 'goalie', 'start', 'end')
 
 
+class PairingRequestAdmin(admin.ModelAdmin):
+    list_display = ('player', 'user', 'state', 'timestamp')
+    search_fields = ['player__nickname', 'user__username']
+    readonly_fields = ('timestamp',)
+
+
 class LogAdmin(admin.ModelAdmin):
     list_display = ('user', 'url', 'timestamp')
     search_fields = ['user__username', 'url']
@@ -173,6 +179,7 @@ admin.site.register(Shot)
 admin.site.register(GoalieInMatch, GoalieInMatchAdmin)
 admin.site.register(Penalty)
 admin.site.register(Log, LogAdmin)
+admin.site.register(PairingRequest, PairingRequestAdmin)
 
 UserAdmin.list_display += ('player', )
 # jak pridat vyber hrace do Usera stejne jako v Player de vybirat User
