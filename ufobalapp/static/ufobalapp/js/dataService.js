@@ -548,6 +548,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.ping = function () {
         return $http.get(djangoUrl.reverse("api:ping"));
     };
+
+    self.createPairingRequest = function(player, text) {
+        return $http.post(djangoUrl.reverse("api:create_pairing_request", {player_id: player.pk}), {
+            text: text
+        });
+    };
 }]);
 
 var genders = [

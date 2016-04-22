@@ -285,6 +285,18 @@ app.controller("player", ["$scope", "dataService", "$routeParams", "userService"
         $scope.player = dataService.getObject("players", id);
     });
 
+    $scope.pair = function () {
+        var text = prompt("Nějaké dodatečné informace pro spárování s hráčem? " +
+            "Třeba odkaz někam, kde je tvoje jméno i fotka.", "");
+        dataService.createPairingRequest($scope.player, text)
+            .success(function () {
+                toastr.info('Žádost o spárování odeslána.');
+            })
+            .error(function (response) {
+                toastr.error('Chyba: ' + response);
+            });
+    };
+
     dataService.getTournaments().then(function(tournaments){
         $scope.tournaments = tournaments;
     });
@@ -371,3 +383,17 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
     };
 
 }]);
+
+toastr.options = {
+    "positionClass": "toast-top-center",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "2000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};

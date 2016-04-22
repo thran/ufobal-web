@@ -587,7 +587,6 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
-@user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def create_pairing_request(request, player_id):
     player = get_object_or_404(Player, pk=player_id)
@@ -595,7 +594,7 @@ def create_pairing_request(request, player_id):
 
     pairing_req = PairingRequest.objects.filter(user=user).filter(state=PairingRequest.PENDING)
     if pairing_req:
-        return HttpResponseBadRequest("user alread has pending request")
+        return HttpResponseBadRequest("user already has pending request")
 
     if player.user:
         return HttpResponseBadRequest("player already paired")
@@ -607,13 +606,11 @@ def create_pairing_request(request, player_id):
         except Player.DoesNotExist:
             pass
 
-    pairing_req = PairingRequest(player=player, user=user)
+    pairing_req = PairingRequest(player=player, user=user, text=json.loads(str(request.body.decode('utf-8')))["text"])
     pairing_req.save()
 
-    '''
-    send_mail('Nová žádost o spárování', 'Here is the message.', 'info@is.ufobal.cz',
-              ['jojkos@gmail.com'], fail_silently=False)
-    '''
+    send_mail('Nová žádost o spárování', 'Tady bude odkaz.', 'info@is.ufobal.cz',
+              ['ufois-admin@googlegroups.com'], fail_silently=False)
 
     return HttpResponse("OK")
 
@@ -635,7 +632,7 @@ def approve_pairing_request(request, request_id):
     if recepient:
         '''
         send_mail('Váš účet byl spárován', 'Here is the message.', 'info@is.ufobal.cz',
-                  ['jojkos@gmail.com'], fail_silently=False)
+                  [recepient], fail_silently=False)
         '''
         pass
 
@@ -662,7 +659,7 @@ def deny_pairing_request(request, request_id):
     if recepient:
         '''
         send_mail('Žádost o spárování zamítnuta', 'Here is the message.', 'info@is.ufobal.cz',
-                  ['jojkos@gmail.com'], fail_silently=False)
+                  [recepient], fail_silently=False)
         '''
         pass
 

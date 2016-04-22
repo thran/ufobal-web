@@ -1,5 +1,11 @@
 <h2>Párování</h2>
-<p ng-show="userService.status.logged">Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, zadej kód. Pokud svůj kód neznáš, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.</p>
+<p ng-show="userService.status.logged">
+    Před tím než bodeš moci dělat akce v systému (měnit osobní informace, přihlašovat tým, zaznamenávat zápas, ...),
+    je potřeba, aby si svůj účet spároval s hráčem v systému.
+    Pokud máš kód, tak ho zadaj níže. Jinak se můžeš najít <a href="/hraci">hráči</a> a kliknout na <i>sparovat</i> v pravém horním rohu.
+
+    Pokud se nemůžeš najít nebo máš jiný problém, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.
+</p>
 
 <p ng-hide="userService.status.logged">Pokud chceš spárovat tvůj účet s nějakým hráčem v sytému, musíš se nejdříve přihlásit.</p>
 

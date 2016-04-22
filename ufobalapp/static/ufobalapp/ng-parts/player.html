@@ -6,6 +6,7 @@
         <a href back class="left">&lsaquo; zpět</a>
         <hr>
         <a ng-hide="edit || !(user.is_staff || user.player.pk === player.pk)" ng-click="edit=true" class="right"><i class="fi-pencil"></i> upravit profil</a>
+        <a ng-hide="user.player.pk || player.is_paired || !user.last_name" ng-click="pair()" class="right"><i class="fi-arrows-compress"></i> spárovat</a>
 
         <h1> &nbsp; {{ player.nickname }} </h1>
         <h2 ng-class="{man: player.gender=='man', woman: player.gender=='woman'}">

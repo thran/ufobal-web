@@ -54,6 +54,7 @@ class Player(models.Model):
             "age": self.age(),
             "full_name": self.full_name(),
             "gender": self.gender,
+            "is_paired": self.user is not None,
         }
 
         if staff:
@@ -166,6 +167,7 @@ class PairingRequest(models.Model):
     player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request')
     user = models.ForeignKey(User, verbose_name="Uživatel", related_name='pairing_request')
     timestamp = models.DateTimeField(auto_now_add=True)
+    text = models.TextField(null=True, blank=True)
 
 
 class TeamOnTournament(models.Model):
