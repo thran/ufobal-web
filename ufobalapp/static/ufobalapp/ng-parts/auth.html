@@ -20,5 +20,62 @@
                 <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </a>
         </li>
+        <li ng-hide="userService.status.logged">
+            <a class="login-provider" href="#" id="login-email" data-reveal-id="login-modal">
+                <i class="fi-at-sign"></i>
+                <span class="provider-signup-text">přes <b>jméno</b></span>
+            </a>
+        </li>
+        <li ng-hide="userService.status.logged">
+            <a class="login-provider" href="#" id="login-email" data-reveal-id="sign-up-modal">
+                <i class="fi-arrow-up"></i>
+                <span class="provider-signup-text">registrovat</span>
+            </a>
+        </li>
     </ul>
 </li>
+
+<div id="login-modal" class="reveal-modal small" data-reveal>
+    <a class="close-reveal-modal">&#215;</a><br/>
+    <form ng-submit="login()">
+        <div class="row collapse">
+            <div class="columns medium-12 large-5">
+                <input ng-model="credentials.username" type="text" placeholder="jméno" name="username" />
+            </div>
+            <div class="columns medium-8 large-5">
+                <input ng-model="credentials.password" class="columns medium-5" type="password" placeholder="heslo" name="password" />
+            </div>
+            <div class="columns medium-4 large-2">
+                <input type="submit" class="button postfix" value="Přihlásit">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="sign-up-modal" class="reveal-modal small" data-reveal>
+    <a class="close-reveal-modal">&#215;</a><br/>
+    <form ng-submit="signup()">
+        <label> Uživatelské jméno
+            <input ng-model="credentials.username" required type="text" name="username" />
+        </label>
+        <label> Email
+            <input ng-model="credentials.email" required type="email" name="username" />
+        </label>
+        <label> Heslo
+            <input ng-model="credentials.password" required type="password" name="username" />
+        </label>
+        <label> Kontrola hesla
+            <input ng-model="credentials.password_check" required type="password"  name="username" />
+        </label>
+        <label> Jméno
+            <input ng-model="credentials.first_name" type="text" placeholder="nepovinné" name="username" />
+        </label>
+        <label> Příjmení
+            <input ng-model="credentials.last_name" type="text" placeholder="nepovinné" name="username" />
+        </label>
+
+        <div class="medium-5 columns">
+            <input type="submit" class="button postfix" value="Registrovat">
+        </div>
+    </form>
+</div>

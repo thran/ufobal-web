@@ -40,7 +40,7 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
 
     self.logout = function(){
         self.status.loading = true;
-        $http.get(djangoUrl.reverse("logout"))
+        $http.get(djangoUrl.reverse("api:logout"))
             .success(function(response){
                 clearObj(self.user);
                 self.status.logged = false;
@@ -81,6 +81,41 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
         _openPopup("/login/facebook/", "/close_login_popup/");
     };
 
+    self.login = function(username, pass){
+        self.status.loading = true;
+        _resetError();
+        var promise = $http.post(djangoUrl.reverse("api:login"), {
+            username: username,
+            password: pass
+        });
+        promise.success(function(response){
+                _processUser(response);
+            })
+            .error(function(response){
+                self.error = response;
+            })
+            .finally(function(response){
+                self.status.loading = false;
+            });
+        return promise;
+    };
+
+    self.signup = function(data){
+        self.status.loading = true;
+        _resetError();
+        var promise = $http.post(djangoUrl.reverse("api:signup"), data);
+        promise.success(function(response){
+                _processUser(response);
+            })
+            .error(function(response){
+                self.error = response;
+            })
+            .finally(function(response){
+                self.status.loading = false;
+            });
+        return promise;
+    };
+
     var _openPopup = function(url, next){
         var settings = 'height=700,width=700,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=yes,directories=no,status=yes';
         url += "?next=" + next;
@@ -91,7 +126,7 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
 
 }]);
 
-app.controller("auth", ["$scope", "userService", "$location", "$routeParams", function($scope, userService, $location, $routeParams){
+app.controller("auth", ["$scope", "userService", "$location", "$routeParams", "$timeout", function($scope, userService, $location, $routeParams, $timeout){
     var token = $routeParams.token;
     if (token){
         localStorage.setItem("token", token);
@@ -120,7 +155,26 @@ app.controller("auth", ["$scope", "userService", "$location", "$routeParams", fu
         });
     };
 
-    $(document).foundation();
+    $scope.credentials = {};
+    $scope.login = function () {
+        userService.login($scope.credentials.username, $scope.credentials.password)
+            .success(function () {
+                $('#login-modal').foundation('reveal', 'close');
+            }).error(function (response) {
+                toastr.error(response.error);
+        });
+    };
+
+    $scope.signup = function () {
+        userService.signup($scope.credentials)
+            .success(function () {
+                $('#sign-up-modal').foundation('reveal', 'close');
+            }).error(function (response) {
+                toastr.error(response.error);
+        });
+    };
+
+    $timeout(function(){ $(document).foundation('reveal'); });
 }]);
 
 

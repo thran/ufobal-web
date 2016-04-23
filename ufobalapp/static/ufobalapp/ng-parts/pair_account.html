@@ -2,7 +2,7 @@
 <p ng-show="userService.status.logged">
     Před tím než bodeš moci dělat akce v systému (měnit osobní informace, přihlašovat tým, zaznamenávat zápas, ...),
     je potřeba, aby si svůj účet spároval s hráčem v systému.
-    Pokud máš kód, tak ho zadaj níže. Jinak se můžeš najít <a href="/hraci">hráči</a> a kliknout na <i>sparovat</i> v pravém horním rohu.
+    Pokud máš kód, tak ho zadaj níže. Jinak se můžeš najít mezi <a href="/hraci">hráči</a> a kliknout na <i>sparovat</i> v pravém horním rohu.
 
     Pokud se nemůžeš najít nebo máš jiný problém, prosím obrať se na <a href="mailto:thran@centrum.cz">správce systému</a>.
 </p>
@@ -17,6 +17,25 @@
         <a class="login-provider standalone" id="login-facebook" ng-click="userService.loginFacebook()">
         <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
         <span class="provider-signup-text"><b>Facebook</b></span>
+    </a>
+
+    <hr>
+
+    <form ng-submit="login()"> <div class="row medium-6 medium-offset-3">
+        <div class="columns medium-12 large-4">
+            <input ng-model="credentials.username" type="text" placeholder="jméno" name="username" />
+        </div>
+        <div class="columns medium-8 large-4">
+            <input ng-model="credentials.password" class="columns medium-5" type="password" placeholder="heslo" name="password" />
+        </div>
+        <div class="columns medium-4 large-4">
+            <input type="submit" class="button postfix" value="Přihlásit">
+        </div>
+    </div></form>
+
+     <a class="login-provider" href="#" id="login-email" data-reveal-id="sign-up-modal">
+        <i class="fi-arrow-up"></i>
+        <span class="provider-signup-text">registrovat</span>
     </a>
 </div>
 

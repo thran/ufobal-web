@@ -192,6 +192,13 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 #login-facebook:hover{
     background: #4476bb none;
 }
+#login-email i {
+    font-size: 1.4rem;
+    position: absolute;
+}
+#login-email span {
+    margin-left: 27px;
+}
 
 .stripes:nth-child(2n){
     background-color: rgba(0, 0, 0, 0.10);

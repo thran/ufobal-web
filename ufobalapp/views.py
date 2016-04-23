@@ -690,26 +690,9 @@ def ping(request):
     return HttpResponse("OK")
 
 
-def get_user_data(request):
-    user = request.user
-    if user.is_anonymous():
-        return None
-    else:
-        return {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "is_staff": user.is_staff,
-            "is_authorized": is_authorized(user),
-            "player": user.player.to_json(simple=True) if hasattr(user, "player") else None
-        }
-
-
-def user_profile(request):
-    return JsonResponse(get_user_data(request))
-
-
 @ensure_csrf_cookie
 def home(request):
+    from ufobalapp.views_auth import get_user_data
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
         "DEBUG": settings.DEBUG,

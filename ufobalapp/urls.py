@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+from ufobalapp import views_auth
 from . import views
 from ufobalapp.models import Player, Tournament, TeamOnTournament, Match
 
@@ -32,7 +33,10 @@ urlpatterns = [
     url(r'^start_match/(?P<match_id>\d+)$', views.start_match, name='start_match'),
     url(r'^end_match/(?P<match_id>\d+)$', views.end_match, name='end_match'),
     url(r'^pair_user/(?P<pairing_token>\w+)$', views.pair_user, name='pair_user'),
-    url(r'^user_profile$', views.user_profile, name='user_profile'),
+    url(r'^user_profile$', views_auth.user_profile, name='user_profile'),
+    url(r'^login/$', views_auth.login, name='login'),
+    url(r'^logout/$', views_auth.logout, name='logout'),
+    url(r'^signup/$', views_auth.signup, name='signup'),
     url(r'^create_pairing_request/(?P<player_id>\d+)$', views.create_pairing_request, name='create_pairing_request'),
     url(r'^approve_pairing_request/(?P<request_id>\d+)$', views.approve_pairing_request, name='approve_pairing_request'),
     url(r'^deny_pairing_request/(?P<request_id>\d+)$', views.deny_pairing_request, name='deny_pairing_request'),
