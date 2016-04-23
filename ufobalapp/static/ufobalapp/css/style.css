@@ -40,10 +40,10 @@ h5 {
 }
 
 .man:before{
-    content: "♂";
+    content: "\2642";
 }
 .woman:before{
-    content: "♀";
+    content: "\2640";
 }
 
 .st-sort-ascent:before{ content: '\25B2'; }
