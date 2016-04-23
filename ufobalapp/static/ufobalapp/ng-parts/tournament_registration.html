@@ -31,7 +31,25 @@
             Jméno na tomto turnaji (pouze pokud se liší od běžného jména týmu)
             <input type="text" ng-model="registration.name" placeholder="{{ team.name }}">
         </label>
-        <button ng-disabled="!registration.team" ng-click="register()">Přihlásit</button>
+        <label>
+            Kontaktní email
+            <input type="email" ng-model="registration.contact_mail">
+        </label>
+        <label>
+            Kontaktní telefon
+            <input type="text" ng-model="registration.contact_phone">
+        </label>
+        <label>
+            Odhad síly (1 - 4)
+            <input type="number" max="4" min="1" ng-model="registration.strength">
+        </label>
+        <ol style="font-size: 0.8em">
+            <li>Budeme na bedně</li>
+            <li>Budeme ve finálové skupině (top 8)</li>
+            <li>Budeme kolem poloviny</li>
+            <li>Přišli jsem si jen zahrát, na nějaké umístění to nevidíme</li>
+        </ol>
+        <button ng-disabled="!registration.team || !registration.contact_mail || !registration.contact_phone || !registration.strength" ng-click="register()">Přihlásit</button>
     </div>
 </div>
 

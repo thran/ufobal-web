@@ -215,7 +215,8 @@ def add_team_on_tournament(request):
         return HttpResponseBadRequest("Tým je již registrován.")
 
     tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'),
-                                 name=data.get('name'), rank=data.get('rank'))
+                                 name=data.get('name'), rank=data.get('rank'), strength=data.get('strength'),
+                                 contact_mail=data.get('contact_mail'), contact_phone=data.get('contact_phone'))
     tour_team.save()
 
     return HttpResponse(tour_team.pk)

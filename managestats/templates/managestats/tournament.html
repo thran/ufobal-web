@@ -16,16 +16,16 @@
     <br>
 
     <div class="medium-6 columns">
-        <ul>
-            {% for team in teams %}
-                <li>
-                    {{ team.rank }}
-                    <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team }}</a> -
-                    <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_changelist" %}?q={% if team.name %}{{ team.name }}{% else %}{{ team.team.name }}{% endif %}">vyhledat</a>
-                    <a target="_blank" href="{% url "managestats:generate_pairing_info" 'teamtour' team.id %}">QR kody</a>
-                </li>
-            {% endfor %}
-        </ul>
+        {% for team in teams %}
+            <div>
+                {{ team.rank | default:'-' }}
+                <b><a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team.get_name }}</a></b> -
+                <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_change" team.pk  %}">edit</a> -
+                <a target="_blank" href="{% url "managestats:generate_pairing_info" 'teamtour' team.id %}">QR kody</a>
+                <br>
+                {{ team.contact_mail }} - {{ team.contact_phone }} - síla: {{ team.strength }}
+            </div>
+        {% endfor %}
     </div>
 
     <div class="medium-6 columns">
@@ -48,7 +48,7 @@
             </ul>
           </div>
 
-        <button class="save_tournament_ranks" ng-click="save_team_ranks(teams)">Uložit pořadí</button>
+        <button class="save_tournament_ranks medium" ng-click="save_team_ranks(teams)">Uložit pořadí</button>
         <div id="loaded"></div>
         </div>
         {% endverbatim %}
