@@ -595,15 +595,15 @@ def create_pairing_request(request, player_id):
 
     pairing_req = PairingRequest.objects.filter(user=user).filter(state=PairingRequest.PENDING)
     if pairing_req:
-        return HttpResponseBadRequest("user already has pending request")
+        return HttpResponseBadRequest("Uživatel již má čekající žádost o spárování")
 
     if player.user:
-        return HttpResponseBadRequest("player already paired")
+        return HttpResponseBadRequest("Hráč je již spárovaný")
 
     if request.user.is_authenticated():
         try:
             if request.user.player:
-                return HttpResponseBadRequest("user already paired")
+                return HttpResponseBadRequest("Uživatel je již spárovaný")
         except Player.DoesNotExist:
             pass
 
@@ -623,7 +623,7 @@ def approve_pairing_request(request, request_id):
     pairing_req = get_object_or_404(PairingRequest, pk=request_id)
 
     if pairing_req.state != PairingRequest.PENDING:
-        return HttpResponseBadRequest("already resolved")
+        return HttpResponseBadRequest("Již vyřešeno")
 
     pairing_req.state = PairingRequest.APPROVED
     pairing_req.save()
@@ -649,7 +649,7 @@ def deny_pairing_request(request, request_id):
     pairing_req = get_object_or_404(PairingRequest, pk=request_id)
 
     if pairing_req.state != PairingRequest.PENDING:
-        return HttpResponseBadRequest("already resolved")
+        return HttpResponseBadRequest("Již vyřešeno")
 
     pairing_req.state = PairingRequest.DENIED
     pairing_req.save()
@@ -667,16 +667,16 @@ def pair_user(request, pairing_token):
     if request.user.is_authenticated():
         try:
             if request.user.player:
-                return HttpResponseBadRequest("user already paired")
+                return HttpResponseBadRequest("Uživatel je již spárovaný")
         except Player.DoesNotExist:
             if player.user:
-                return HttpResponseBadRequest("already used token")
+                return HttpResponseBadRequest("Kód byl již použit")
 
             player.user = request.user
             player.save()
             return JsonResponse(player.to_json(simple=True))
     else:
-        return HttpResponseBadRequest("user not logged in")
+        return HttpResponseBadRequest("Uživatel není přihlášený")
 
 
 def intro(request):
