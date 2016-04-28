@@ -12,6 +12,7 @@
                 </b> - {{ request.text }} -
                 <i class="fi-check clickable" ng-click="approve({{ request.pk }})"></i>
                 <i class="fi-x clickable" ng-click="deny({{ request.pk }})"></i>
+                <br>
             {% endfor %}
         </div>
     </div>
