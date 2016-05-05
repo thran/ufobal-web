@@ -17,6 +17,8 @@ from ufobal import settings
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal, \
     Match, Shot, GoalieInMatch, Penalty, PairingRequest
 
+SYSTEM_MAIL = 'ufobal.is@thran.cz'
+
 logger = logging.getLogger(__name__)
 
 
@@ -612,7 +614,7 @@ def create_pairing_request(request, player_id):
     pairing_req.save()
 
     send_mail('Nová žádost o spárování', '{} - {} - {} - http://is.ufobal.cz/managestats/pairing_requests/'
-              .format(player, user, text), 'info@is.ufobal.cz', ['ufois-admin@googlegroups.com'], fail_silently=False)
+              .format(player, user, text), SYSTEM_MAIL, ['ufois-admin@googlegroups.com'], fail_silently=False)
 
     return HttpResponse("OK")
 
@@ -632,7 +634,7 @@ def approve_pairing_request(request, request_id):
 
     recepient = pairing_req.user.email
     if recepient:
-        send_mail('Váš účet byl spárován', 'Ahoj, nyní můžeš využívat is.ufobal.cz na plno.', 'info@is.ufobal.cz',
+        send_mail('Váš účet byl spárován', 'Ahoj, nyní můžeš využívat is.ufobal.cz na plno.', SYSTEM_MAIL,
                   [recepient], fail_silently=False)
 
     other_reqs = PairingRequest.objects.filter(player=pairing_req.player).filter(state=PairingRequest.PENDING)
