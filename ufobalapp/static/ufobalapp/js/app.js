@@ -252,6 +252,7 @@ app.controller("players", ["$scope", "dataService", "$filter", function ($scope,
 app.controller("player", ["$scope", "dataService", "$routeParams", "userService", function ($scope, dataService, $routeParams, userService) {
     var id = parseInt($routeParams.id);
     $scope.user = userService.user;
+    $scope.userStatus = userService.status;
     $scope.genders = genders;
     $scope.getPlayerTeams = dataService.getPlayerTeams;
     $scope.getScoreWithoutTeam = dataService.getScoreWithoutTeam;
