@@ -42,7 +42,7 @@ def user_passes_test_or_401(test_func):
 
 
 def is_authorized(user):
-    return user.is_staff or hasattr(user, "player")
+    return user.is_staff or hasattr(user, "player") or settings.TEST
 
 
 def get_json_one(request, model_class, pk):
@@ -698,5 +698,6 @@ def home(request):
     return render(request, "index.html", {
         "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
         "DEBUG": settings.DEBUG,
+        "TEST": settings.TEST,
         "user": json.dumps(get_user_data(request)),
     })

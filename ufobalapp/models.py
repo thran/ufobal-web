@@ -242,7 +242,7 @@ class Tournament(models.Model):
             "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
-            "is_day_of_tournament": self.date == datetime.date.today(),
+            "is_day_of_tournament": self.date == datetime.date.today() or settings.TEST,
             "halftime_length": self.halftime_length,
             "field_count": self.field_count,
             "year": self.date.year,

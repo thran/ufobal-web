@@ -15,6 +15,8 @@ DEBUG = os.getenv('DJANGO_DEBUG', "False") == "True"
 if not ON_SERVER:
     DEBUG = True
 
+TEST = os.getenv('TEST', "False") == "True"
+
 ALLOWED_HOSTS = ["*"]
 
 LOGIN_URL = 'admin:index' #redirect for login_required pages

@@ -50,6 +50,10 @@
 </div>
 
 <div id="content">
+    {% if TEST %}
+        <div class="alert-box alert text-center">Testovací verze - změny zde se <b>nepromítnou</b> do ostrého systému.</div>
+    {% endif %}
+
     <div ng-view></div>
 </div>
 
