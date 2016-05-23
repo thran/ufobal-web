@@ -30,8 +30,6 @@
     <div class="text-center">
         <span class="clickable" ng-click="startChangeReferee()">píská: {{ match.referee_team.name_pure }} - <b ng-show="match.referee"> {{ match.referee.nickname }}</b></span>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="edit">úpravy</span></label>
-        <label style="display: inline !important;"><span class="show-for-small-only" style="display: inline;"><input type="checkbox" ng-model="showShots">střely</span></label>
         <span class="show-for-small-only">
             <label style="display: inline !important;"><span style="display: inline;" ng-hide="onlyView"><input type="checkbox" ng-model="edit" ng-hide="onlyView"> úpravy</span></label>
             <label style="display: inline !important;"><span style="display: inline;"><input type="checkbox" ng-model="showShots"> střely</span></label>
