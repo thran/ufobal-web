@@ -346,7 +346,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             saved: false
         });
         $('#newPenalty').foundation('reveal', 'close');
-        toastr.success('Penalta uložena');
+        toastr.success('Karta uložena');
         saveData();
     };
 
