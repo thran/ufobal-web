@@ -324,7 +324,11 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         saveData();
     };
 
-    $scope.saveGoal = function () {
+    $scope.saveGoal = function (assistance) {
+        if (assistance === $scope.goal.shooter){
+            return;
+        }
+        $scope.goal.assistance = assistance;
         $scope.match.events.push({
             type: "goal",
             time: $scope.goal.time,
