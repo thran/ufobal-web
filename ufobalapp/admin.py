@@ -3,10 +3,11 @@
 
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from django.db.models import Count
-from django.contrib.auth.models import Group
+from django.db import models
+from django.forms import SelectMultiple
+
 from .models import Player, Team, TeamOnTournament, Tournament, \
-    Match, Goal, Shot, GoalieInMatch, Penalty, Log, PairingRequest
+    Match, Goal, Shot, GoalieInMatch, Penalty, Log, PairingRequest, Group
 from django.contrib.auth.admin import UserAdmin
 
 
@@ -169,6 +170,24 @@ class LogAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'url']
     readonly_fields = ('timestamp',)
 
+
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'tournament', 'name', 'level')
+    search_fields = ['tournament']
+
+    formfield_overrides = {models.ManyToManyField: {'widget': SelectMultiple(attrs={'size': '15'})}, }
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name == 'tournament':
+            kwargs["queryset"] = Tournament.objects.all().order_by('-date')
+        return super(GroupAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        if db_field.name == "teams":
+            kwargs["queryset"] = TeamOnTournament.objects.all().order_by('-tournament__date', 'team__name')
+        return super(GroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
@@ -180,6 +199,7 @@ admin.site.register(GoalieInMatch, GoalieInMatchAdmin)
 admin.site.register(Penalty)
 admin.site.register(Log, LogAdmin)
 admin.site.register(PairingRequest, PairingRequestAdmin)
+admin.site.register(Group, GroupAdmin)
 
 UserAdmin.list_display += ('player', )
 # jak pridat vyber hrace do Usera stejne jako v Player de vybirat User

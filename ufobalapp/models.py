@@ -459,3 +459,23 @@ class Log(models.Model):
     url = models.TextField("url")
     data = models.TextField("data")
     timestamp = models.DateTimeField('timestamp', auto_now_add=True)
+
+
+class Group(models.Model):
+    class Meta:
+        verbose_name = 'Skupina'
+        verbose_name_plural = 'Skupiny'
+
+    tournament = models.ForeignKey(Tournament, related_name='groups', verbose_name='turnaje')
+    name = models.CharField(max_length=50)
+    teams = models.ManyToManyField(TeamOnTournament, related_name='groups', verbose_name='týmy')
+    level = models.IntegerField(default=1)
+
+    def to_json(self):
+        return {
+            "pk": self.pk,
+            "tournament": self.tournament.to_json(teams=False),
+            "teams": [team.to_json(players=False) for team in self.teams.order_by('team__name')],
+            "level": self.level,
+            "name": self.name,
+        }

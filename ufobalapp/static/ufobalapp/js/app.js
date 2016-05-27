@@ -82,6 +82,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournament.html',
                 controller: "tournament"
             }).
+            when('/skupiny/:id', {
+                templateUrl: 'groups.html',
+                controller: "groups"
+            }).
             when('/statistiky', {
                 templateUrl: 'stats.html',
                 controller: "stats"

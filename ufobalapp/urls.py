@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'^create_pairing_request/(?P<player_id>\d+)$', views.create_pairing_request, name='create_pairing_request'),
     url(r'^approve_pairing_request/(?P<request_id>\d+)$', views.approve_pairing_request, name='approve_pairing_request'),
     url(r'^deny_pairing_request/(?P<request_id>\d+)$', views.deny_pairing_request, name='deny_pairing_request'),
+    url(r'^get_groups/(?P<tournament_id>\d+)', views.get_groups, name='get_groups')
 ]
 
 

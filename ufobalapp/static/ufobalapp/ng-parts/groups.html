@@ -1,0 +1,32 @@
+<h1>Skupiny</h1>
+
+<style>
+    .group td{
+        text-align: center;
+    }
+</style>
+
+<div ng-repeat="group in groups">
+    <h3>{{ group.name }}</h3>
+    <table class="group">
+        <tr>
+            <th></th>
+            <th ng-repeat="team in group.teams">{{ team.name_pure }}</th>
+            <td>Výhry</td>
+            <td>Prohry</td>
+            <td>Remízy</td>
+            <td>Skóre</td>
+        </tr>
+        <tr ng-repeat="team in group.teams" ng-init="stats = stats[team.pk][group.level]">
+            <th>{{ team.name_pure }}</th>
+            <td ng-repeat="team2 in group.teams" ng-init='score = matches[team.pk+"-"+team2.pk][group.level]'>
+                <span ng-show="score">{{ score[0] }} : {{ score[1] }}</span>
+            </td>
+            <td><span>{{ stats['wins'] }}</span></td>
+            <td><span>{{ stats['looses'] }}</span></td>
+            <td><span>{{ stats['draws'] }}</span></td>
+            <td><span ng-show="stats['score']">{{ stats['score'][0] }} : {{ stats['score'][1] }}</span></td>
+        </tr>
+    </table>
+    <hr>
+</div>
