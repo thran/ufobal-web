@@ -171,8 +171,8 @@ class PairingRequestAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'url', 'timestamp')
-    search_fields = ['user__username', 'url']
+    list_display = ('timestamp', 'user', 'url', 'data')
+    search_fields = ['user__username', 'url', 'data']
     readonly_fields = ('timestamp',)
 
 
