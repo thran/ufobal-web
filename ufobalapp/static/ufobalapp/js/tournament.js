@@ -628,7 +628,6 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 app.controller("groups", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
     var tournament_id = parseInt($routeParams.id);
     dataService.getGroups(tournament_id).success(function(data){
-        console.log(data);
         $scope.groups = data.groups;
         $scope.matches = data.matches;
         $scope.stats = data.stats;
