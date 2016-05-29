@@ -11,10 +11,8 @@
     <table class="group">
         <tr>
             <th></th>
-            <th ng-repeat="team in group.teams">{{ team.name_pure }}</th>
-            <td>Výhry</td>
-            <td>Prohry</td>
-            <td>Remízy</td>
+            <th ng-repeat="team in group.teams"><a href="/tym/{{ team.team.pk }}/{{ team.team.name }}">{{ team.name_pure }}</a></th>
+            <td>V / P / R</td>
             <td>Skóre</td>
         </tr>
         <tr ng-repeat="team in group.teams" ng-init="stats = stats[team.pk][group.level]">
@@ -22,9 +20,7 @@
             <td ng-repeat="team2 in group.teams" ng-init='score = matches[team.pk+"-"+team2.pk][group.level]'>
                 <span ng-show="score">{{ score[0] }} : {{ score[1] }}</span>
             </td>
-            <td><span>{{ stats['wins'] }}</span></td>
-            <td><span>{{ stats['looses'] }}</span></td>
-            <td><span>{{ stats['draws'] }}</span></td>
+            <td><span>{{ stats['wins'] }} / {{ stats['looses'] }} / {{ stats['draws'] }}</span></td>
             <td><span ng-show="stats['score']">{{ stats['score'][0] }} : {{ stats['score'][1] }}</span></td>
         </tr>
     </table>
