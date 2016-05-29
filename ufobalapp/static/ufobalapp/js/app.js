@@ -11,10 +11,10 @@ app.run(["$rootScope", "$location", "$window", function ($rootScope, $location, 
     });
 
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
-        if (!localStorage.getItem("checked") && next.originalPath === "/"){
-            $location.path("/intro");
-            $window.location.href = "/intro";
-        }
+        //if (!localStorage.getItem("checked") && next.originalPath === "/"){
+        //    $location.path("/intro");
+        //    $window.location.href = "/intro";
+        //}
         $("#feedback").css('display', next.templateUrl === 'tournament_match.html' ? "none" : "block");
     });
 }]);
