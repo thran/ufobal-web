@@ -149,6 +149,7 @@ app.controller("tournaments", ["$scope", "dataService", "$filter", function ($sc
 app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter", "$timeout", function ($scope, dataService, $routeParams, $filter, $timeout) {
     var id = parseInt($routeParams.id);
     var allPlayers;
+    var allGoalies;
     $scope.man = $scope.woman = true;
 
     dataService.getTournaments().then(function(){
@@ -157,7 +158,8 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
             dataService.getPlayers().then(function(players){
                 dataService.getMatches(id).then(function () {
                     $timeout(function(){
-                        $scope.goalies = getGoalieScore($scope.tournament);
+                        allGoalies = getGoalieScore($scope.tournament);
+                        $scope.goalies = allGoalies;
                     });
                 });
 
@@ -176,8 +178,32 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         });
     });
 
-    $scope.filterGender = function () {
-        $scope.players = filterGender(allPlayers, $scope.man, $scope.woman, $filter);
+    $scope.$watch('filterTeam', function (n, o) {
+        if (n){
+            $scope.filterPlayers();
+        }
+    });
+
+    $scope.filterPlayers = function () {
+        var players = filterGender(allPlayers, $scope.man, $scope.woman, $filter);
+        if ($scope.filterTeam) {
+            players = filterPlayers(players, $scope.filterTeam);
+            $scope.goalies = filterPlayers(allGoalies, $scope.filterTeam);
+        }
+        $scope.players = players;
+    };
+
+    var filterPlayers = function (players, filter) {
+        var teams = $filter('filter')($scope.tournament.teamOnTournaments, {name: filter});
+        return $filter('filter')(players, function (player) {
+            var found = false;
+            angular.forEach(teams, function (team) {
+                if (team.player_pks.indexOf(player.pk) !== -1) {
+                    found = true;
+                }
+            });
+            return found;
+        });
     };
 
     var getGoalieScore = function (tournament) {
@@ -190,6 +216,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                 if (!goalies[goalieOnMatch.goalie]){
                     var player = dataService.getObject("players", goalieOnMatch.goalie);
                     goalies[goalieOnMatch.goalie] = {
+                        pk: player.pk,
                         player: player,
                         matches: {},
                         totalTime: 0,

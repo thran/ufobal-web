@@ -7,6 +7,11 @@
 
     <h1>{{ tournament.full_name }}</h1>
 
+    <div class="search-box">
+        <input placeholder="omezit na tým..." ng-model="filterTeam" class="input-sm form-control" type="search">
+        <div class="fi-x" ng-click="filterTeam = ''"></div>
+    </div>
+
     <div class="row">
         <div class="columns medium-7">
             <h3>Týmy</h3>
@@ -19,7 +24,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="t in tournament.teamOnTournaments | orderBy:'rank'">
+                    <tr ng-repeat="t in tournament.teamOnTournaments | filter: { name : filterTeam } | orderBy:'rank'">
                         <th class="text-right">
                             <span ng-show="t.rank">{{ t.rank }}.</span>
                             <span ng-hide="t.rank">-</span>
@@ -38,8 +43,8 @@
 
             <h3 ng-show="tournament.matches.length > 1">Zápasy</h3>
             <table style="margin: auto" ng-show="tournament.matches.length">
-                <tbody>
-                    <tr class="hoverLight" ng-repeat="match in tournament.matches | filter: {length: ''}| orderBy:'start'">
+                <tbody> |
+                    <tr class="hoverLight" ng-repeat="match in tournament.matches | filter: {length: '', search: filterTeam }| orderBy:'start'">
                             <td class="text-right"> {{ match.team_one.name_pure }}</td>
                             <td class="text-right"><b>{{ match.score_one }}</b></td>
                             <td><b>{{ match.score_two }}</b></td>
@@ -50,8 +55,8 @@
             </table>
         </div>
         <div class="columns medium-5">
-            <label class="man" style="float: right !important; margin-left: 10px;"> <input type="checkbox" ng-change="filterGender()" ng-model="man"> </label>
-            <label class="woman" style="float: right !important;"> <input type="checkbox" ng-change="filterGender()" ng-model="woman"> </label>
+            <label class="man" style="float: right !important; margin-left: 10px;"> <input type="checkbox" ng-change="filterPlayers()" ng-model="man"> </label>
+            <label class="woman" style="float: right !important;"> <input type="checkbox" ng-change="filterPlayers()" ng-model="woman"> </label>
             <h3>Nejlepší hráči</h3>
             <div st-rank st-table="rows" st-safe-src="players" ng-cloak ng-show="players">
                 <table class="smart-table">

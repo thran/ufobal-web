@@ -81,6 +81,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match.state = match.end ? "ended" : (match.start ?  "ongoing" : "waiting");
             match.start = match.start !== null ? new Date(match.start) : null;
             match.end = match.end !== null ? new Date(match.end) : null;
+            match.search = match.team_one.name + "###" + match.team_two.name;
 
             match.tournament.matches.push(match);
 
@@ -148,6 +149,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                         angular.forEach(data.players, function(player) {
                             self.getPlayerTeams(player);
                         });
+                        resolvePromise("teams");
+                        resolvePromise("tournaments");
                     });
                 }else if (object === "liveTournament"){
                     if (!dataMaps.tournaments){
@@ -171,10 +174,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                         dataMaps[object][obj.pk] = obj;
                         dataProcessors[object](obj);
                     });
-                }
-                if (object === "teamontournaments"){
-                    resolvePromise("teams");
-                    resolvePromise("tournaments");
                 }
                 resolvePromise(cacheName);
             })
