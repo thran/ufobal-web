@@ -694,7 +694,19 @@ def ping(request):
 
 
 def get_groups(request, tournament_id=None):
+
+    def is_match_in_level(match, level):
+        gs = group_teams[level]
+        for g in gs:
+            if match.team_one_id in g and match.team_two_id in g:
+                return True
+        return False
+
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    group_teams = defaultdict(lambda: [])
+    groups = Group.objects.filter(tournament=tournament).order_by('level', 'name').prefetch_related('tournament', 'teams')
+    for group in groups:
+        group_teams[group.level].append(list(team.pk for team in group.teams.all()))
 
     matches = defaultdict(lambda: {})
     levels = defaultdict(lambda: 1)
@@ -705,10 +717,15 @@ def get_groups(request, tournament_id=None):
         two_id = match.team_two_id
         score_one = match.score_one()
         score_two = match.score_two()
-        for key, score in [((one_id, two_id), (score_one, score_two)), ((two_id, one_id), (score_two, score_one))]:
-            level = levels[key]
-            levels[key] += 1
-            matches["-".join(map(str, key))][str(level)] = score
+
+        key = tuple(sorted([one_id, two_id]))
+        level = levels[key]
+        while not is_match_in_level(match, level) and level < 100:
+            level += 1
+        levels[key] = level + 1
+
+        matches["{}-{}".format(one_id, two_id)][str(level)] = [score_one, score_two]
+        matches["{}-{}".format(two_id, one_id)][str(level)] = [score_two, score_one]
         stats[str(one_id)][str(level)]['score'][0] += score_one
         stats[str(one_id)][str(level)]['score'][1] += score_two
         stats[str(two_id)][str(level)]['score'][0] += score_two
@@ -725,8 +742,7 @@ def get_groups(request, tournament_id=None):
             stats[str(two_id)][str(level)]['draws'] += 1
 
     data = {
-        'groups': [group.to_json() for group in Group.objects.filter(tournament=tournament)
-                   .order_by('level', 'name').prefetch_related('tournament')],
+        'groups': [group.to_json() for group in groups],
         'matches': matches,
         'stats': stats,
     }
