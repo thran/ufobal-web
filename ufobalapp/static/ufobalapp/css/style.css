@@ -229,3 +229,5 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 .toast-top-center {
   top: 3rem;
 }
+
+.group td{ text-align: center; }

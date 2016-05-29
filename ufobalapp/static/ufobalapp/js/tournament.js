@@ -108,6 +108,11 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
 
     dataService.getLiveTournament().then(function (tournament) {
         $scope.tournament = tournament;
+        if ($scope.tournament.is_after_tournament && !$scope.user.is_staff && $location.path() !== "/turnaj-zive"){
+            var url = "turnaj/" + $scope.tournament.pk + "/" + $scope.tournament.full_name;
+            $location.path(url);
+            $window.location.href = url;
+        }
         dataService.getTeams().then(function () {
         });
         dataService.getMatches($scope.tournament.pk).then(function (matches) {
@@ -625,5 +630,9 @@ app.controller("groups", ["$scope", "dataService", "$routeParams", function($sco
         $scope.groups = data.groups;
         $scope.matches = data.matches;
         $scope.stats = data.stats;
+    });
+
+    dataService.getLiveTournament().then(function (tournament) {
+        $scope.tournament = tournament;
     });
 }]);

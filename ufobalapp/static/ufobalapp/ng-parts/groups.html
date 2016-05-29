@@ -1,13 +1,9 @@
 <a href back class="left">&lsaquo; zpět</a>
 <hr>
 
-<h1>Skupiny</h1>
+<h1>Skupiny - {{ tournament.full_name }}</h1>
 
-<style>
-    .group td{
-        text-align: center;
-    }
-</style>
+<div class="loader" ng-hide="groups"></div>
 
 <div ng-repeat="group in groups">
     <h3>{{ group.name }}</h3>
