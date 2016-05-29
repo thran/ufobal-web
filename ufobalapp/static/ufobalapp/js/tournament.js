@@ -103,7 +103,7 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
 }]);
 
 
-app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$location", "userService", function($scope, dataService, $interval, $location, userService){
+app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$location", "userService", "EqualizerState", "$timeout", function($scope, dataService, $interval, $location, userService, EqualizerState, $timeout){
     $scope.user = userService.user;
 
     dataService.getLiveTournament().then(function (tournament) {
@@ -112,7 +112,6 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
         });
         dataService.getMatches($scope.tournament.pk).then(function (matches) {
             $scope.matchesLoaded = true;
-
 
             if ($location.path() === "/turnaj-zive"){
                 var i = $interval(function () {
@@ -124,6 +123,8 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
                     $interval.cancel(i);
                 });
             }
+            $timeout(EqualizerState.equalize, 1000);
+            $timeout(EqualizerState.equalize, 3000);
         });
     });
 

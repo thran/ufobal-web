@@ -14,7 +14,7 @@
         <h3>Zápasy</h3>
         <a href="#" class="fi-plus" data-reveal-id="newMatch"> Nový zápas</a>
         <div class="row">
-            <div class="columns large-6" ng-repeat="field in tournament.fields">
+            <div class="columns large-6 panel" ng-repeat="field in tournament.fields" equalizer="'places'" style="height: 10px">
                 <h4>Hřiště {{ field }}</h4>
 
                 <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['pk']" class="row hoverLight stripes">

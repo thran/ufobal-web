@@ -1,4 +1,4 @@
-var app = angular.module('ufoIS', ["ngCookies", "ngRoute", "mm.foundation", "ng.django.urls", "smart-table"]);
+var app = angular.module('ufoIS', ["ngCookies", "ngRoute", "mm.foundation", "ng.django.urls", "smart-table", 'ngEqualizer']);
 
 app.config(["$httpProvider", function ($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
