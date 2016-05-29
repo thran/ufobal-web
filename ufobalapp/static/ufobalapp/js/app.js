@@ -179,9 +179,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     });
 
     $scope.$watch('filterTeam', function (n, o) {
-        if (n){
-            $scope.filterPlayers();
-        }
+        $scope.filterPlayers();
     });
 
     $scope.filterPlayers = function () {
@@ -189,6 +187,8 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         if ($scope.filterTeam) {
             players = filterPlayers(players, $scope.filterTeam);
             $scope.goalies = filterPlayers(allGoalies, $scope.filterTeam);
+        }else{
+            $scope.goalies = allGoalies;
         }
         $scope.players = players;
     };
