@@ -141,7 +141,12 @@ class TeamTournamentAdmin(admin.ModelAdmin):
 
 class MatchAdmin(admin.ModelAdmin):
     list_display = ['tournament', 'place', 'referee_team', 'team_one', 'score_one', 'team_two', 'score_two', 'fake']
-    readonly_fields = ('score_one', 'score_two')  # carka vytvari tupple
+    readonly_fields = ('score_one', 'score_two')
+
+    def get_queryset(self, request):
+        my_model = super(MatchAdmin, self).get_queryset(request)
+        my_model = my_model.prefetch_related('tournament', 'team_one', 'team_two', 'goals', 'team_one__players', 'team_two__players')
+        return my_model
 
 
 class TournamentAdmin(admin.ModelAdmin):

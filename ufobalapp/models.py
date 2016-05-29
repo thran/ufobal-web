@@ -308,15 +308,15 @@ class Match(models.Model):
 
     def score_one(self):
         if self.team_one:
-            goals = self.goals.filter(shooter__in=self.team_one.players.all(), match=self)
-            return goals.count()
+            players = [p.pk for p in self.team_one.players.all()]
+            return sum([goal.shooter_id in players for goal in self.goals.all()])
 
     score_one.short_description = 'tým 1 scóre'
 
     def score_two(self):
         if self.team_two:
-            goals = Goal.objects.filter(shooter__in=self.team_two.players.all(), match=self)
-            return goals.count()
+            players = [p.pk for p in self.team_two.players.all()]
+            return sum([goal.shooter_id in players for goal in self.goals.all()])
 
     score_two.short_description = 'tým 2 scóre'
 
@@ -475,7 +475,7 @@ class Group(models.Model):
         return {
             "pk": self.pk,
             "tournament": self.tournament.to_json(teams=False),
-            "teams": [team.to_json(players=False) for team in self.teams.order_by('team__name')],
+            "teams": [team.to_json(players=False) for team in self.teams.order_by('team__name').select_related('captain', 'default_goalie')],
             "level": self.level,
             "name": self.name,
         }

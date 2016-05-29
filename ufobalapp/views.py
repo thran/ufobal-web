@@ -699,7 +699,8 @@ def get_groups(request, tournament_id=None):
     matches = defaultdict(lambda: {})
     levels = defaultdict(lambda: 1)
     stats = defaultdict(lambda: defaultdict(lambda: {'score': [0, 0], 'wins': 0, 'looses': 0, 'draws': 0}))
-    for match in Match.objects.filter(tournament=tournament, end__isnull=False).prefetch_related('goals'):
+    for match in Match.objects.filter(tournament=tournament, end__isnull=False)\
+            .prefetch_related('team_one', 'team_two', 'goals', 'team_one__players', 'team_two__players'):
         one_id = match.team_one_id
         two_id = match.team_two_id
         score_one = match.score_one()
@@ -723,11 +724,16 @@ def get_groups(request, tournament_id=None):
             stats[str(one_id)][str(level)]['draws'] += 1
             stats[str(two_id)][str(level)]['draws'] += 1
 
-    return JsonResponse({
-        'groups': [group.to_json() for group in Group.objects.filter(tournament=tournament).order_by('level', 'name')],
+    data = {
+        'groups': [group.to_json() for group in Group.objects.filter(tournament=tournament)
+                   .order_by('level', 'name').prefetch_related('tournament')],
         'matches': matches,
         'stats': stats,
-    }, safe=False)
+    }
+    if request.GET.get("html", False):
+        return render(request, "api.html", {"data": json.dumps(data, indent=4)})
+
+    return JsonResponse(data, safe=False)
 
 
 @ensure_csrf_cookie
