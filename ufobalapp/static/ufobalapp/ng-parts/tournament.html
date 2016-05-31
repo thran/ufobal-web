@@ -45,7 +45,7 @@
 
             <h3 ng-show="tournament.matches.length > 1">Zápasy</h3>
             <table style="margin: auto" ng-show="tournament.matches.length">
-                <tbody> |
+                <tbody>
                     <tr class="hoverLight" ng-repeat="match in tournament.matches | filter: {length: '', search: filterTeam }| orderBy:'start'">
                             <td class="text-right"> {{ match.team_one.name_pure }}</td>
                             <td class="text-right"><b>{{ match.score_one }}</b></td>
