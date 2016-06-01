@@ -12,7 +12,7 @@
     <div class="row"><div class="medium-6 column large-4 " class="row">
         <select
             ng-model="filterTeam"
-            ng-options="team.name as team.name for team in tournament.teamOnTournaments">
+            ng-options="team.name as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
             <option value="">Všechny týmy</option>
         </select>
     </div></div>
