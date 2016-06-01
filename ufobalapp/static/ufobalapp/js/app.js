@@ -179,6 +179,9 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     });
 
     $scope.$watch('filterTeam', function (n, o) {
+        if ($scope.filterTeam === null){
+            $scope.filterTeam = '';
+        }
         $scope.filterPlayers();
     });
 

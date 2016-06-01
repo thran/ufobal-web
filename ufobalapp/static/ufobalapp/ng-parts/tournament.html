@@ -9,10 +9,13 @@
 
     <h1>{{ tournament.full_name }}</h1>
 
-    <div class="search-box">
-        <input placeholder="omezit na tým..." ng-model="filterTeam" class="input-sm form-control" type="search">
-        <div class="fi-x" ng-click="filterTeam = ''"></div>
-    </div>
+    <div class="row"><div class="medium-6 column large-4 " class="row">
+        <select
+            ng-model="filterTeam"
+            ng-options="team.name as team.name for team in tournament.teamOnTournaments">
+            <option value="">Všechny týmy</option>
+        </select>
+    </div></div>
 
     <div class="row">
         <div class="columns medium-7">
