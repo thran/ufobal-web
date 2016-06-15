@@ -32,13 +32,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'debug_toolbar',
     'social.apps.django_app.default',
-    'djangular',
+    'djng',
     'ufobalapp',
     'managestats'
 )
 
 MIDDLEWARE_CLASSES = (
-    'djangular.middleware.DjangularUrlMiddleware',
+    'djng.middleware.AngularUrlMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

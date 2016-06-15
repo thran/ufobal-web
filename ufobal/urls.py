@@ -18,6 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 
+import ufobalapp.views
 from ufobal import settings
 
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
@@ -27,6 +28,6 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
 
     url(r'^', include('ufobalapp.urls', namespace='api')),
     url(r'^managestats/', include('managestats.urls', namespace='managestats')),
-    url(r'^intro$', "ufobalapp.views.intro", name='intro'),
-    url(r'^.*$', "ufobalapp.views.home", name='home'),
+    url(r'^intro$', ufobalapp.views.intro, name='intro'),
+    url(r'^.*$', ufobalapp.views.home, name='home'),
 ]

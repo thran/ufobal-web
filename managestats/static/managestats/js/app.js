@@ -1,4 +1,4 @@
-var app = angular.module("ufobal-manage-stats", ['ng.django.urls', 'ui.sortable']);
+var app = angular.module("ufobal-manage-stats", ['djng.urls', 'ui.sortable']);
 
 app.config(["$httpProvider", function ($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
