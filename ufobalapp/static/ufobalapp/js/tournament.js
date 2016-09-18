@@ -141,6 +141,10 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
         $scope.match.score_two = 0;
         dataService.addMatch($scope.match).success(function () {
             $('#newMatch').foundation('reveal', 'close');
+            if ($scope.tournament.is_day_of_tournament) {
+                var url = "turnaj/zapas/" + $scope.tournament.pk + "/" + $scope.match.pk + "/edit";
+                $location.path(url);
+            }
             $scope.match = null;
         });
     };
