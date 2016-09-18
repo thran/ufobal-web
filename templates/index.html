@@ -82,6 +82,9 @@
 
 <script>
     $(document).foundation();
+    $('.top-bar li').click(function() {
+        $('.top-bar, [data-topbar]').css('height', '').removeClass('expanded');
+    });
 </script>
 </body>
 </html>
