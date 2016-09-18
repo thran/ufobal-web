@@ -356,6 +356,10 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
         $scope.filter = angular.copy(defaultFilter);
     };
 
+    $scope.sortCallback = function(){
+       orderPlayers();
+    };
+
     $scope.filterGender = function () {
         $scope.players = filterGender($scope.stats, $scope.filter.man, $scope.filter.woman, $filter);
         return $scope.players;
@@ -393,9 +397,8 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
     var orderPlayers = function () {
         if (localStorage.getItem("stats")) {
             var savedState = JSON.parse(localStorage.getItem("stats"));
-            console.log(savedState);
             if (!savedState.sort.predicate){
-                savedState.sort.predicate = "canada";
+                savedState.sort.predicate = "canadaFiltered";
                 savedState.sort.reverse = true;
             }
             $scope.stats = $filter('orderBy')($scope.stats, savedState.sort.predicate, savedState.sort.reverse);

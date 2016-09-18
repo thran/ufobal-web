@@ -1,14 +1,20 @@
 var datetimeFormat = "YYYY-MM-DD HH:mm:ss";
-app.directive('stPersist', [function () {
+app.directive('stPersist', ["$timeout", function ($timeout) {
     return {
         require: '^stTable',
-        scope: { stPersist: "=stPersist" },
+        scope: {
+            stPersist: "=stPersist",
+            sortCallback: '&'
+        },
         link: function (scope, element, attr, ctrl) {
             var nameSpace = attr.stPersist;
 
             scope.$watch(ctrl.tableState, function (newValue, oldValue) {
                 if (newValue !== oldValue && scope.dataLoaded) {
                     localStorage.setItem(nameSpace, JSON.stringify(newValue));
+                    if (newValue.sort.predicate !== oldValue.sort.predicate) {
+                        scope.sortCallback();
+                    }
                 }
             }, true);
 
