@@ -262,7 +262,18 @@
             </select>
         </label>
         <label>Odůvodnění
-            <input ng-model="penalty.reason" placeholder="něco vyplň">
+            <select ng-model="penalty.reason">
+                <option></option>
+                <option>Útočný faul</option>
+                <option>Nebezpečná střela</option>
+                <option>Obraný faul</option>
+                <option>Držení</option>
+                <option>Drsná hra</option>
+                <option>Nesportovní chování</option>
+                <option>Urážení rozhodčího</option>
+                <option>Jiné</option>
+            </select>
+            <input ng-model="penalty.reason_extra" placeholder="dodatečné info">
         </label>
         <button ng-show="penalty.reason" ng-click="savePenalty()">Udělit</button>
     </div>

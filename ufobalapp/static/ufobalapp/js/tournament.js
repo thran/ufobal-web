@@ -356,6 +356,14 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $scope.savePenalty = function () {
+        if ($scope.penalty.reason_extra) {
+            $scope.penalty.reason += " - " + $scope.penalty.reason_extra;
+        }
+        angular.forEach(cards, function (card) {
+            if (card.id === $scope.penalty.card) {
+                $scope.penalty.cardText = card.text;
+            }
+        });
         $scope.match.events.push({
             type: "penalty",
             time: $scope.penalty.time,
