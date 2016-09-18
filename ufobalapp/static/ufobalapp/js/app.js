@@ -364,7 +364,6 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
     dataService.getGoals().then(function(){
         dataService.getTournaments().then(function(data){
             dataService.getPlayers().then(function(players){
-                players = $filter('orderBy')(players, "canada", true);
                 $scope.stats = players;
 
                 tournaments = data;
@@ -394,6 +393,11 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
     var orderPlayers = function () {
         if (localStorage.getItem("stats")) {
             var savedState = JSON.parse(localStorage.getItem("stats"));
+            console.log(savedState);
+            if (!savedState.sort.predicate){
+                savedState.sort.predicate = "canada";
+                savedState.sort.reverse = true;
+            }
             $scope.stats = $filter('orderBy')($scope.stats, savedState.sort.predicate, savedState.sort.reverse);
         }
         angular.forEach($scope.filterGender(), function(player, index){
