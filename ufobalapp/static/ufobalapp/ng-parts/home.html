@@ -15,6 +15,9 @@
 
     <a target="_blank" href="http://ufobal.cz">Oficiální stránky ufobalu</a>
 
+    <br>
+    <b><a target="_blank" class="red" href="/static/záznam_zápasu.pdf">Stručný návod na zapisování zápasu</a></b>
+
     <hr>
 
     <div ng-show="liveTournament">
@@ -22,5 +25,9 @@
         <strong>datum:</strong> {{ liveTournament.date | date : "d. M. yyyy"}}<br>
         <div ng-show="liveTournament.registration_open"><a href="/turnaj/prihlasovani">přihlásit se na turnaj</a> - do {{ liveTournament.registration_to | date : "d. M. yyyy"}}</div>
     </div>
+
+    <hr>
+
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/jxACZ41WJQI" frameborder="0" allowfullscreen></iframe>
 
 </div>
