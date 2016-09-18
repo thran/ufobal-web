@@ -17,10 +17,11 @@
             <div class="columns large-6 panel" ng-repeat="field in tournament.fields" equalizer="'places'" style="height: 10px">
                 <h4>Hřiště {{ field }}</h4>
 
-                <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['pk']" class="row hoverLight stripes">
+                <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['pk'] " class="row hoverLight stripes">
+                    <div class="columns small-1 one-line">{{ $index + 1 }}.</div>
                     <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_one.name_pure }}</b></a></div>
-                    <div class="columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_two.name_pure }}</b></a></div>
-                    <div class="columns small-3 one-line">({{ match.referee_team.name_pure }})</div>
+                    <div class="text-left columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_two.name_pure }}</b></a></div>
+                    <div class="text-left columns small-2 one-line">({{ match.referee_team.name_pure }})</div>
                     <div class="columns small-3 one-line">
                         <span ng-show="match.start"><b>{{ match.score_one }}:{{ match.score_two }}</b></span>
                         <span ng-show="match.start && ! match.end">hraje se</span>
