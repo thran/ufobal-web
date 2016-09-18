@@ -545,7 +545,7 @@ def change_goalie(request, match_id, team_id):
             break
 
     new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match,
-                                        start=time)
+                                        start=time + datetime.timedelta(seconds=1))
     new_goalie_in_match.save()
 
     return HttpResponse("OK")

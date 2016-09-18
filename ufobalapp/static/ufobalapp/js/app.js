@@ -235,13 +235,13 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                     if (!goal.team){
                         goal.team = inTeam(match.team_one, goal.shooter) ? match.team_one : match.team_two;
                     }
-                    if (goal.team !== goalie.team && goalieOnMatch.start < goal.time  && goal.time <= goalieOnMatch.end){
+                    if (goal.team !== goalie.team && goalieOnMatch.start <= goal.time && goal.time <= goalieOnMatch.end){
                         goalie.goals++;
                         goalie.shots++;
                     }
                 });
                 angular.forEach(match.shots, function (shot) {
-                    if (shot.team !== goalie.team.pk && goalieOnMatch.start < shot.time  && shot.time <= goalieOnMatch.end){
+                    if (shot.team !== goalie.team.pk && goalieOnMatch.start <= shot.time && shot.time <= goalieOnMatch.end){
                         goalie.shots++;
                     }
                 });
