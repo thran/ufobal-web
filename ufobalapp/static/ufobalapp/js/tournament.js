@@ -137,6 +137,8 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
         $scope.match.tournament = $scope.tournament;
         $scope.match.team_one.goalie = $scope.match.team_one.defaultGoalie;
         $scope.match.team_two.goalie = $scope.match.team_two.defaultGoalie;
+        $scope.match.score_one = 0;
+        $scope.match.score_two = 0;
         dataService.addMatch($scope.match).success(function () {
             $('#newMatch').foundation('reveal', 'close');
             $scope.match = null;
