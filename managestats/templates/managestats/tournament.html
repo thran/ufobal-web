@@ -19,7 +19,7 @@
         {% for team in teams %}
             <div>
                 {{ team.rank | default:'-' }}
-                <b><a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team.get_name }}</a></b> -
+                <b>#{{ team.pk }} <a target="_blank" href="{% url 'admin:ufobalapp_teamontournament_change' team.id %}">{{ team.get_name }}</a></b> -
                 <a target="_blank" href="{% url "admin:ufobalapp_teamontournament_change" team.pk  %}">edit</a> -
                 <a target="_blank" href="{% url "managestats:generate_pairing_info" 'teamtour' team.id %}">QR kody</a>
                 <br>
