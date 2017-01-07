@@ -25,6 +25,7 @@
                     <tr>
                         <td>#</td>
                         <th>Jméno</th>
+                        <th>Skóre</th>
                         <th>Hráči</th>
                     </tr>
                 </thead>
@@ -36,6 +37,9 @@
                         </th>
                         <td>
                             <a ng-href="tym/{{ t.team.pk }}/{{ t.name }}">{{ t.name}}</a>
+                        </td>
+                        <td>
+                            {{ t.goals_scored }}:{{ t.goals_recieved }}
                         </td>
                         <td>
                             <span ng-repeat="player in t.players">

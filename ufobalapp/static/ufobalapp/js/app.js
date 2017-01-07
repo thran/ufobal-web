@@ -156,7 +156,21 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         $scope.tournament = dataService.getObject("tournaments", id);
         dataService.getGoals().then(function(){
             dataService.getPlayers().then(function(players){
-                dataService.getMatches(id).then(function () {
+                dataService.getMatches(id).then(function (matches) {
+                    var teams = {};
+                    angular.forEach($scope.tournament.teamOnTournaments, function(team){
+                        teams[team.pk] = team;
+                        team.goals_scored = 0;
+                        team.goals_recieved = 0;
+                    });
+
+                    angular.forEach(matches, function(match){
+                        teams[match.team_one].goals_scored += match.score_one;
+                        teams[match.team_two].goals_scored += match.score_two;
+                        teams[match.team_one].goals_recieved += match.score_two;
+                        teams[match.team_two].goals_recieved += match.score_one;
+                    });
+
                     $timeout(function(){
                         allGoalies = getGoalieScore($scope.tournament);
                         $scope.goalies = allGoalies;
