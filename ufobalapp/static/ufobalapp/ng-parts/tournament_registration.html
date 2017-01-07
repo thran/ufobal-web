@@ -1,5 +1,6 @@
 <div class="loader" ng-hide="tournament"></div>
-<div ng-show="tournament" class="columns medium-6 medium-offset-3">
+
+<div class="row"><div ng-show="tournament" class="columns medium-6 medium-offset-3">
 
     <div ng-cloak class="text-center" ng-hide="tournament.registration_open">
         Přihlašování na turnaj bylo již uzavřeno.
@@ -51,8 +52,7 @@
         </ol>
         <button ng-disabled="!registration.team || !registration.contact_mail || !registration.contact_phone || !registration.strength" ng-click="register()">Přihlásit</button>
     </div>
-</div>
-
+</div> </div>
 
 
 <div id="newTeam" class="small reveal-modal" data-reveal aria-hidden="true" role="dialog">
