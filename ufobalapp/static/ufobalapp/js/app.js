@@ -165,10 +165,12 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                     });
 
                     angular.forEach(matches, function(match){
-                        teams[match.team_one].goals_scored += match.score_one;
-                        teams[match.team_two].goals_scored += match.score_two;
-                        teams[match.team_one].goals_recieved += match.score_two;
-                        teams[match.team_two].goals_recieved += match.score_one;
+                        var teamOnePk = match.team_one.pk ? match.team_one.pk : match.team_one;
+                        var teamTwoPk = match.team_two.pk ? match.team_two.pk : match.team_two;
+                        teams[teamOnePk].goals_scored += match.score_one;
+                        teams[teamTwoPk].goals_scored += match.score_two;
+                        teams[teamOnePk].goals_recieved += match.score_two;
+                        teams[teamTwoPk].goals_recieved += match.score_one;
                     });
 
                     $timeout(function(){
