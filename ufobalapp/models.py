@@ -296,6 +296,7 @@ class Match(models.Model):
             "fake": self.fake,
             "score_one": self.score_one(),
             "score_two": self.score_two(),
+            "with_shootout": self.with_shootout(),
             "place": self.place,
         }
 
@@ -318,6 +319,9 @@ class Match(models.Model):
         if self.team_two:
             players = [p.pk for p in self.team_two.players.all()]
             return sum([goal.shooter_id in players for goal in self.goals.all()])
+
+    def with_shootout(self):
+        return self.goals.filter(type=Goal.SHOOTOUT).count() > 0
 
     score_two.short_description = 'tým 2 scóre'
 
@@ -357,10 +361,12 @@ class Goal(models.Model):
 
     NORMAL = 'normal'
     PENALTY = 'penalty'
+    SHOOTOUT = 'shootout'
     # TODO: z rohu? o zem?
     GOAL_TYPES = (
         (NORMAL, 'běžný'),
-        (PENALTY, 'penálta'),
+        (PENALTY, 'penalta'),
+        (SHOOTOUT, 'penaltový rozstřel'),
     )
 
     shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True)

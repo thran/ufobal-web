@@ -710,7 +710,7 @@ def get_groups(request, tournament_id=None):
 
     matches = defaultdict(lambda: {})
     levels = defaultdict(lambda: 1)
-    stats = defaultdict(lambda: defaultdict(lambda: {'score': [0, 0], 'wins': 0, 'looses': 0, 'draws': 0}))
+    stats = defaultdict(lambda: defaultdict(lambda: {'score': [0, 0], 'wins': 0, 'looses': 0, 'winsP': 0, 'loosesP': 0, 'draws': 0}))
     for match in Match.objects.filter(tournament=tournament, end__isnull=False)\
             .prefetch_related('team_one', 'team_two', 'goals', 'team_one__players', 'team_two__players'):
         one_id = match.team_one_id
@@ -724,8 +724,8 @@ def get_groups(request, tournament_id=None):
             level += 1
         levels[key] = level + 1
 
-        matches["{}-{}".format(one_id, two_id)][str(level)] = [score_one, score_two]
-        matches["{}-{}".format(two_id, one_id)][str(level)] = [score_two, score_one]
+        matches["{}-{}".format(one_id, two_id)][str(level)] = [score_one, score_two, match.with_shootout()]
+        matches["{}-{}".format(two_id, one_id)][str(level)] = [score_two, score_one, match.with_shootout()]
         stats[str(one_id)][str(level)]['score'][0] += score_one
         stats[str(one_id)][str(level)]['score'][1] += score_two
         stats[str(two_id)][str(level)]['score'][0] += score_two
@@ -734,9 +734,15 @@ def get_groups(request, tournament_id=None):
         if score_one > score_two:
             stats[str(one_id)][str(level)]['wins'] += 1
             stats[str(two_id)][str(level)]['looses'] += 1
+            if match.with_shootout():
+                stats[str(one_id)][str(level)]['winsP'] += 1
+                stats[str(two_id)][str(level)]['loosesP'] += 1
         if score_one < score_two:
             stats[str(one_id)][str(level)]['looses'] += 1
             stats[str(two_id)][str(level)]['wins'] += 1
+            if match.with_shootout():
+                stats[str(one_id)][str(level)]['loosesP'] += 1
+                stats[str(two_id)][str(level)]['winsP'] += 1
         if score_one == score_two:
             stats[str(one_id)][str(level)]['draws'] += 1
             stats[str(two_id)][str(level)]['draws'] += 1

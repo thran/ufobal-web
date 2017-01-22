@@ -17,9 +17,12 @@
         <tr ng-repeat="team in group.teams" ng-init="stats = stats[team.pk][group.level]">
             <th>{{ team.name_pure }}</th>
             <td ng-repeat="team2 in group.teams" ng-init='score = matches[team.pk+"-"+team2.pk][group.level]'>
-                <span ng-show="score">{{ score[0] }} : {{ score[1] }}</span>
+                <span ng-show="score">{{ score[0] }} : {{ score[1] }}<span ng-show="score[2]">P</span></span>
             </td>
-            <td><span>{{ stats['wins'] }} / {{ stats['looses'] }} / {{ stats['draws'] }}</span></td>
+            <td><span>
+                {{ stats['wins'] }}<span ng-show="stats['winsP']">({{ stats['winsP'] }}P)</span> /
+                {{ stats['looses'] }}<span ng-show="stats['loosesP']">({{ stats['loosesP'] }}P)</span> /
+                {{ stats['draws'] }}</span></td>
             <td><span ng-show="stats['score']">{{ stats['score'][0] }} : {{ stats['score'][1] }}</span></td>
         </tr>
     </table>

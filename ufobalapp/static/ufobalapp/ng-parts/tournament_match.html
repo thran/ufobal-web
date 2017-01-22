@@ -139,7 +139,11 @@
 
         <div class="columns medium-4" ng-show="event.team === match.team2">&nbsp;</div>
         <div class="columns medium-4 text-right" ng-hide="event.team === match.team2">
-            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b>
+                <span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span>
+                <span ng-show="event.data.type == 'shootout'"> - penaltový rozstřel</span>
+                <span ng-show="event.data.type == 'penalty'"> - penalta</span>
+            </div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
             <div ng-show="event.type == 'halftime'"><hr><b>konec poločasu</b> </div>
@@ -162,7 +166,11 @@
 
         <div class="columns medium-5" ng-show="event.team === match.team1">&nbsp;</div>
         <div class="columns medium-5" ng-hide="event.team === match.team1">
-            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b><span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span></div>
+            <div ng-show="event.type == 'goal'" ng-class="event.team.color">gól: <b>{{ event.data.shooter.nickname }}</b>
+                <span ng-show="event.data.assistance"> - {{ event.data.assistance.nickname }}</span>
+                <span ng-show="event.data.type == 'shootout'"> - penaltový rozstřel</span>
+                <span ng-show="event.data.type == 'penalty'"> - penalta</span>
+            </div>
             <div ng-show="event.type == 'shot'" ng-class="event.team.color">střela<span ng-show="event.data.shooter">: {{ event.data.shooter.nickname }}</span></div>
             <div ng-show="event.type == 'penalty'" ng-class="event.team.color"><span class="fi-alert"> {{ event.data.cardText }} karta</span>: <b>{{ event.data.player.nickname }}</b> - {{ event.data.reason }}</div>
             <div ng-show="event.type == 'halftime'"><hr><b>konec poločasu</b> </div>
@@ -180,14 +188,21 @@
     </label>
     <label>Střelec
         <select
-                ng-model="goal.shooter"
-                ng-options="player as player.nickname for player in goal.team.players">
+            ng-model="goal.shooter"
+            ng-options="player as player.nickname for player in goal.team.players">
         </select>
     </label>
     <label>Asistence
         <select
                 ng-model="goal.assistance"
                 ng-options="player as player.nickname for player in goal.team.players">
+        </select>
+    </label>
+    <label>Typ gólu {{ goal.type }}:
+        <select ng-model="goal.type">
+            <option value="normal">Běžný</option>
+            <option value="penalty">Penalta</option>
+            <option value="shootout">Penaltový rozstřel</option>
         </select>
     </label>
     <button ng-click="editGoal()">Upravit</button>
@@ -214,6 +229,8 @@
             <div style="padding: 10px 20px; margin: 6px;" ng-show="player == goal.shooter"><h5>&nbsp;</h5></div>
             <div class="pressbutton" ng-show="player != goal.shooter"><h5>{{ player.nickname }}</h5></div></div>
         <div class="columns medium-6 large-4" ng-click="saveGoal(null);"><div class="pressbutton red"><h5>nikdo</h5></div></div>
+        <div class="columns medium-6 large-4" ng-click="goal.type = 'penalty'; saveGoal(null);"><div class="pressbutton red"><h5>penalta</h5></div></div>
+        <div class="columns medium-6 large-4" ng-click="goal.type = 'shootout'; saveGoal(null);"><div class="pressbutton red"><h5>rozstřel</h5></div></div>
     </div>
 
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
