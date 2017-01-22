@@ -400,6 +400,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     $scope.editGoal = function () {
         $scope.editEvent.data = $scope.goal;
         $scope.editEvent.saved = false;
+        $scope.editEvent.onlyEdit = true;
         $scope.editEvent.time = $scope.goal.time;
         $scope.goal = null;
         saveData();
@@ -576,7 +577,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                     }else {
                         dataService.saveEvent(event.data, event.type).success(function () {
                             event.saved = true;
-                            if (event.type === "goal"){
+                            if (event.type === "goal" && !event.onlyEdit){
                                 if (event.team === $scope.match.team_one){
                                     $scope.match.score_one++;
                                 }else{
