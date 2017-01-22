@@ -231,4 +231,15 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
   top: 3rem;
 }
 
-.group td{ text-align: center; }
+.group td{
+    text-align: center;
+}
+
+.group{
+    white-space: nowrap;
+}
+
+.group .first-line th{
+    max-width: 7em;
+    overflow: hidden;
+}
