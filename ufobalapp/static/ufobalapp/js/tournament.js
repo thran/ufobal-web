@@ -647,7 +647,7 @@ app.controller("groups", ["$scope", "dataService", "$routeParams", function($sco
         $scope.stats = data.stats;
     });
 
-    dataService.getLiveTournament().then(function (tournament) {
-        $scope.tournament = tournament;
+    dataService.getTournaments().then(function (tournament) {
+        $scope.tournament = dataService.getObject('tournaments', tournament_id);
     });
 }]);
