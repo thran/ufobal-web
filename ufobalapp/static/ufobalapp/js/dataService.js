@@ -233,7 +233,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return getData("liveTournament");
     };
     self.getMatches = function (tournament_pk) {
-        return getData("matchs", {"tournament": tournament_pk}, tournament_pk);
+        if (tournament_pk) {
+            return getData("matchs", {"tournament": tournament_pk}, tournament_pk);
+        } else {
+            return getData("matchs");
+        }
     };
 
     self.getObject = function(object, id){

@@ -213,3 +213,52 @@ function removeDiacritics (str) {
        return diacriticsMap[a] || a;
     });
 }
+
+function getGoalieScore (tournament, dataService) {
+    var goalies = {};
+    angular.forEach(tournament.matches, function (match) {
+        if (!match.length){
+            return;
+        }
+        angular.forEach(match.goalies, function (goalieOnMatch) {
+            if (!goalies[goalieOnMatch.goalie]){
+                var player = dataService.getObject("players", goalieOnMatch.goalie);
+                goalies[goalieOnMatch.goalie] = {
+                    pk: player.pk,
+                    player: player,
+                    matches: {},
+                    totalTime: 0,
+                    shots: 0,
+                    goals: 0,
+                    team: inTeam(match.team_one, player) ? match.team_one : match.team_two
+                };
+            }
+            var goalie = goalies[goalieOnMatch.goalie];
+            goalie.matches[match.pk] = 1;
+            goalie.totalTime = goalie.totalTime + moment.duration(goalieOnMatch.end).asMilliseconds() - moment.duration(goalieOnMatch.start).asMilliseconds();
+            angular.forEach(match.goals, function (goal) {
+                if (!goal.team){
+                    goal.team = inTeam(match.team_one, goal.shooter) ? match.team_one : match.team_two;
+                }
+                if (goal.team !== goalie.team && goalieOnMatch.start <= goal.time && goal.time <= goalieOnMatch.end){
+                    goalie.goals++;
+                    goalie.shots++;
+                }
+            });
+            angular.forEach(match.shots, function (shot) {
+                if (shot.team !== goalie.team.pk && goalieOnMatch.start <= shot.time && shot.time <= goalieOnMatch.end){
+                    goalie.shots++;
+                }
+            });
+        });
+    });
+    goalies = Object.keys(goalies).map(function(key){ return goalies[key]; });
+    angular.forEach(goalies, function (goalie) {
+        goalie.success = 1 - goalie.goals / (goalie.shots);
+        goalie.matches = Object.keys(goalie.matches).length;
+    });
+    if (goalies.length === 0){
+        return null;
+    }
+    return goalies;
+}
