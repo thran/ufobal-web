@@ -94,7 +94,7 @@ DATABASES = {"default": dj_database_url.config(default='mysql://ufobal:ufobal@lo
 
 # Internationalization
 
-LANGUAGE_CODE = 'cs-czw'
+LANGUAGE_CODE = 'cs-cz'
 
 TIME_ZONE = 'Europe/Prague'
 
