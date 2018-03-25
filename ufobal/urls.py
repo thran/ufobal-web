@@ -23,7 +23,7 @@ from ufobal import settings
 
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('social.apps.django_app.urls', namespace='social')),
+    url(r'^', include('social_django.urls', namespace='social')),
     url(r'^close_login_popup/$', TemplateView.as_view(template_name="close_login_popup.html"), name='login_popup_close'),
 
     url(r'^', include('ufobalapp.urls', namespace='api')),
