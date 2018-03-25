@@ -10,7 +10,6 @@ cd $DIR
 pip install -r $DIR/requirements.txt
 
 # database
-python $DIR/manage.py syncdb
 python $DIR/manage.py migrate
 
 
