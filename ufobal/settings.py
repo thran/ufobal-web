@@ -19,6 +19,8 @@ TEST = os.getenv('TEST', "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+EMAIL_HOST = '127.0.0.1'
+
 LOGIN_URL = 'admin:index' #redirect for login_required pages
 
 # Application definition
