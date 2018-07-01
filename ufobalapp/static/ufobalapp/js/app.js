@@ -154,6 +154,8 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     var id = parseInt($routeParams.id);
     var allPlayers;
     var allGoalies;
+    $scope.goalCount = 0;
+    $scope.playerCount = 0;
     $scope.man = $scope.woman = true;
 
     dataService.getTournaments().then(function(){
@@ -166,6 +168,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                         teams[team.pk] = team;
                         team.goals_scored = 0;
                         team.goals_recieved = 0;
+                        $scope.playerCount += team.players.length;
                     });
 
                     angular.forEach(matches, function(match){
@@ -175,6 +178,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                         teams[teamTwoPk].goals_scored += match.score_two;
                         teams[teamOnePk].goals_recieved += match.score_two;
                         teams[teamTwoPk].goals_recieved += match.score_one;
+                        $scope.goalCount += match.score_one + match.score_two;
                     });
 
                     $timeout(function(){
@@ -195,6 +199,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                 allPlayers = $filter('filter')(players, {scored: true});
                 allPlayers = $filter('orderBy')(allPlayers, "canadaFiltered", true);
                 $scope.players = allPlayers;
+                $scope.allPlayers = allPlayers;
             });
         });
     });
