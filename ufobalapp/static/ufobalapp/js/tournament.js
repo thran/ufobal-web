@@ -152,6 +152,10 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
     };
 
     $(document).foundation('reveal');
+
+    $('#newMatch').on('opened.fndtn.reveal', function() {
+        $('#newMatch').find('select').get(0).focus();
+    });
 }]);
 
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", "$interval",
