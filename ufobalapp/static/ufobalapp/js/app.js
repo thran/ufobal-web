@@ -50,7 +50,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'team.html',
                 controller: "team"
             }).
-             when('/turnaje', {
+            when('/turnaje', {
                 templateUrl: 'tournaments.html',
                 controller: "tournaments"
             }).

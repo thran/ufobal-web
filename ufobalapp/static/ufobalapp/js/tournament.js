@@ -171,6 +171,41 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         }
     });
 
+    $scope.penaltyTimerFilter = function (teamId) { // TODO change to custom filter
+        if (!$scope.match) { // why does this happen
+            return function() {
+                return false;
+            };
+        }
+        var team = $scope.match["team" + teamId];
+        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
+        var yellowCardsThreshold = 2;
+
+        return function(event, index, events) { // TODO this is called suspiciously frequently
+            if (!(event.type === "penalty" && event.team === team && (moment.duration(getTime()) - moment.duration(event.time)) <= penaltyTime)) {
+                return false;
+            }
+
+            if (event.data.card === "red") {
+                return true;
+            }
+
+            var allYellows = events.filter(function(e){
+                return (e.type === "penalty" && event.data.card === "yellow" && e.data.player === event.data.player);
+            });
+
+            // TODO check rules - how many yellow cards case 2 minute penalty?
+            return allYellows.length > yellowCardsThreshold && event === allYellows.slice(-1)[0];
+        };
+    };
+
+    $scope.getRemainingPenaltyTime = function(event) {
+        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
+        var diff = moment.duration(getTime()) - moment.duration(event.time);
+
+        return moment.utc(penaltyTime - diff).format("mm:ss");
+    };
+
     dataService.getMatches(tournamentId).then(function (matches) {
         dataService.getPlayers().then(function () {
             dataService.getTeams().then(function () {
@@ -209,7 +244,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 prepareEvents(match);
                 $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                 setTime(match);
-                match.team_one.color = "team-blue";
+                match.team_one.color = "team-blue"; // todo why team_one and team1
                 match.team_two.color = "team-red";
                 match.team1 = match.team_one;
                 match.team2 = match.team_two;

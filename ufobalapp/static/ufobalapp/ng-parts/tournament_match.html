@@ -39,24 +39,27 @@
     </div>
 
     <div class="row">
-        <div class="columns small-6 medium-5 text-right clickable" ng-class="match.team1.color" ng-click="newGoalieChange(match.team1)">
-            <b ng-show="match.team1.goalie">{{ match.team1.goalie.nickname }}</b>
-            <span ng-hide="match.team1.goalie">bez brankáře</span>
-        </div>
-        <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
-        <div class="columns small-6 medium-5 clickable" ng-class="match.team2.color" ng-click="newGoalieChange(match.team2)">
-            <b ng-show="match.team2.goalie">{{ match.team2.goalie.nickname }}</b>
-            <span ng-hide="match.team2.goalie">bez brankáře</span>
-        </div>
-    </div>
-
-    <div class="row">
         <div class="columns small-6 medium-5 text-right one-line" style="font-size: 2em;" ng-class="match.team1.color"><b>{{ match.team1.name_pure }}</b></div>
         <div class="columns medium-2 show-for-medium-up text-center"><i class="fi-loop" ng-click="switchTeamSides();"></i></div>
         <div class="columns small-6 medium-3 one-line" style="font-size: 2em;" ng-class="match.team2.color"><b>{{ match.team2.name_pure }}</b></div>
 
         <div class="columns medium-2 show-for-medium-up">
             <div class="small switch right" style="margin-bottom: 0" ng-hide="onlyView">úpravy <br><input id='edit' type="checkbox" ng-model="edit"><label for="edit"></label></div>
+        </div>
+    </div>
+
+
+    <div class="row" ng-show="match.halftime === 1 || match.halftime === 2">
+        <div class="columns small-6 medium-5 text-right">
+            <div ng-repeat="event in match.events | filter : penaltyTimerFilter(1) | orderBy : '-time'">
+                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b> </div>
+            </div>
+        </div>
+        <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
+        <div class="columns small-6 medium-5">
+            <div ng-repeat="event in match.events | filter :penaltyTimerFilter(2) | orderBy : '-time'">
+                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b> </div>
+            </div>
         </div>
     </div>
 
