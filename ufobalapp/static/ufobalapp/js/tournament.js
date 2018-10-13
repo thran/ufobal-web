@@ -146,6 +146,8 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
                 $location.path(url);
             }
             $scope.match = null;
+        }).error(function (error) {
+            $scope.match.saving_error = error;
         });
     };
 
