@@ -174,6 +174,10 @@ app.controller("auth", ["$scope", "userService", "$location", "$routeParams", "$
         });
     };
 
+    if ($scope.user.is_authorized) {
+        $scope.openProfile();
+    }
+
     $timeout(function(){ $(document).foundation('reveal'); });
 }]);
 
