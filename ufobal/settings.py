@@ -1,8 +1,5 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
-# encoding=utf8
-
 import dj_database_url
 import os
 
