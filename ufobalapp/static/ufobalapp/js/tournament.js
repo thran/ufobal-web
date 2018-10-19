@@ -146,10 +146,16 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
                 $location.path(url);
             }
             $scope.match = null;
+        }).error(function (error) {
+            $scope.match.saving_error = error;
         });
     };
 
     $(document).foundation('reveal');
+
+    $('#newMatch').on('opened.fndtn.reveal', function() {
+        $('#newMatch').find('select').get(0).focus();
+    });
 }]);
 
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", "$interval",
@@ -168,6 +174,41 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             $scope.eventFilter.type = "!shot";
         }
     });
+
+    $scope.penaltyTimerFilter = function (teamId) { // TODO change to custom filter
+        if (!$scope.match) { // why does this happen
+            return function() {
+                return false;
+            };
+        }
+        var team = $scope.match["team" + teamId];
+        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
+        var yellowCardsThreshold = 2;
+
+        return function(event, index, events) { // TODO this is called suspiciously frequently
+            if (!(event.type === "penalty" && event.team === team && (moment.duration(getTime()) - moment.duration(event.time)) <= penaltyTime)) {
+                return false;
+            }
+
+            if (event.data.card === "red") {
+                return true;
+            }
+
+            var allYellows = events.filter(function(e){
+                return (e.type === "penalty" && event.data.card === "yellow" && e.data.player === event.data.player);
+            });
+
+            // TODO check rules - how many yellow cards case 2 minute penalty?
+            return allYellows.length > yellowCardsThreshold && event === allYellows.slice(-1)[0];
+        };
+    };
+
+    $scope.getRemainingPenaltyTime = function(event) {
+        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
+        var diff = moment.duration(getTime()) - moment.duration(event.time);
+
+        return moment.utc(penaltyTime - diff).format("mm:ss");
+    };
 
     dataService.getMatches(tournamentId).then(function (matches) {
         dataService.getPlayers().then(function () {

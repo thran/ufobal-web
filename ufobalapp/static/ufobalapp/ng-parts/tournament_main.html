@@ -42,19 +42,19 @@
 
 <div id="newMatch" class="small reveal-modal" data-reveal>
     <label>Tým 1
-        <select ng-model="match.team_one"
+        <select ng-model="match.team_one" ng-change="match.saving_error=null"
                 ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
             <option value="">----</option>
         </select>
     </label>
     <label>Tým 2
-        <select ng-model="match.team_two"
+        <select ng-model="match.team_two" ng-change="match.saving_error=null"
                 ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
             <option value="">----</option>
         </select>
     </label>
     <label>Rozhodčí tým
-        <select ng-model="match.referee_team"
+        <select ng-model="match.referee_team" ng-change="match.saving_error=null"
                 ng-options="team as team.name for team in tournament.teamOnTournaments | orderBy:'name'">
             <option value="">----</option>
         </select>
@@ -68,6 +68,7 @@
     </p>
 
     <button ng-hide="match.saving" ng-disabled="!match.team_one || !match.referee_team || !match.team_two || !match.place " ng-click="addMatch()">Vytvořit</button>
+    <label ng-show="match.saving_error" class="red">{{ match.saving_error }}</label>
     <div class="loader" ng-show="match.saving"></div>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
