@@ -248,7 +248,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 prepareEvents(match);
                 $scope.match.halftimeLenght = $scope.match.tournament.halftime_length;
                 setTime(match);
-                match.team_one.color = "team-blue"; // todo why team_one and team1
+                match.team_one.color = "team-blue";
                 match.team_two.color = "team-red";
                 match.team1 = match.team_one;
                 match.team2 = match.team_two;
