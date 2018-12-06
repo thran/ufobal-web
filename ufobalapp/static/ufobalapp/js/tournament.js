@@ -183,7 +183,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         }
         var team = $scope.match["team" + teamId];
         var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
-        var yellowCardsThreshold = 2;
+        var cardsThreshold = 2;
 
         return function(event, index, events) { // TODO this is called suspiciously frequently
             if (!(event.type === "penalty" && event.team === team && (moment.duration(getTime()) - moment.duration(event.time)) <= penaltyTime)) {
@@ -194,12 +194,11 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                 return true;
             }
 
-            var allYellows = events.filter(function(e){
-                return (e.type === "penalty" && event.data.card === "yellow" && e.data.player === event.data.player);
+            var allCards = events.filter(function(e){
+                return (e.type === "penalty" && e.data.player === event.data.player);
             });
 
-            // TODO check rules - how many yellow cards case 2 minute penalty?
-            return allYellows.length > yellowCardsThreshold && event === allYellows.slice(-1)[0];
+            return allCards.length >= cardsThreshold && event === allCards.slice(-1)[0];
         };
     };
 
