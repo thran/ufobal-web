@@ -154,6 +154,7 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
     var id = parseInt($routeParams.id);
     var allPlayers;
     var allGoalies;
+    var allPairs;
     $scope.goalCount = 0;
     $scope.playerCount = 0;
     $scope.man = $scope.woman = true;
@@ -162,6 +163,10 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         $scope.tournament = dataService.getObject("tournaments", id);
         dataService.getGoals().then(function(){
             dataService.getPlayers().then(function(players){
+                dataService.getPairs(id).then(function (pairs) {
+                    allPairs = $scope.pairs = $filter("orderBy")(pairs, "-points");
+                });
+
                 dataService.getMatches(id).then(function (matches) {
                     var teams = {};
                     angular.forEach($scope.tournament.teamOnTournaments, function(team){
@@ -216,8 +221,10 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
         if ($scope.filterTeam) {
             players = filterPlayers(players, $scope.filterTeam);
             $scope.goalies = filterPlayers(allGoalies, $scope.filterTeam);
+            $scope.pairs = filterPlayers(allPairs, $scope.filterTeam);
         }else{
             $scope.goalies = allGoalies;
+            $scope.pairs = allPairs;
         }
         $scope.players = players;
     };

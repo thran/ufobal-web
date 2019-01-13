@@ -91,6 +91,29 @@ def goals(request):
     return JsonResponse(data, safe=False)
 
 
+def pairs(request, tournament_pk):
+    pairs = Goal.objects.values("shooter", "assistance")\
+        .filter(shooter__isnull=False, assistance__isnull=False, match__tournament=tournament_pk)\
+        .annotate(count=Count("pk"))
+
+    data = defaultdict(lambda: defaultdict(int))
+    for pair in pairs:
+        key = sorted((pair['shooter'], pair['assistance']))
+        item = data[str(key)]
+        item['points'] += pair['count']
+        item['players'] = key
+        if key[0] == pair['shooter']:
+            item['goals_first'] = pair['count']
+        else:
+            item['goals_second'] = pair['count']
+
+    data = list(data.values())
+
+    if request.GET.get("html", False):
+        return render(request, "api.html", {"data": json.dumps(data, indent=4)})
+    return JsonResponse(data, safe=False)
+
+
 def stats(request):
     data = {
         "tournament_count": Tournament.objects.all().count(),

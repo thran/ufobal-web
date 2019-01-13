@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^add_attendance$', views.add_attendance, name='add_attendance'),
     url(r'^remove_attendance/(?P<player>\d+)-(?P<team>\d+)$', views.remove_attendance, name='remove_attendance'),
     url(r'^goals$', views.goals, name='get_goals'),
+    url(r'^pairs/(?P<tournament_pk>\d+)$', views.pairs, name='get_pairs'),
     url(r'^stats$', views.stats, name='get_stats'),
     url(r'^get_live_tournament$', views.live_tournament, name='get_liveTournament'),
     url(r'^add_team$', views.add_team, name='add_team'),

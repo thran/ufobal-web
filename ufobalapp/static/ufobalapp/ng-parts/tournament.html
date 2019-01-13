@@ -137,6 +137,45 @@
                     </tfoot>
                 </table>
             </div>
+
+            <h3 ng-show="pairs">Nejproduktivnější dvojice</h3>
+            <div st-rank st-table="rows3" st-safe-src="pairs" ng-cloak ng-show="pairs">
+                <table class="smart-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th class="clickable">Hráč 1</th>
+                        <th class="clickable">Hráč 2</th>
+                        <th class="text-right clickable" st-sort="points" st-descending-first="true">body</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="pair in rows3">
+                        <th>{{ pair.rank }}.</th>
+                        <td>
+                            <a ng-class="pair.player1.gender" href="" ng-href="hrac/{{ pair.player1.pk }}/{{ pair.player1.nickname }}">
+                                {{ pair.player1.nickname }}
+                            </a>
+                            <span ng-if="pair.goals_first">({{ pair.goals_first }})</span>
+                        </td>
+                        <td>
+                            <a ng-class="pair.player2.gender" href="" ng-href="hrac/{{ pair.player2.pk }}/{{ pair.player2.nickname }}">
+                                {{pair.player2.nickname}}
+                            </a>
+                            <span ng-if="pair.goals_second">({{ pair.goals_second }})</span>
+                        </td>
+                        <td class="text-right"> {{ pair.points }}</td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div st-pagination="" st-items-by-page="15" st-displayed-pages="5" st-template="utils/st-pagination.html"></div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
 

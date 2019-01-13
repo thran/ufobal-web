@@ -88,10 +88,15 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             // need to handle refreshing
             // match.team_one.matches.push(match);
             // match.team_two.matches.push(match);
+        },
+        pairs: function (pair) {
+            pair.player1 = self.getObject("players", pair.players[0]);
+            pair.player2 = self.getObject("players", pair.players[1]);
+            pair.pk = pair.player1.pk;
         }
     };
 
-    var getData = function(object, filter, cache_suffix){
+    var getData = function(object, filter, cache_suffix, url_params){
         var cacheName = object + (cache_suffix ? cache_suffix : "");
         if (deferredTmp[cacheName]){
             return deferredTmp[cacheName].promise;
@@ -107,7 +112,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         } else if(object === "goals") {
             getGoals();
         } else {
-            getDataFromServer(object, cacheName, filter);
+            getDataFromServer(object, cacheName, filter, url_params);
         }
         return deferred.promise;
     };
@@ -126,8 +131,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
     };
 
-    var getDataFromServer = function(object, cacheName, filter){
-        $http.get(djangoUrl.reverse("api:get_" + object), {params: filter})
+    var getDataFromServer = function(object, cacheName, filter, url_params){
+        $http.get(djangoUrl.reverse("api:get_" + object, url_params), {params: filter})
             .success(function(response){
                 data[cacheName] = response;
                 dataMaps[object] = {};
@@ -227,6 +232,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.getGoals = function(){
         getData("players");
         return getData("goals");
+    };
+    self.getPairs = function(tournament_pk){
+        getData("players");
+        return getData("pairs", null, tournament_pk, {"tournament_pk": tournament_pk});
     };
     self.getLiveTournament = function(){
         self.getTeams();
