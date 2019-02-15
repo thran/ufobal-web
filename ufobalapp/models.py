@@ -266,9 +266,9 @@ class Match(models.Model):
         verbose_name = "zápas"
         verbose_name_plural = "zápasy"
 
-    tournament = models.ForeignKey(Tournament, verbose_name='Turnaj')
-    team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='+', null=True, blank=True)
-    team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='+', null=True, blank=True)
+    tournament = models.ForeignKey(Tournament, verbose_name='Turnaj', related_name="matches")
+    team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='matches1', null=True, blank=True)
+    team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='matches2', null=True, blank=True)
     start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
     halftime_length = models.TimeField('Délka poločasu', null=True, blank=True)

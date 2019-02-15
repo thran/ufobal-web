@@ -476,6 +476,21 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return deferred.promise;
     };
 
+    var hallOfFame = null;
+    self.getHallOfFame = function () {
+        var deferred = $q.defer();
+        if (hallOfFame){
+            deferred.resolve(hallOfFame);
+            return deferred.promise;
+        }
+        $http.get(djangoUrl.reverse("api:get_hall_of_glory"))
+            .success(function (response) {
+                hallOfFame = response;
+                deferred.resolve(response);
+            });
+        return deferred.promise;
+    };
+
     self.addMatch = function (match) {
         match.saving = true;
         return $http.post(djangoUrl.reverse("api:add_match"), shallowCopy(match, true)).success(function (pk) {
