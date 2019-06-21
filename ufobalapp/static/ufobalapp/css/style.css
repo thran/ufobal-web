@@ -243,3 +243,7 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
     max-width: 7em;
     overflow: hidden;
 }
+
+#hall-of-glory ul{
+    margin-left: 50px;
+}

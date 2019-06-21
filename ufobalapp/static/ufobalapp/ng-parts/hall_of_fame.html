@@ -2,72 +2,81 @@
     <h3>Síň slávy</h3>
     <div class="loader" ng-hide="stats"></div>
 
-    <div ng-cloak ng-show="stats">
+    <div id="hall-of-glory" ng-cloak ng-show="stats">
         <div>
             Maximální počet týmů na turnaji:
-            <b>{{ stats.max_teams_per_tournament.value }} týmů na turnaji
-                <a ng-href="turnaj/{{ stats.max_teams_per_tournament.instance.pk }}/{{ stats.max_teams_per_tournament.instance.full_name }}">{{ stats.max_teams_per_tournament.instance.full_name }}</a>
-            </b>
+            <b>{{ stats.max_teams_per_tournament.value }} týmů na turnaji</b>
+            <ul><li ng-repeat="instance in stats.max_teams_per_tournament.instances">
+                    <a ng-href="turnaj/{{ instance.pk }}/{{ instance.full_name }}">{{ instance.full_name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Maximální počet zápasů na turnaji:
-            <b>{{ stats.max_matches_per_tournament.value }} zápasů na turnaji
-                <a ng-href="turnaj/{{ stats.max_matches_per_tournament.instance.pk }}/{{ stats.max_matches_per_tournament.instance.full_name }}">{{ stats.max_matches_per_tournament.instance.full_name }}</a>
-            </b>
+            <b>{{ stats.max_matches_per_tournament.value }} zápasů na turnaji</b>
+            <ul><li ng-repeat="instance in stats.max_matches_per_tournament.instances">
+                <a ng-href="turnaj/{{ instance.pk }}/{{ instance.full_name }}">{{ instance.full_name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Tým s nejvíce zápasy:
-            <b>{{ stats.max_matches_per_team.value }} zápasů týmu
-                <a ng-href="tym/{{ stats.max_matches_per_team.instance.pk }}/{{ stats.max_matches_per_team.instance.name }}">{{ stats.max_matches_per_team.instance.name }}</a>
-            </b>
+            <b>{{ stats.max_matches_per_team.value }} zápasů týmu</b>
+            <ul><li ng-repeat="instance in stats.max_matches_per_team.instances">
+                <a ng-href="tym/{{ instance.pk }}/{{ instance.name }}">{{ instance.name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Tým s nejvíce góly:
-            <b>{{ stats.max_goals_per_team.value }} gólů týmu
-                <a ng-href="tym/{{ stats.max_goals_per_team.instance.pk }}/{{ stats.max_goals_per_team.instance.name }}">{{ stats.max_goals_per_team.instance.name }}</a>
-            </b>
+            <b>{{ stats.max_goals_per_team.value }} gólů týmu</b>
+            <ul><li ng-repeat="instance in stats.max_goals_per_team.instances">
+                <a ng-href="tym/{{ instance.pk }}/{{ instance.name }}">{{ instance.name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Tým s nejvíce góly na zápas:
-            <b>{{ stats.max_avg_goals_per_team.value | number:1  }} gólů na zápas týmu
-                <a ng-href="tym/{{ stats.max_avg_goals_per_team.instance.pk }}/{{ stats.max_avg_goals_per_team.instance.name }}">{{ stats.max_avg_goals_per_team.instance.name }}</a>
-            </b>
+            <b>{{ stats.max_avg_goals_per_team.value | number:1  }} gólů na zápas týmu</b>
+            <ul><li ng-repeat="instance in stats.max_avg_goals_per_team.instances">
+                <a ng-href="tym/{{ instance.pk }}/{{ instance.name }}">{{ instance.name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Hráč s nejvíce góly na turnaji:
-            <b>{{ stats.max_goal_per_tournament_player.value }} gólů,
-                <a ng-href="hrac/{{ stats.max_goal_per_tournament_player.instance[0].pk }}/{{ stats.max_goal_per_tournament_player.instance[0].full_name }}">{{ stats.max_goal_per_tournament_player.instance[0].full_name }}</a>,
-                <a ng-href="turnaj/{{ stats.max_goal_per_tournament_player.instance[1].pk }}/{{ stats.max_goal_per_tournament_player.instance[1].full_name }}">{{ stats.max_goal_per_tournament_player.instance[1].full_name }}</a>
-            </b>
+            <b>{{ stats.max_goal_per_tournament_player.value }} gólů</b>
+            <ul><li ng-repeat="instance in stats.max_goal_per_tournament_player.instances">
+                <a ng-href="hrac/{{ instance[0].pk }}/{{ instance[0].full_name }}">{{ instance[0].full_name }}</a>,
+                <a ng-href="turnaj/{{ instance[1].pk }}/{{ instance[1].full_name }}">{{ instance[1].full_name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Hráč s nejvíce asistencemi na turnaji:
-            <b>{{ stats.max_assistance_per_tournament_player.value }} asistencí,
-                <a ng-href="hrac/{{ stats.max_assistance_per_tournament_player.instance[0].pk }}/{{ stats.max_assistance_per_tournament_player.instance[0].full_name }}">{{ stats.max_assistance_per_tournament_player.instance[0].full_name }}</a>,
-                <a ng-href="turnaj/{{ stats.max_assistance_per_tournament_player.instance[1].pk }}/{{ stats.max_assistance_per_tournament_player.instance[1].full_name }}">{{ stats.max_assistance_per_tournament_player.instance[1].full_name }}</a>
-            </b>
+            <b>{{ stats.max_assistance_per_tournament_player.value }} asistencí</b>
+            <ul><li ng-repeat="instance in stats.max_assistance_per_tournament_player.instances">
+                <a ng-href="hrac/{{ instance[0].pk }}/{{ instance[0].full_name }}">{{ instance[0].full_name }}</a>,
+                <a ng-href="turnaj/{{ instance[1].pk }}/{{ instance[1].full_name }}">{{ instance[1].full_name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Hráčka s nejvíce góly na turnaji:
-            <b>{{ stats.max_goal_per_tournament_player_female.value }} gólů,
-                <a ng-href="hrac/{{ stats.max_goal_per_tournament_player_female.instance[0].pk }}/{{ stats.max_goal_per_tournament_player_female.instance[0].full_name }}">{{ stats.max_goal_per_tournament_player_female.instance[0].full_name }}</a>,
-                <a ng-href="turnaj/{{ stats.max_goal_per_tournament_player_female.instance[1].pk }}/{{ stats.max_goal_per_tournament_player_female.instance[1].full_name }}">{{ stats.max_goal_per_tournament_player_female.instance[1].full_name }}</a>
-            </b>
+            <b>{{ stats.max_goal_per_tournament_player_female.value }} gólů</b>
+            <ul><li ng-repeat="instance in stats.max_goal_per_tournament_player_female.instances">
+                <a ng-href="hrac/{{ instance[0].pk }}/{{ instance[0].full_name }}">{{ instance[0].full_name }}</a>,
+                <a ng-href="turnaj/{{ instance[1].pk }}/{{ instance[1].full_name }}">{{ instance[1].full_name }}</a>
+            </li></ul>
         </div>
 
         <div>
             Hráčka s nejvíce asistencemi na turnaji:
-            <b>{{ stats.max_assistance_per_tournament_player_female.value }} asistencí,
-                <a ng-href="hrac/{{ stats.max_assistance_per_tournament_player_female.instance[0].pk }}/{{ stats.max_assistance_per_tournament_player_female.instance[0].full_name }}">{{ stats.max_assistance_per_tournament_player_female.instance[0].full_name }}</a>,
-                <a ng-href="turnaj/{{ stats.max_assistance_per_tournament_player_female.instance[1].pk }}/{{ stats.max_assistance_per_tournament_player_female.instance[1].full_name }}">{{ stats.max_assistance_per_tournament_player_female.instance[1].full_name }}</a>
-            </b>
+            <b>{{ stats.max_assistance_per_tournament_player_female.value }} asistencí</b>
+            <ul><li ng-repeat="instance in stats.max_assistance_per_tournament_player_female.instances">
+                <a ng-href="hrac/{{ instance[0].pk }}/{{ instance[0].full_name }}">{{ instance[0].full_name }}</a>,
+                <a ng-href="turnaj/{{ instance[1].pk }}/{{ instance[1].full_name }}">{{ instance[1].full_name }}</a>
+            </li></ul>
         </div>
 
         <hr>

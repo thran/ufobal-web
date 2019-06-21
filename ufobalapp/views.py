@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 from collections import defaultdict
+from itertools import takewhile
 
 from django.core.cache import cache
 from django.db.models import Prefetch, Count, Max, Min, F
@@ -133,14 +134,25 @@ def stats(request):
 
 
 @cache_page(60 * 60 * 24)
-def hall_of_glory(request):
+def hall_of_glory(request, max_instances=5):
     cache.clear()
-    max_teams_per_tournament = Tournament.objects.annotate(Count("teams")).order_by('-teams__count').first()
-    max_matches_per_tournament = Tournament.objects.annotate(Count("matches")).order_by('-matches__count').first()
-    max_goal_per_tournament_player = Goal.objects.values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count').first()
-    max_assists_per_tournament_player = Goal.objects.values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count').first()
-    max_goal_per_tournament_playerF = Goal.objects.filter(shooter__gender=Player.WOMAN).values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count').first()
-    max_assists_per_tournament_playerF = Goal.objects.filter(assistance__gender=Player.WOMAN).values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count').first()
+    instances = Tournament.objects.annotate(Count("teams")).order_by('-teams__count')[:max_instances]
+    max_teams_per_tournament = list(takewhile(lambda i: i.teams__count == instances[0].teams__count, instances))
+
+    instances = Tournament.objects.annotate(Count("matches")).order_by('-matches__count')
+    max_matches_per_tournament = list(takewhile(lambda i: i.matches__count == instances[0].matches__count, instances))
+
+    instances = Goal.objects.values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count')
+    max_goal_per_tournament_player = list(takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances))
+
+    instances = Goal.objects.values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count')
+    max_assists_per_tournament_player = list(takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances))
+
+    instances = Goal.objects.filter(shooter__gender=Player.WOMAN).values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count')
+    max_goal_per_tournament_playerF = list(takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances))
+
+    instances = Goal.objects.filter(assistance__gender=Player.WOMAN).values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count')
+    max_assists_per_tournament_playerF = list(takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances))
 
     teams = []
     for team in Team.objects.prefetch_related("tournaments__matches1__goals", "tournaments__matches2__goals"):
@@ -152,59 +164,63 @@ def hall_of_glory(request):
         data['goals_per_match'] = data['goals'] / data['matches'] if data['matches'] else 0
         teams.append(data)
 
+    m = max(t['matches'] for t in teams)
+    max_matches_per_team = [t for t in teams if t['matches'] == m]
 
-    max_matches_per_team = max(teams, key=lambda x: x['matches'])
-    max_goals_per_team = max(teams, key=lambda x: x['goals'])
-    max_avg_goals_per_team = max(teams, key=lambda x: x['goals_per_match'])
+    m = max(t['goals'] for t in teams)
+    max_goals_per_team = [t for t in teams if t['goals'] == m]
+
+    m = max(t['goals_per_match'] for t in teams)
+    max_avg_goals_per_team = [t for t in teams if t['goals_per_match'] == m]
 
     data = {
         "max_teams_per_tournament": {
-            "value": max_teams_per_tournament.teams__count,
-            "instance": max_teams_per_tournament.to_json(teams=False),
+            "value": max_teams_per_tournament[0].teams__count,
+            "instances": [i.to_json(teams=False) for i in max_teams_per_tournament]
         },
         "max_matches_per_tournament": {
-            "value": max_matches_per_tournament.matches__count,
-            "instance": max_matches_per_tournament.to_json(teams=False),
+            "value": max_matches_per_tournament[0].matches__count,
+            "instances": [i.to_json(teams=False) for i in max_matches_per_tournament]
         },
         "max_matches_per_team": {
-            "value": max_matches_per_team['matches'],
-            "instance": max_matches_per_team['team'].to_json(teams=False),
+            "value": max_matches_per_team[0]['matches'],
+            "instances": [i['team'].to_json(teams=False) for i in max_matches_per_team],
         },
         "max_goals_per_team": {
-            "value": max_goals_per_team['goals'],
-            "instance": max_goals_per_team['team'].to_json(teams=False),
+            "value": max_goals_per_team[0]['goals'],
+            "instances": [i['team'].to_json(teams=False) for i in max_goals_per_team],
         },
         "max_avg_goals_per_team": {
-            "value": max_avg_goals_per_team['goals_per_match'],
-            "instance": max_avg_goals_per_team['team'].to_json(teams=False),
+            "value": max_avg_goals_per_team[0]['goals_per_match'],
+            "instances": [i['team'].to_json(teams=False) for i in max_avg_goals_per_team],
         },
         "max_goal_per_tournament_player": {
-            "value": max_goal_per_tournament_player['shooter__count'],
-            "instance": [
-                Player.objects.get(pk=max_goal_per_tournament_player['shooter']).to_json(simple=True),
-                Tournament.objects.get(pk=max_goal_per_tournament_player['match__tournament']).to_json(teams=False),
-            ]
+            "value": max_goal_per_tournament_player[0]['shooter__count'],
+            "instances": [[
+                Player.objects.get(pk=i['shooter']).to_json(simple=True),
+                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+            ] for i in max_goal_per_tournament_player]
         },
         "max_assistance_per_tournament_player": {
-            "value": max_assists_per_tournament_player['assistance__count'],
-            "instance": [
-                Player.objects.get(pk=max_assists_per_tournament_player['assistance']).to_json(simple=True),
-                Tournament.objects.get(pk=max_assists_per_tournament_player['match__tournament']).to_json(teams=False),
-            ]
+            "value": max_assists_per_tournament_player[0]['assistance__count'],
+            "instances": [[
+                Player.objects.get(pk=i['assistance']).to_json(simple=True),
+                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+            ] for i in max_assists_per_tournament_player]
         },
         "max_goal_per_tournament_player_female": {
-            "value": max_goal_per_tournament_playerF['shooter__count'],
-            "instance": [
-                Player.objects.get(pk=max_goal_per_tournament_playerF['shooter']).to_json(simple=True),
-                Tournament.objects.get(pk=max_goal_per_tournament_playerF['match__tournament']).to_json(teams=False),
-            ]
+            "value": max_goal_per_tournament_playerF[0]['shooter__count'],
+            "instances": [[
+                Player.objects.get(pk=i['shooter']).to_json(simple=True),
+                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+            ] for i in max_goal_per_tournament_playerF]
         },
         "max_assistance_per_tournament_player_female": {
-            "value": max_assists_per_tournament_playerF['assistance__count'],
-            "instance": [
-                Player.objects.get(pk=max_assists_per_tournament_playerF['assistance']).to_json(simple=True),
-                Tournament.objects.get(pk=max_assists_per_tournament_playerF['match__tournament']).to_json(teams=False),
-            ]
+            "value": max_assists_per_tournament_playerF[0]['assistance__count'],
+            "instances": [[
+                Player.objects.get(pk=i['assistance']).to_json(simple=True),
+                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+            ] for i in max_assists_per_tournament_playerF]
         },
     }
     return JsonResponse(data, safe=False)
