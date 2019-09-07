@@ -86,6 +86,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournament.html',
                 controller: "tournament"
             }).
+            when('/turnaj/:id/:turnaj/:selected_team_id', {
+                templateUrl: 'tournament.html',
+                controller: "tournament"
+            }).
             when('/skupiny/:id', {
                 templateUrl: 'groups.html',
                 controller: "groups"
@@ -162,6 +166,7 @@ app.controller("tournaments", ["$scope", "dataService", "$filter", function ($sc
 
 app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter", "$timeout", function ($scope, dataService, $routeParams, $filter, $timeout) {
     var id = parseInt($routeParams.id);
+    var selected_team_id = $routeParams.selected_team_id ? parseInt($routeParams.selected_team_id) : null;
     var allPlayers;
     var allGoalies;
     var allPairs;
@@ -184,6 +189,9 @@ app.controller("tournament", ["$scope", "dataService", "$routeParams", "$filter"
                         team.goals_scored = 0;
                         team.goals_recieved = 0;
                         $scope.playerCount += team.players.length;
+                        if (team.pk === selected_team_id){
+                            $scope.filterTeam = team.name;
+                        }
                     });
 
                     angular.forEach(matches, function(match){

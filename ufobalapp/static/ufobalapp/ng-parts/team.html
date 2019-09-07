@@ -23,7 +23,7 @@
         </thead>
         <tbody>
             <tr ng-repeat="t in team.teamOnTournaments | orderBy:'tournament.date':true">
-                <td><a ng-href="/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}">{{ t.tournament.full_name }}</a></td>
+                <td><a ng-href="/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}/{{ t.pk }}">{{ t.tournament.full_name }}</a></td>
                 <td><span ng-hide="t.name == team.name">{{ t.name }}</span></td>
 
                 <td>
