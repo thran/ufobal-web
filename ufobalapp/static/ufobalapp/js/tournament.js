@@ -14,6 +14,7 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
         dataService.addTeam($scope.newTeam)
             .success(function () {
                 $('#newTeam').foundation('reveal', 'close');
+                $scope.team = $scope.newTeam;
                 $scope.newTeam = {};
             });
     };

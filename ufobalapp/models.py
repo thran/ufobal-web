@@ -131,17 +131,20 @@ class Team(models.Model):
         verbose_name_plural = "týmy"
 
     name = models.CharField('Jméno', max_length=100)
+    name_short = models.CharField('Zkrácené jméno', max_length=20, null=True, blank=True)
     description = models.TextField('Popis', null=True, blank=True)
 
     def to_json(self, **kwargs):
         return {
             "pk": self.pk,
             "name": self.name,
+            "name_short": self.name_short,
+            "name_pure": str(self),
             "description": self.description,
         }
 
     def __str__(self):
-        return "%s" % self.name
+        return self.name_short if self.name_short else self.name
 
 
 class TeamOnTournamentManager(models.Manager):
@@ -180,6 +183,7 @@ class TeamOnTournament(models.Model):
     default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie',
                                        null=True, blank=True)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
+    name_short = models.CharField('Zkrácené jméno na turnaji', max_length=20, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments', blank=True)
     rank = models.IntegerField('Pořadí', null=True, blank=True)
@@ -197,7 +201,8 @@ class TeamOnTournament(models.Model):
             "captain": self.captain.pk if self.captain else None,
             "default_goalie": self.default_goalie.pk if self.default_goalie else None,
             "name": self.get_name(),
-            "name_pure": self.name if self.name else self.team.name,
+            "name_pure": self.name_pure,
+            "name_short": self.name_short if self.name_short else self.team.name_short,
             "tournament": self.tournament.to_json(teams=False),
             "rank": self.rank,
         }
@@ -221,6 +226,12 @@ class TeamOnTournament(models.Model):
             return "{} ({})".format(self.name, self.team.name)
         else:
             return self.team.name
+
+    @property
+    def name_pure(self):
+        if self.name_short:
+            return self.name_short
+        return self.name if self.name else str(self.team)
 
 
 class Tournament(models.Model):

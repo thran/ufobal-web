@@ -322,7 +322,11 @@ def add_team(request):
     if not name:
         return HttpResponseBadRequest("Chybí jméno týmu")
 
-    team = Team(name=name, description=data.get('description'))
+    name_short = data.get('name_short', None)
+    if name_short == '':
+        name_short = None
+
+    team = Team(name=name, name_short=name_short, description=data.get('description'))
     team.save()
 
     return HttpResponse(team.pk)
@@ -342,7 +346,11 @@ def add_team_on_tournament(request):
     if len(tots) > 0:
         return HttpResponseBadRequest("Tým je již registrován.")
 
-    tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'),
+    name_short = data.get('name_short', None)
+    if name_short == '':
+        name_short = None
+
+    tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'), name_short=name_short,
                                  name=data.get('name'), rank=data.get('rank'), strength=data.get('strength'),
                                  contact_mail=data.get('contact_mail'), contact_phone=data.get('contact_phone'))
     tour_team.save()

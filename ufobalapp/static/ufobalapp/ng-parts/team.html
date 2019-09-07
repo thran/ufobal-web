@@ -5,7 +5,7 @@
 
     <hr>
 
-    <h1>{{ team.name }}</h1>
+    <h1>{{ team.name }} <span ng-if="team.name_short">({{ team.name_short }})</span></h1>
     <h2>
         <span ng-repeat="n in getTeamNames(team) | filter:'!'+team.name:true | orderBy:'-count'">{{ n.name }}<span ng-hide="$last">, </span></span>
     </h2>

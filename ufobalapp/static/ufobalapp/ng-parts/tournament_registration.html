@@ -33,6 +33,10 @@
             <input type="text" ng-model="registration.name" placeholder="{{ team.name }}">
         </label>
         <label>
+            Zkrácené jméno na tomto turnaji (pouze pokud se liší od běžného zkráceného jména týmu)
+            <input type="text" ng-model="registration.name_short" placeholder="{{ team.name_short }}">
+        </label>
+        <label>
             Kontaktní email
             <input type="email" ng-model="registration.contact_mail">
         </label>
@@ -60,6 +64,10 @@
     <label>
         Jméno
         <input type="text" ng-model="newTeam.name">
+    </label>
+    <label>
+        Zkrácené jméno
+        <input type="text" ng-model="newTeam.name_short" placeholder="nepovinné, např. (JZM, DIK, DvT, ...)">
     </label>
     <label>
         Popis (volitelné)
