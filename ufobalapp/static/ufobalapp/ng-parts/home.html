@@ -10,6 +10,7 @@
             <li><b>{{ stats.player_count }}</b> hráčů z toho <b>{{ stats.player_female_count }}</b> žen a <b>{{ stats.player_male_count }}</b> mužů (zbytek asi velbloudi)</li>
             <li><b>{{ stats.team_count }}</b> týmů s jejich <b>{{ stats.team_on_tournament_count }}</b> účastmi na turnajích</li>
             <li><b>{{ stats.goals | number }}</b> gólů a <b>{{ stats.assists | number }}</b> asistencí</li>
+            <li><b>{{ stats.active_players | number }}</b> aktivních hráčů (hrajicích od roku {{ stats.active_players_year }})
         </ul>
     </div>
 

@@ -118,6 +118,10 @@ def pairs(request, tournament_pk):
 
 
 def stats(request):
+    active_players = []
+    active_players_year = datetime.datetime.now().year - 1
+    for tot in TeamOnTournament.objects.filter(tournament__date__gte=datetime.datetime(year=active_players_year, month=1, day=1)).prefetch_related('players'):
+        active_players += [p.pk for p in tot.players.all()]
     data = {
         "tournament_count": Tournament.objects.all().count(),
         "max_year": Tournament.objects.aggregate(Max("date"))["date__max"].year,
@@ -129,6 +133,8 @@ def stats(request):
         "team_on_tournament_count": TeamOnTournament.objects.all().count(),
         "goals": Goal.objects.filter(shooter__isnull=False).count(),
         "assists": Goal.objects.filter(assistance__isnull=False).count(),
+        "active_players": len(set(active_players)),
+        "active_players_year": active_players_year,
     }
     return JsonResponse(data, safe=False)
 
