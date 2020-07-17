@@ -117,13 +117,16 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     }]);
 
 
-app.controller("home", ["$scope", "dataService", function ($scope, dataService) {
+app.controller("home", ["$scope", "dataService", "$sce", function ($scope, dataService, $sce) {
     dataService.getStats().then(function (stats) {
        $scope.stats = stats;
     });
     dataService.getLiveTournament().then(function (tournament) {
        $scope.liveTournament = tournament;
     });
+    $scope.to_trusted = function(html_code) {
+        return $sce.trustAsHtml(html_code);
+    };
 }]);
 
 app.controller("hall_of_fame", ["$scope", "dataService", function ($scope, dataService) {

@@ -4,7 +4,7 @@
 
 `pip install -r requirements.txt`
 
-`python manage.py syncdb`
+`python manage.py makemigrations`
 
 `python manage.py migrate`
 
@@ -27,3 +27,15 @@
 #### build automaticaly on file change
 
 `grunt watch`
+
+#### run server
+python manage.py runserver
+
+## Windows troubles
+Add this into settings.py during development if you encounter encoding errors
+
+```
+import sys
+reload(sys)
+sys.setdefaultencoding('UTF8')
+```
