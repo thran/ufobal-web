@@ -27,8 +27,8 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 controller: "home"
             }).
             when('/sin_slavy', {
-                templateUrl: 'hall_of_fame.html',
-                controller: "hall_of_fame"
+                templateUrl: 'hall_of_records.html',
+                controller: "hall_of_records"
             }).
             when('/sparovat_ucet', {
                 templateUrl: 'pair_account.html',
@@ -129,8 +129,8 @@ app.controller("home", ["$scope", "dataService", "$sce", function ($scope, dataS
     };
 }]);
 
-app.controller("hall_of_fame", ["$scope", "dataService", function ($scope, dataService) {
-    dataService.getHallOfFame().then(function (stats) {
+app.controller("hall_of_records", ["$scope", "dataService", function ($scope, dataService) {
+    dataService.getHallOfRecords().then(function (stats) {
        $scope.stats = stats;
     });
 }]);

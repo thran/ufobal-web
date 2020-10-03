@@ -476,16 +476,16 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         return deferred.promise;
     };
 
-    var hallOfFame = null;
-    self.getHallOfFame = function () {
+    var hallOfRecords = null;
+    self.getHallOfRecords = function () {
         var deferred = $q.defer();
-        if (hallOfFame){
-            deferred.resolve(hallOfFame);
+        if (hallOfRecords){
+            deferred.resolve(hallOfRecords);
             return deferred.promise;
         }
         $http.get(djangoUrl.reverse("api:get_hall_of_glory"))
             .success(function (response) {
-                hallOfFame = response;
+                hallOfRecords = response;
                 deferred.resolve(response);
             });
         return deferred.promise;
