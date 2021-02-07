@@ -6,6 +6,7 @@
     <hr>
 
     <a class="right" href="/skupiny/{{ tournament.pk }}"><button>Skupiny</button></a>
+    <a ng-if="tournament.is_tournament_open" class="right" href="/turnaj/{{ tournament.pk }}" style="margin-right: 10px;"><button>Spravovat</button></a>
 
     <h1>{{ tournament.full_name }}</h1>
 

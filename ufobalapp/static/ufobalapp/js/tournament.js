@@ -51,9 +51,9 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
     $scope.genders = genders;
 
     dataService.getTournament(tournament_id).then(function () {
-        $scope.tournament = dataService.getObject('tournaments', id);
+        $scope.tournament = dataService.getObject('tournaments', tournament_id);
         dataService.getTeams().then(function () {
-            angular.forEach(tournament.teamOnTournaments, function (team) {
+            angular.forEach($scope.tournament.teamOnTournaments, function (team) {
                 if (team.pk === pk) {
                     $scope.team = team;
                 }
@@ -145,7 +145,7 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
         $scope.match.score_two = 0;
         dataService.addMatch($scope.match).success(function () {
             $('#newMatch').foundation('reveal', 'close');
-            if ($scope.tournament.is_day_of_tournament) {
+            if ($scope.tournament.is_tournament_open) {
                 var url = "turnaj/zapas/" + $scope.tournament.pk + "/" + $scope.match.pk + "/edit";
                 $location.path(url);
             }

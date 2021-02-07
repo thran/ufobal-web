@@ -274,7 +274,7 @@ class Tournament(models.Model):
             "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
-            "is_day_of_tournament":
+            "is_tournament_open":
                 not self.closed_edit and (
                     self.date == datetime.date.today()
                     or self.category in [self.LIGA, self.TRENING]
