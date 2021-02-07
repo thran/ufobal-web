@@ -239,27 +239,53 @@ class Tournament(models.Model):
         verbose_name = "turnaj"
         verbose_name_plural = "turnaje"
 
+    BRNO = 'brno'
+    NIZKOV = 'nizkov'
+    HALA = 'hala'
+    OTHER = 'other'
+    LIGA = 'liga'
+    TRENING = 'trening'
+    CATEGORIES = (
+        (BRNO, 'Brno'),
+        (NIZKOV, 'Nížkov'),
+        (HALA, 'Hala'),
+        (OTHER, 'Další'),
+        (LIGA, 'Liga'),
+        (TRENING, 'Tréning'),
+    )
+
+    category = models.CharField(max_length=15, verbose_name='kategorie', choices=CATEGORIES, null=True)
     date = models.DateField('Datum')
     registration_to = models.DateField('Přihlašování do', null=True, blank=True)
-    name = models.CharField('Název/místo', max_length=50)
+    name = models.CharField('Název', max_length=50)
+    location = models.CharField('Lokace', max_length=50, null=True, blank=True)
     halftime_length = models.IntegerField('Délka poločasu', default=8)
     field_count = models.IntegerField('Počet hřišť', default=2)
     description = models.TextField("Popis", null=True, blank=True)
+    closed_edit = models.BooleanField("Uzavřená editace", default=False)
 
     def to_json(self, teams=True, **kwargs):
         data = {
             "pk": self.pk,
+            "category": self.get_category_display(),
             "name": self.name,
+            "location": self.location,
             "full_name": self.name + " " + str(self.date.year),
             "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
-            "is_day_of_tournament": self.date == datetime.date.today() or settings.TEST,
+            "is_day_of_tournament":
+                not self.closed_edit and (
+                    self.date == datetime.date.today()
+                    or self.category in [self.LIGA, self.TRENING]
+                    or settings.TEST
+                ),
             "is_after_tournament": self.date < datetime.date.today() or settings.TEST,
             "halftime_length": self.halftime_length,
             "field_count": self.field_count,
             "year": self.date.year,
-            "description": self.description
+            "description": self.description,
+            "closed_edit": self.closed_edit,
         }
 
         if teams:

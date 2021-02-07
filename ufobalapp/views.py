@@ -233,7 +233,13 @@ def hall_of_glory(request, max_instances=5):
 
 
 def live_tournament(request):
-    return JsonResponse(Tournament.objects.all().order_by("-date")[0].to_json(teams=False), safe=False)
+    tournaments = Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA])
+    return JsonResponse(tournaments.order_by("-date")[0].to_json(teams=False), safe=False)
+
+
+def get_empty_tournaments(request):
+    tournaments = Tournament.objects.filter(teams__isnull=True)
+    return JsonResponse([t.to_json(teams=False) for t in tournaments], safe=False)
 
 
 @user_passes_test_or_401(is_authorized)

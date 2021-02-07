@@ -139,23 +139,31 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 if (object === "teamontournaments") {
                     data.teams = [];
                     dataMaps.teams = {};
-                    if (!dataMaps.tournaments){
+                    if (!dataMaps.tournaments) {
                         data.tournaments = [];
                         dataMaps.tournaments = {};
                     }
-                    getData("players").then(function(){
-                        angular.forEach(response, function(obj) {
+                    getData("players").then(function () {
+                        angular.forEach(response, function (obj) {
                             dataMaps[object][obj.pk] = obj;
                             dataProcessors[object](obj);
                         });
-                        angular.forEach(data.teams, function(team) {
+                        angular.forEach(data.teams, function (team) {
                             self.getTeamNames(team);
                         });
-                        angular.forEach(data.players, function(player) {
+                        angular.forEach(data.players, function (player) {
                             self.getPlayerTeams(player);
                         });
                         resolvePromise("teams");
                         resolvePromise("tournaments");
+                    });
+                }else if (object === "emptyTournaments") {
+                    if (!dataMaps.tournaments){
+                        data.tournaments = [];
+                        dataMaps.tournaments = {};
+                    }
+                    angular.forEach(response, function(obj) {
+                        dataProcessors.tournament(obj);
                     });
                 }else if (object === "liveTournament"){
                     if (!dataMaps.tournaments){
@@ -227,6 +235,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     };
     self.getTournaments = function(){
         getData("players");
+        getData('emptyTournaments');
         return getData("tournaments");
     };
     self.getGoals = function(){

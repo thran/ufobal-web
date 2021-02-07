@@ -5,8 +5,10 @@
         <thead>
         <tr>
             <th width="30%" st-sort="name">Jméno</th>
-            <th width="30%" st-sort="date">Datum</th>
-            <th width="30%">Týmů</th>
+            <th width="20%" st-sort="date">Datum</th>
+            <th width="10%">Týmů</th>
+            <th width="10%">Lokace</th>
+            <th width="10%">Kategorie</th>
         </tr>
         </thead>
         <tbody>
@@ -14,11 +16,13 @@
             <td><a ng-href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></td>
             <td>{{ tournament.date }}</td>
             <td>{{ tournament.teamOnTournaments.length }}</td>
+            <td>{{ tournament.location }}</td>
+            <td>{{ tournament.category }}</td>
         </tr>
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="3" class="text-center">
+                <td colspan="5" class="text-center">
                     <div st-pagination="" st-items-by-page="15" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
                 </td>
             </tr>
