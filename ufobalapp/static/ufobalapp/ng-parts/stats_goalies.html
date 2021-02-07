@@ -21,9 +21,12 @@
                 <legend>Filtrování turnajů</legend>
                 <label class="small-3 columns">od roku<input type="number" placeholder="rok" ng-model="filter.yearFrom"></label>
                 <label class="small-3 columns">do roku<input type="number" placeholder="rok" ng-model="filter.yearTo"></label>
-                <label class="small-2 columns">Nížkov <input type="checkbox" ng-model="filter.nizkov"> </label>
-                <label class="small-2 columns">Brno <input type="checkbox" ng-model="filter.brno"> </label>
-                <label class="small-2 columns">Hala <input type="checkbox" ng-model="filter.hala"> </label>
+                <div class="small-6 columns">
+                    <label class="small-3 columns">Nížkov <input type="checkbox" ng-model="filter.nizkov"> </label>
+                    <label class="small-3 columns">Brno <input type="checkbox" ng-model="filter.brno"> </label>
+                    <label class="small-3 columns">Hala <input type="checkbox" ng-model="filter.hala"> </label>
+                    <label class="small-3 columns">Další <input type="checkbox" ng-model="filter.other"> </label>
+                </div>
                 <div class="fi-x" ng-click="resetTournamentFilter()"></div>
             </fieldset>
         </div>

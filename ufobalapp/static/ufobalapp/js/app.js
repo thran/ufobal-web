@@ -348,6 +348,7 @@ var defaultStatsFilter = {
     nizkov: true,
     brno: true,
     hala: false,
+    other: false,
     man: true,
     woman: true,
 };
@@ -382,9 +383,12 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                         if (
                                 (!filter.yearFrom || tournament.year >= filter.yearFrom) &&
                                 (!filter.yearTo || tournament.year <= filter.yearTo) &&
-                                (filter.nizkov || tournament.name.indexOf("Nížkov") === -1) &&
-                                (filter.brno || tournament.name.indexOf("Brno") === -1) &&
-                                (filter.hala || tournament.name.indexOf("Hala") === -1)
+                                (filter.nizkov || tournament.category_slugname !== "nizkov") &&
+                                (filter.brno || tournament.category_slugname !== "brno") &&
+                                (filter.other || tournament.category_slugname !== "other") &&
+                                (filter.hala || tournament.category_slugname !== "hala" )  &&
+                                tournament.category_slugname !== "liga" &&
+                                tournament.category_slugname !== "trening'"
                         ){
                             $scope.tournaments.push(tournament);
                         }
@@ -469,9 +473,12 @@ app.controller("statsGoalies", ["$scope", "dataService", "$filter", function ($s
                             if (
                                 (!filter.yearFrom || tournament.year >= filter.yearFrom) &&
                                 (!filter.yearTo || tournament.year <= filter.yearTo) &&
-                                (filter.nizkov || tournament.name.indexOf("Nížkov") === -1) &&
-                                (filter.brno || tournament.name.indexOf("Brno") === -1) &&
-                                (filter.hala || tournament.name.indexOf("Hala") === -1) &&
+                                (filter.nizkov || tournament.category_slugname !== "nizkov") &&
+                                (filter.brno || tournament.category_slugname !== "brno") &&
+                                (filter.other || tournament.category_slugname !== "other") &&
+                                (filter.hala || tournament.category_slugname !== "hala" ) &&
+                                tournament.category_slugname !== "liga"  &&
+                                tournament.category_slugname !== "trening'" &&
                                 (tournament.matches.length > 0)
                             ) {
                                 $scope.tournaments.push(tournament);

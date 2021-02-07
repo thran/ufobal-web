@@ -268,6 +268,7 @@ class Tournament(models.Model):
         data = {
             "pk": self.pk,
             "category": self.get_category_display(),
+            "category_slugname": self.category,
             "name": self.name,
             "location": self.location,
             "full_name": self.name + " " + str(self.date.year),
