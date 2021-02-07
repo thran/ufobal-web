@@ -152,7 +152,6 @@ class MatchAdmin(admin.ModelAdmin):
 class TournamentAdmin(admin.ModelAdmin):
     list_display = ['name', 'date', 'category', 'location', 'registration_to', 'halftime_length', 'field_count', 'closed_edit']
     search_fields = ['name', 'date', 'category']
-    inlines = [TeamOnTournamentInline]
 
 
 class GoalAdmin(admin.ModelAdmin):
