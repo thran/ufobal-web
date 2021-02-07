@@ -1,4 +1,6 @@
 .red{ color: darkred; }
+.gray{ color: gray; }
+.small{ font-size: .7em}
 .clickable{
     cursor: pointer;
     user-select: none;

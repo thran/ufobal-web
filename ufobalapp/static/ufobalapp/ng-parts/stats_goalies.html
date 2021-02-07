@@ -48,7 +48,11 @@
             <th>{{ player.rank }}</th>
             <td><a ng-class="player.player.gender" href="" ng-href="hrac/{{ player.pk }}/{{ player.nickname }}">{{player.nickname}}</a></td>
             <td ng-repeat="tournament in tournaments" ng-init="t = player.goalieStats.tournaments[tournament.pk];">
-                <span ng-show="t.success"><b>{{ t.success * 100 | number:1}}%</b> ({{ t.goals }} / {{ t.shots }})</span>
+                <span ng-show="t.success">
+                    <b>{{ t.success * 100 | number:1}}%</b>
+                    <br>
+                    <span class="small ">({{ t.goals }} / {{ t.shots }})</span>
+                </span>
             </td>
             <td class="text-right">{{ player.goalieStats.matchesSum }}</td>
             <td class="text-right">{{ player.goalieStats.shotsSum }}</td>
