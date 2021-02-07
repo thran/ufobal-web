@@ -251,7 +251,7 @@ class Tournament(models.Model):
         (HALA, 'Hala'),
         (OTHER, 'Další'),
         (LIGA, 'Liga'),
-        (TRENING, 'Tréning'),
+        (TRENING, 'Trénink'),
     )
 
     category = models.CharField(max_length=15, verbose_name='kategorie', choices=CATEGORIES, null=True)
