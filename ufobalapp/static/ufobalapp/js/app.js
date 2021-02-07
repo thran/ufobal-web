@@ -121,8 +121,8 @@ app.controller("home", ["$scope", "dataService", "$sce", function ($scope, dataS
     dataService.getStats().then(function (stats) {
        $scope.stats = stats;
     });
-    dataService.getTournament(liveTournamentPk).then(function (tournament) {
-       $scope.liveTournament = tournament;
+    dataService.getTournament(liveTournamentPk).then(function () {
+       $scope.liveTournament = dataService.getObject('tournaments', liveTournamentPk);
     });
     $scope.to_trusted = function(html_code) {
         return $sce.trustAsHtml(html_code);

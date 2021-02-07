@@ -3,9 +3,9 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
     var id = $routeParams.id ? parseInt($routeParams.id) : null;
     $scope.registration = {};
 
-    dataService.getTournament(id).then(prepareTournament = function (tournament) {
-        $scope.tournament = tournament;
-        $scope.registration.tournament = tournament.pk;
+    dataService.getTournament(id).then(prepareTournament = function () {
+        $scope.tournament = dataService.getObject('tournaments', id);
+        $scope.registration.tournament = $scope.tournament.pk;
         dataService.getTeams().then(function (teams) {
             $scope.teams = teams;
         });
@@ -50,8 +50,8 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
     var tournament_id = parseInt($routeParams.tournament_id);
     $scope.genders = genders;
 
-    dataService.getTournament(tournament_id).then(function (tournament) {
-        $scope.tournament = tournament;
+    dataService.getTournament(tournament_id).then(function () {
+        $scope.tournament = dataService.getObject('tournaments', id);
         dataService.getTeams().then(function () {
             angular.forEach(tournament.teamOnTournaments, function (team) {
                 if (team.pk === pk) {
@@ -110,8 +110,8 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
     var id = $routeParams.id ? parseInt($routeParams.id) : null;
     $scope.user = userService.user;
 
-    dataService.getTournament(id).then(function (tournament) {
-        $scope.tournament = tournament;
+    dataService.getTournament(id).then(function () {
+        $scope.tournament = dataService.getObject('tournaments', id);
         if ($scope.tournament.is_after_tournament && !$scope.user.is_staff && $location.path() !== "/turnaj-zive"){
             var url = "turnaj/" + $scope.tournament.pk + "/" + $scope.tournament.full_name;
             $location.path(url);
