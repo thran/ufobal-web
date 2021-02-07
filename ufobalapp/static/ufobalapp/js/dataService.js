@@ -37,14 +37,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 tournament.fields.push("" + i);
             }
         },
-        liveTournament: function(liveTournament){
-            if (dataMaps.tournaments[liveTournament.pk]){
-                liveTournament = dataMaps.tournaments[liveTournament.pk];
-                return;
-            }
-            data.liveTournament = liveTournament;
-            dataProcessors.tournament(liveTournament);
-        },
         teamontournaments: function(teamOnTournament){
             teamOnTournament.matches = [];
             // create and link teams
@@ -165,14 +157,12 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     angular.forEach(response, function(obj) {
                         dataProcessors.tournament(obj);
                     });
-                }else if (object === "liveTournament"){
+                }else if (object === "tournament"){
                     if (!dataMaps.tournaments){
                         data.tournaments = [];
                         dataMaps.tournaments = {};
-                    }else{
-                        data.liveTournament = dataMaps.tournaments[response.pk];
                     }
-                    dataProcessors[object](response);
+                    dataProcessors.tournament(response);
                 }else if (object === "matchs"){
                     self.getTeams().then(function() {
                         self.getPlayers().then(function() {
@@ -238,6 +228,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         getData('emptyTournaments');
         return getData("tournaments");
     };
+    self.getTournament = function(tournament_pk){
+        self.getTeams();
+        return getData("tournament",null, tournament_pk, {"pk": tournament_pk});
+    };
     self.getGoals = function(){
         getData("players");
         return getData("goals");
@@ -245,10 +239,6 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.getPairs = function(tournament_pk){
         getData("players");
         return getData("pairs", null, tournament_pk, {"tournament_pk": tournament_pk});
-    };
-    self.getLiveTournament = function(){
-        self.getTeams();
-        return getData("liveTournament");
     };
     self.getMatches = function (tournament_pk) {
         if (tournament_pk) {

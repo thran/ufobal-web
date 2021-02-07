@@ -21,6 +21,7 @@
     <base href="/">
     <script>
         var user = {{ user | safe | default:"null" }};
+        var liveTournamentPk = {{ live_tournament_pk | default:"null" }};
     </script>
 </head>
 <body ng-app="ufoIS">

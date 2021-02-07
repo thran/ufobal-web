@@ -58,19 +58,19 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'tournaments.html',
                 controller: "tournaments"
             }).
-            when('/turnaj', {
+            when('/turnaj/:id', {
                 templateUrl: 'tournament_main.html',
                 controller: "tournamentMain"
             }).
-            when('/turnaj-zive', {
+            when('/turnaj-zive/:id', {
                 templateUrl: 'tournament_live.html',
                 controller: "tournamentMain"
             }).
-            when('/turnaj/tym/:id', {
+            when('/turnaj/:tournament_id/tym/:id', {
                 templateUrl: 'tournament_team.html',
                 controller: "tournamentTeam"
             }).
-            when('/turnaj/prihlasovani', {
+            when('/turnaj/prihlasovani/:id', {
                 templateUrl: 'tournament_registration.html',
                 controller: "tournamentRegistration"
             }).
@@ -121,7 +121,7 @@ app.controller("home", ["$scope", "dataService", "$sce", function ($scope, dataS
     dataService.getStats().then(function (stats) {
        $scope.stats = stats;
     });
-    dataService.getLiveTournament().then(function (tournament) {
+    dataService.getTournament(liveTournamentPk).then(function (tournament) {
        $scope.liveTournament = tournament;
     });
     $scope.to_trusted = function(html_code) {

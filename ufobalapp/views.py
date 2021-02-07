@@ -51,9 +51,12 @@ def is_authorized(user):
 
 def get_json_one(request, model_class, pk):
     obj = get_object_or_404(model_class, pk=pk)
+    kwargs = {}
+    if model_class == Tournament:
+        kwargs['teams'] = False
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(obj.to_json(), indent=4)})
-    return JsonResponse(obj.to_json())
+    return JsonResponse(obj.to_json(**kwargs))
 
 
 def get_json_all(request, model_class):
@@ -230,11 +233,6 @@ def hall_of_glory(request, max_instances=5):
         },
     }
     return JsonResponse(data, safe=False)
-
-
-def live_tournament(request):
-    tournaments = Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA])
-    return JsonResponse(tournaments.order_by("-date")[0].to_json(teams=False), safe=False)
 
 
 def get_empty_tournaments(request):
@@ -905,4 +903,5 @@ def home(request):
         "DEBUG": settings.DEBUG,
         "TEST": settings.TEST,
         "user": json.dumps(get_user_data(request)),
+        "live_tournament_pk": Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA]).order_by("-date")[0].pk,
     })
