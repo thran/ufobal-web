@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import datetime
+import math
 import os
 
 import qrcode
@@ -526,3 +527,61 @@ class Group(models.Model):
             "level": self.level,
             "name": self.name,
         }
+
+    def is_playoff(self, teams, matches):
+        return len(teams) * math.log2(len(teams)) / 2 == len(matches) and len(teams) == 8
+
+    def infer_playoff(self, teams, matches):
+        matches = sorted(matches, key=lambda m: m.start if m.start else m.end)
+        rounds = []
+        team_count = len(teams)
+
+        for team in teams:
+            team.signature = []
+            team.matches = []
+            for match in matches:
+                assert match.score_one() != match.score_two()
+                if team == match.team_one:
+                    team.signature.append(1 if match.score_one() > match.score_two() else 0)
+                    team.matches.append(match)
+                elif team == match.team_two:
+                    team.signature.append(1 if match.score_one() < match.score_two() else 0)
+                    team.matches.append(match)
+
+        teams = sorted(teams, key=lambda t: t.signature, reverse=True)
+        team_map = {team.pk: team for team in teams}
+        round = teams[:1]
+        for i in range(int(math.log2(team_count))):
+            for j, team in enumerate(list(round)):
+                match = team.matches[- i - 1]
+                other_team = team_map[match.team_one.pk] if match.team_one.pk != team.pk else team_map[match.team_two.pk]
+                round.insert(2 * j + 1, other_team)
+        rounds.append(round)
+
+        for i in range(int(math.log2(team_count))):
+            round = [None] * team_count
+
+            looser_offset = 2 ** (int(math.log2(team_count)) - i - 1)
+            for j in range(team_count // 2):
+                team1, team2 = rounds[i][2 * j], rounds[i][2 * j + 1]
+                assert team1.signature[i] == 1 - team2.signature[i]
+                winner, looser = (team1, team2) if team1.signature[i] == 1 else (team2, team1)
+                offset = j // looser_offset * looser_offset
+                round[j + offset] = winner
+                round[j + offset + looser_offset] = looser
+
+            assert None not in round
+            rounds.append(round)
+
+        results = []
+        for i, round in enumerate(rounds[:-1]):
+            result = []
+            for team in round:
+                r = team.to_json(players=False)
+                match = team.matches[i]
+                r['score'] = match.score_one() if match.team_one.pk == team.pk else match.score_two()
+                r['win'] = bool(team.signature[i])
+                result.append(r)
+            results.append(result)
+
+        return results

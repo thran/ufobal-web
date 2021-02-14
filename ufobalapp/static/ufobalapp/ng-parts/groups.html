@@ -6,8 +6,8 @@
 <div class="loader" ng-hide="groups"></div>
 
 <div ng-repeat="group in groups">
-    <h3>{{ group.name }}</h3>
-    <table class="group">
+    <h3 id="{{ group.name }}">{{ group.name }}</h3>
+    <table class="group" ng-if="!group.playoff">
         <tr class="first-line">
             <th></th>
             <th ng-repeat="team in group.teams"><a href="/tym/{{ team.team.pk }}/{{ team.team.name }}">{{ team.name_pure }}</a></th>
@@ -24,6 +24,453 @@
                 {{ stats['looses'] }}<span ng-show="stats['loosesP']">({{ stats['loosesP'] }}P)</span> /
                 {{ stats['draws'] }}</span></td>
             <td><span ng-show="stats['score']">{{ stats['score'][0] }} : {{ stats['score'][1] }}</span></td>
+        </tr>
+    </table>
+
+    <table class="playoff" ng-if="group.playoff">
+        <tr>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[0][0].win }">{{ group.playoff[0][0].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[0][0].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan=2 ng-class="{bold: group.playoff[0][1].win }">{{ group.playoff[0][1].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[0][1].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[1][0].win }">{{ group.playoff[1][0].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[1][0].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[1][1].win }">{{ group.playoff[1][1].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[1][1].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[0][2].win }">{{ group.playoff[0][2].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[0][2].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan=2 ng-class="{bold: group.playoff[0][3].win }">{{ group.playoff[0][3].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[0][3].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td class="gray">Finále</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[2][0].win }">{{ group.playoff[2][0].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[2][0].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black"></td>
+            </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[2][1].win }">{{ group.playoff[2][1].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[2][1].score }}</td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[0][4].win }">{{ group.playoff[0][4].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[0][4].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td rowspan=2 ng-class="{bold: group.playoff[0][5].win }">{{ group.playoff[0][5].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[0][5].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2  ng-class="{bold: group.playoff[1][2].win }">{{ group.playoff[1][2].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[1][2].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td class="gray">O 3. místo</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[2][2].win }">{{ group.playoff[2][2].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[2][2].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[1][3].win }">{{ group.playoff[1][3].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[1][3].score }}</td>
+            <td></td>
+            <td></td>
+            </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[0][6].win }">{{ group.playoff[0][6].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[0][6].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[2][3].win }">{{ group.playoff[2][3].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[2][3].score }}</td>
+        </tr>
+        <tr>
+            <td style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+        <tr>
+            <td rowspan=2 ng-class="{bold: group.playoff[0][7].win }">{{ group.playoff[0][7].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[0][7].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[1][4].win }">{{ group.playoff[1][4].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[1][4].score }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[1][5].win }">{{ group.playoff[1][5].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[1][5].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td class="gray">O 5. místo</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[2][4].win }">{{ group.playoff[2][4].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[2][4].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td style="border-bottom: 1px solid black"></td>
+            </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[2][5].win }">{{ group.playoff[2][5].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[2][5].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[1][6].win }">{{ group.playoff[1][6].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[1][6].score }}</td>
+            <td style="border-right: 1px solid black"></td>
+            <td></td>
+            <td class="gray">O 7. místo</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+            <td></td>
+            <td style="border-bottom: 1px solid black" rowspan=2 ng-class="{bold: group.playoff[2][6].win }">{{ group.playoff[2][6].team.name_pure }}</td>
+            <td style="border-bottom: 1px solid black" rowspan=2>{{ group.playoff[2][6].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td rowspan=2  ng-class="{bold: group.playoff[1][7].win }">{{ group.playoff[1][7].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[1][7].score }}</td>
+            <td></td>
+            <td></td>
+            </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td rowspan=2 ng-class="{bold: group.playoff[2][7].win }">{{ group.playoff[2][7].team.name_pure }}</td>
+            <td rowspan=2>{{ group.playoff[2][7].score }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
         </tr>
     </table>
     <hr>

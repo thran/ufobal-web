@@ -7,14 +7,14 @@ from collections import defaultdict
 from itertools import takewhile
 
 from django.core.cache import cache
-from django.db.models import Prefetch, Count, Max, Min, F
+from django.core.mail import send_mail
+from django.db.models import Prefetch, Count, Max, Min
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from django.utils.six import wraps
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from django.core.mail import send_mail
 
 from managestats.views import is_staff_check
 from ufobal import settings
@@ -843,7 +843,9 @@ def get_groups(request, tournament_id=None):
     group_teams = defaultdict(lambda: [])
     groups = Group.objects.filter(tournament=tournament).order_by('level', 'name').prefetch_related('tournament', 'teams')
     for group in groups:
-        group_teams[group.level].append(list(team.pk for team in group.teams.all()))
+        group.team_list = list(group.teams.all())
+        group_teams[group.level].append(list(team.pk for team in group.team_list))
+        group.matches = []
 
     matches = defaultdict(lambda: {})
     levels = defaultdict(lambda: 1)
@@ -860,6 +862,9 @@ def get_groups(request, tournament_id=None):
         while not is_match_in_level(match, level) and level < 100:
             level += 1
         levels[key] = level + 1
+        for group in groups:
+            if group.level == level and match.team_one in group.team_list and match.team_two in group.team_list:
+                group.matches.append(match)
 
         matches["{}-{}".format(one_id, two_id)][str(level)] = [score_one, score_two, match.with_shootout()]
         matches["{}-{}".format(two_id, one_id)][str(level)] = [score_two, score_one, match.with_shootout()]
@@ -884,8 +889,22 @@ def get_groups(request, tournament_id=None):
             stats[str(one_id)][str(level)]['draws'] += 1
             stats[str(two_id)][str(level)]['draws'] += 1
 
+    for group in groups:
+        if group.is_playoff(group.team_list, group.matches):
+            try:
+                group.playoff = group.infer_playoff(group.team_list, group.matches)
+            except AssertionError as error:
+                print(error)
+
+    groups_data = []
+    for group in groups:
+        d = group.to_json()
+        if hasattr(group, 'playoff'):
+            d['playoff'] = group.playoff
+        groups_data.append(d)
+
     data = {
-        'groups': [group.to_json() for group in groups],
+        'groups': groups_data,
         'matches': matches,
         'stats': stats,
     }
