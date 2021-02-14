@@ -841,7 +841,7 @@ def get_groups(request, tournament_id=None):
 
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     group_teams = defaultdict(lambda: [])
-    groups = Group.objects.filter(tournament=tournament).order_by('level', 'name').prefetch_related('tournament', 'teams')
+    groups = Group.objects.filter(tournament=tournament).order_by('-level', 'name').prefetch_related('tournament', 'teams')
     for group in groups:
         group.team_list = list(group.teams.all())
         group_teams[group.level].append(list(team.pk for team in group.team_list))
