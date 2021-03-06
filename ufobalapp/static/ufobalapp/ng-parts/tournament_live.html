@@ -6,7 +6,7 @@
 
     <a class="right" href="/skupiny/{{ tournament.pk }}"><button>Skupiny</button></a>
     <a class="right" style="margin-right: 10px;" href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
-    <a class="right" style="margin: 0 10px;" href="/turnaj"><button>Správa turnaje</button></a>
+    <a class="right" style="margin: 0 10px;" href="/turnaj/{{ tournament.pk }}"><button>Správa turnaje</button></a>
     <div class="small switch right text-right" style="margin-bottom: 0">živě<br><input id='refresh' type="checkbox" ng-model="refresh"><label for="refresh"></label></div>
 
     <h1>{{ tournament.full_name }}</h1>
