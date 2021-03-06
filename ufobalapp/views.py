@@ -291,6 +291,9 @@ def add_attendance(request):
 
     player = get_object_or_404(Player, pk=data["player"])
     team = get_object_or_404(TeamOnTournament, pk=data["team"])
+    if player.tournaments.filter(tournament=team.tournament).count():
+        return HttpResponseBadRequest(f'Hráč už hraje v týmu {player.tournaments.filter(tournament=team.tournament).first().get_name()}')
+
     player.tournaments.add(team)
 
     return HttpResponse("OK")

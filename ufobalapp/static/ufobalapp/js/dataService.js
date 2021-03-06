@@ -335,8 +335,9 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 }
                 player.saving = false;
             })
-            .error(function(){
+            .error(function(result){
                 player.saving = false;
+                toastr.error(result);
             });
     };
 
