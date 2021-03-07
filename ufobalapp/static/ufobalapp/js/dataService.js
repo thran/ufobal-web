@@ -619,17 +619,25 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     };
 
     self.ping = function () {
-        return $http.get(djangoUrl.reverse("api:ping"));
+        return $http.get(djangoUrl.reverse("api:ping"))
+            .then(function (response) {
+                return response.data;
+            });
     };
 
     self.createPairingRequest = function(player, text) {
         return $http.post(djangoUrl.reverse("api:create_pairing_request", {player_id: player.pk}), {
             text: text
-        });
+        }).then(function (response) {
+                return response.data;
+            });
     };
 
     self.getGroups = function(tournament_id) {
-        return $http.get(djangoUrl.reverse("api:get_groups", {tournament_id: tournament_id}));
+        return $http.get(djangoUrl.reverse("api:get_groups", {tournament_id: tournament_id}))
+            .then(function (response) {
+                return response.data;
+            });
     };
 
     self.getRefereeFeedbacks = function(tournament_id) {
