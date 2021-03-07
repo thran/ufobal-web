@@ -609,7 +609,7 @@ class RefereeFeedback(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Feedback on {self.match} from {self.author_team}'
+        return 'Feedback on {} from {}'.format(self.match, self.author_team)
 
     def to_json(self):
         return {
