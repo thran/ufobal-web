@@ -13,7 +13,7 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
 
     $scope.addTeam = function () {
         dataService.addTeam($scope.newTeam)
-            .success(function () {
+            .then(function () {
                 $('#newTeam').foundation('reveal', 'close');
                 $scope.team = $scope.newTeam;
                 $scope.newTeam = {};
@@ -23,11 +23,11 @@ app.controller("tournamentRegistration", ["$scope", "dataService", "$location", 
     $scope.register = function () {
         $scope.error = null;
         dataService.addTeamOnTournament($scope.registration)
-            .success(function (pk) {
+            .then(function (pk) {
                 $scope.registration = {};
                 $location.path("/turnaj/" + id + "/tym/" + pk);
             })
-            .error(function (msg) {
+            .catch(function (msg) {
                 $scope.error = msg;
             });
     };
@@ -83,7 +83,7 @@ app.controller("tournamentTeam", ["$scope", "dataService", "$routeParams", funct
     $scope.addPlayer = function () {
         $scope.newPlayer.full_name = $scope.newPlayer.nickname;
         dataService.addPlayer($scope.newPlayer)
-            .success(function () {
+            .then(function () {
                 $('#newPlayer').foundation('reveal', 'close');
                 dataService.addAttendance($scope.newPlayer, $scope.team);
                 $scope.newPlayer = {};
@@ -143,14 +143,14 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
         $scope.match.team_two.goalie = $scope.match.team_two.defaultGoalie;
         $scope.match.score_one = 0;
         $scope.match.score_two = 0;
-        dataService.addMatch($scope.match).success(function () {
+        dataService.addMatch($scope.match).then(function () {
             $('#newMatch').foundation('reveal', 'close');
             if ($scope.tournament.is_tournament_open) {
                 var url = "turnaj/zapas/" + $scope.tournament.pk + "/" + $scope.match.pk + "/edit";
                 $location.path(url);
             }
             $scope.match = null;
-        }).error(function (error) {
+        }).catch(function (error) {
             $scope.match.saving_error = error;
         });
     };
@@ -222,7 +222,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
                         var i = $interval(function () {
                             if ($scope.refresh) {
                                 var tournament = dataService.getObject("tournaments", tournamentId);
-                                dataService.refreshTournament(tournament).success(function () {
+                                dataService.refreshTournament(tournament).then(function () {
                                     prepareMatch(tournament.matches);
                                 });
                             }
@@ -300,7 +300,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
     var saveMatch = function (match) {
         match.changed = true;
-        dataService.saveMatch(match).success(function () {
+        dataService.saveMatch(match).then(function () {
             match.changed = false;
         }).finally(saveDataLocally);
     };
@@ -470,7 +470,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     $scope.remove = function (event) {
         if (confirm("Opravdu smazat?")) {
             if (event.data.pk) {
-                dataService.removeEvent(event.data, event.type).success(function () {
+                dataService.removeEvent(event.data, event.type).then(function () {
                     $scope.match.events.splice($scope.match.events.indexOf(event), 1);
                     if (event.type === "goal"){
                         if (event.team === $scope.match.team_one){
@@ -610,16 +610,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
         if ($scope.onlyView){
             return;
         }
-        dataService.ping().success(function () {
+        dataService.ping().then(function () {
             loadMatchLocalData();
             angular.forEach($scope.match.events, function (event) {
                 if (!event.saved && !event.data.saving) {
                     if (event.type === "goalieChange"){
-                        dataService.goalieChange(event.data).success(function () {
+                        dataService.goalieChange(event.data).then(function () {
                             event.saved = true;
                         }).finally(saveDataLocally);
                     }else {
-                        dataService.saveEvent(event.data, event.type).success(function () {
+                        dataService.saveEvent(event.data, event.type).then(function () {
                             event.saved = true;
                             if (event.type === "goal" && !event.onlyEdit){
                                 if (event.team === $scope.match.team_one){
@@ -686,7 +686,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
 
 app.controller("groups", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
     var tournament_id = parseInt($routeParams.id);
-    dataService.getGroups(tournament_id).success(function(data){
+    dataService.getGroups(tournament_id).then(function(data){
         $scope.groups = data.groups;
         $scope.matches = data.matches;
         $scope.stats = data.stats;

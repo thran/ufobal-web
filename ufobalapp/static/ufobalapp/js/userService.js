@@ -16,8 +16,10 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
     self.loadUser = function(){
         self.status.loading = true;
         return $http.get(djangoUrl.reverse("api:user_profile"))
-            .success(function(response){
+            .then(function(response){
+                response = response.data;
                 _processUser(response);
+                return response;
             })
             .finally(function(response){
                 self.status.loading = false;
@@ -41,9 +43,11 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
     self.logout = function(){
         self.status.loading = true;
         $http.get(djangoUrl.reverse("api:logout"))
-            .success(function(response){
+            .then(function(response){
+                response = response.data;
                 clearObj(self.user);
                 self.status.logged = false;
+                return response;
             })
             .finally(function(response){
                 self.status.loading = false;
@@ -52,10 +56,13 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
 
     self.pairUser = function (token) {
         return $http.post(djangoUrl.reverse("api:pair_user", {pairing_token: token}), {})
-            .success(function(player){
+            .then(function(response){
+                var player = response.data;
                 self.user.player = player;
+                return player;
             })
-            .error(function(response){
+            .catch(function(error){
+                throw error.data;
             });
     };
 
@@ -88,11 +95,13 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
             username: username,
             password: pass
         });
-        promise.success(function(response){
-                _processUser(response);
+        promise.then(function(response){
+                _processUser(response.data);
+                return response.data;
             })
-            .error(function(response){
-                self.error = response;
+            .catch(function(error){
+                self.error = error.data;
+                throw error.data;
             })
             .finally(function(response){
                 self.status.loading = false;
@@ -104,11 +113,13 @@ app.service("userService", ["$http", "djangoUrl", function($http, djangoUrl){
         self.status.loading = true;
         _resetError();
         var promise = $http.post(djangoUrl.reverse("api:signup"), data);
-        promise.success(function(response){
-                _processUser(response);
+        promise.then(function(response){
+                _processUser(response.data);
+                return response.data;
             })
-            .error(function(response){
-                self.error = response;
+            .catch(function(error){
+                self.error = error.data;
+                throw error.data;
             })
             .finally(function(response){
                 self.status.loading = false;
@@ -147,7 +158,7 @@ app.controller("auth", ["$scope", "userService", "$location", "$routeParams", "$
     };
 
     $scope.pairUser = function (token) {
-        userService.pairUser(token).success(function(){
+        userService.pairUser(token).then(function(){
             $scope.openProfile();
         })
         .error(function(response){
@@ -158,18 +169,18 @@ app.controller("auth", ["$scope", "userService", "$location", "$routeParams", "$
     $scope.credentials = {};
     $scope.login = function () {
         userService.login($scope.credentials.username, $scope.credentials.password)
-            .success(function () {
+            .then(function () {
                 $('#login-modal').foundation('reveal', 'close');
-            }).error(function (response) {
+            }).catch(function (response) {
                 toastr.error(response.error);
         });
     };
 
     $scope.signup = function () {
         userService.signup($scope.credentials)
-            .success(function () {
+            .then(function () {
                 $('#sign-up-modal').foundation('reveal', 'close');
-            }).error(function (response) {
+            }).catch(function (response) {
                 toastr.error(response.error);
         });
     };

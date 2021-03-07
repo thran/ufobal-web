@@ -319,7 +319,7 @@ app.controller("player", ["$scope", "dataService", "$routeParams", "userService"
 
     $scope.save = function(){
         dataService.savePlayer($scope.player)
-            .success(function(){
+            .then(function(){
                 $scope.edit = false;
             });
     };
@@ -332,10 +332,10 @@ app.controller("player", ["$scope", "dataService", "$routeParams", "userService"
         var text = prompt("Nějaké dodatečné informace pro spárování s hráčem? " +
             "Třeba odkaz někam, kde je tvoje jméno i fotka.", "");
         dataService.createPairingRequest($scope.player, text)
-            .success(function () {
+            .then(function () {
                 toastr.info('Žádost o spárování odeslána.');
             })
-            .error(function (response) {
+            .catch(function (response) {
                 toastr.error('Chyba: ' + response);
             });
     };

@@ -125,7 +125,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     var getDataFromServer = function(object, cacheName, filter, url_params){
         $http.get(djangoUrl.reverse("api:get_" + object, url_params), {params: filter})
-            .success(function(response){
+            .then(function(response){
+                response = response.data;
                 data[cacheName] = response;
                 dataMaps[object] = {};
                 if (object === "teamontournaments") {
@@ -179,19 +180,23 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     });
                 }
                 resolvePromise(cacheName);
+                return response;
             })
-            .error(function (response, status, headers, config) {
+            .catch(function (response, status, headers, config) {
+                response = response.data;
                 rejectPromise(cacheName, response, status);
                 if (object === "teamontournaments"){
                     rejectPromise("teams", response, status);
                     rejectPromise("tournaments", response, status);
                 }
+                throw response.data;
             });
     };
 
     var getGoals = function(){
         $http.get(djangoUrl.reverse("api:get_goals"))
-            .success(function(response) {
+            .then(function(response) {
+                response = response.data;
                 data.goals = response;
                 getData("players").then(function(){
                     angular.forEach(response.goals, function(goals) {
@@ -208,9 +213,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     });
                     resolvePromise("goals");
                 });
+                return response;
             })
-            .error(function (response, status, headers, config) {
+            .catch(function (response, status, headers, config) {
                 rejectPromise("goals", response, status);
+                throw response.data;
             });
     };
 
@@ -260,24 +267,29 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
 
     self.refreshTournament = function(tournament){
         return $http.get(djangoUrl.reverse("api:get_matchs"), {params: {"tournament": tournament.pk}})
-            .success(function(matches){
+            .then(function(response){
+                var matches = response.data;
                 tournament.matches = [];
                 angular.forEach(matches, function (match) {
                     dataProcessors.matchs(match);
                 });
+                return matches;
             });
     };
 
     self.addTeam = function(newTeam){
         newTeam.saving = true;
         return $http.post(djangoUrl.reverse("api:add_team"), newTeam)
-            .success(function (pk) {
+            .then(function (response) {
+                var pk = response.data;
                 newTeam.saving = false;
                 newTeam.pk = parseInt(pk);
                 dataProcessors.team(newTeam);
+                return pk;
             })
-            .error(function () {
+            .catch(function (error) {
                 newTeam.saving = false;
+                throw error.data;
             });
     };
 
@@ -286,15 +298,18 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         var player_to_save = shallowCopy(player);
         player_to_save.birthdate = $filter('date')(player.birthdate, "yyyy-MM-dd");
         return $http.post(djangoUrl.reverse("api:add_player"), player_to_save)
-            .success(function (pk) {
+            .then(function (response) {
+                var pk = response.data;
                 player.saving = false;
                 player.pk = parseInt(pk);
                 dataProcessors.players(player);
                 data.players.push(player);
                 dataMaps.players[pk] = player;
+                return pk;
             })
-            .error(function () {
+            .catch(function (error) {
                 player.saving = false;
+                throw error.data;
             });
     };
 
@@ -304,7 +319,8 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             delete  registration.name;
         }
         return $http.post(djangoUrl.reverse("api:add_team_on_tournament"), registration)
-            .success(function (pk) {
+            .then(function (response) {
+                var pk = response.data;
                 registration.saving = false;
                 var team = dataMaps.teams[registration.team];
                 var teamOnTournament = {
@@ -318,15 +334,16 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 dataMaps.tournaments[registration.tournament].teamOnTournaments.push(teamOnTournament);
                 team.teamOnTournaments.push(teamOnTournament);
             })
-            .error(function () {
+            .catch(function (error) {
                 registration.saving = false;
+                throw error.data;
             });
     };
 
     self.addAttendance = function(player, team){
         player.saving = true;
         return $http.post(djangoUrl.reverse("api:add_attendance"), { player: player.pk, team: team.pk})
-            .success(function(){
+            .then(function(response){
                 if (player.tournaments.indexOf(team) === -1){
                     player.tournaments.push(team);
                 }
@@ -334,23 +351,27 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                     team.players.push(player);
                 }
                 player.saving = false;
+                return response.data;
             })
-            .error(function(result){
+            .catch(function(error){
                 player.saving = false;
-                toastr.error(result);
+                toastr.error(error);
+                throw error.data;
             });
     };
 
     self.removeAttendance = function(player, team){
         player.saving = true;
         return $http.delete(djangoUrl.reverse("api:remove_attendance", [player.pk, team.pk]))
-            .success(function(){
+            .then(function(response){
                 player.tournaments.splice(player.tournaments.indexOf(team), 1);
                 team.players.splice(team.players.indexOf(player), 1);
                 player.saving = false;
+                return response.data;
             })
-            .error(function(){
+            .catch(function(error){
                 player.saving = false;
+                throw error.data;
             });
     };
 
@@ -367,11 +388,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         var player_to_save = shallowCopy(player);
         player_to_save.birthdate = $filter('date')(player.birthdate, "yyyy-MM-dd");
         return $http.post(djangoUrl.reverse("api:save_player"), player_to_save)
-            .success(function(response){
+            .then(function(response){
                 player.saving = false;
+                return response.data;
             })
-            .error(function (response) {
+            .catch(function (error) {
                 player.saving = false;
+                return error.data;
             });
     };
 
@@ -469,9 +492,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             return deferred.promise;
         }
         $http.get(djangoUrl.reverse("api:get_stats"))
-            .success(function (response) {
+            .then(function (response) {
+                response = response.data;
                 stats = response;
                 deferred.resolve(response);
+                return response;
+            }).catch(function (error) {
+                return error.data;
             });
         return deferred.promise;
     };
@@ -484,35 +511,45 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             return deferred.promise;
         }
         $http.get(djangoUrl.reverse("api:get_hall_of_glory"))
-            .success(function (response) {
+            .then(function (response) {
+                response = response.data;
                 hallOfRecords = response;
                 deferred.resolve(response);
+                return response;
+            }).catch(function (error) {
+                return error.data;
             });
         return deferred.promise;
     };
 
     self.addMatch = function (match) {
         match.saving = true;
-        return $http.post(djangoUrl.reverse("api:add_match"), shallowCopy(match, true)).success(function (pk) {
-            match.pk = parseInt(pk);
-            match.tournament.matches.push(match);
-            match.team_one.matches.push(match);
-            match.team_two.matches.push(match);
-            match.saving = false;
-            dataMaps.matchs[pk] = match.pk;
-            data["matchs" + match.tournament.pk].push(match);
-        }).error(function () {
-            match.saving = false;
-        });
+        return $http.post(djangoUrl.reverse("api:add_match"), shallowCopy(match, true))
+            .then(function (response) {
+                var pk = response.data;
+                match.pk = parseInt(pk);
+                match.tournament.matches.push(match);
+                match.team_one.matches.push(match);
+                match.team_two.matches.push(match);
+                match.saving = false;
+                dataMaps.matchs[pk] = match.pk;
+                data["matchs" + match.tournament.pk].push(match);
+                return pk;
+            }).catch(function (error) {
+                match.saving = false;
+                throw error.data;
+            });
     };
 
     self.saveMatch = function (match) {
         match.saving = true;
         return $http.post(djangoUrl.reverse("api:edit_match", {match_id: match.pk}), shallowCopy(match, true))
-            .success(function () {
+            .then(function (response) {
                 match.saving = false;
-            }).error(function () {
+                return response.data;
+            }).catch(function (error) {
                 match.saving = false;
+                throw error.data;
             });
     };
 
@@ -522,11 +559,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             var params = {};
             params[type + "_id"] = event.pk;
             return $http.delete(djangoUrl.reverse("api:remove_"+type, params))
-                .success(function () {
+                .then(function (response) {
                     event.saving = false;
+                    return response.data;
                 })
-                .error(function () {
+                .catch(function (error) {
                     event.saving = false;
+                    throw error.data;
                 });
         }else{
             console.error("PK is missing");
@@ -537,23 +576,28 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         if (!event.pk){
             event.saving = true;
             return $http.post(djangoUrl.reverse("api:add_"+type), shallowCopy(event, true))
-                .success(function (pk) {
+                .then(function (response) {
+                    var pk = response.data;
                     event.saving = false;
                     event.pk = parseInt(pk);
+                    return pk;
                 })
-                .error(function () {
+                .catch(function (error) {
                     event.saving = false;
+                    throw error.data;
                 });
         }else{
             event.saving = true;
             var params = {};
             params[type + "_id"] = event.pk;
             return $http.post(djangoUrl.reverse("api:edit_"+type, params), shallowCopy(event, true))
-                .success(function () {
+                .then(function (response) {
                     event.saving = false;
+                    return response.data;
                 })
-                .error(function () {
+                .catch(function (error) {
                     event.saving = false;
+                    throw error.data;
                 });
         }
     };
@@ -564,11 +608,13 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             match_id: goalieChange.match.pk,
             team_id: goalieChange.team.pk
         }), shallowCopy(goalieChange, true))
-            .success(function () {
+            .then(function (response) {
                 goalieChange.saving = false;
+                return response.data;
             })
-            .error(function () {
+            .catch(function (error) {
                 goalieChange.saving = false;
+                throw error.data;
             });
     };
 
