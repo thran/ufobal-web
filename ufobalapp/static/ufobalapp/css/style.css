@@ -28,6 +28,10 @@
     border-top: lightgray 1px solid;
 }
 
+button {
+    padding: 0.7rem 1rem 0.7rem;
+}
+
 button.fixed{
     top: 300px;
     width: 100px;
@@ -264,4 +268,16 @@ fieldset > .fi-x{ top: 2em; right: 1.3em }
 
 .playoff tr:nth-of-type(even) {
     background: none;
+}
+
+.stars {
+    width: 200px;
+    float: left;
+}
+
+button.pl-button {
+    padding: 8px 15px;
+    float: left;
+    font-size: 1.3rem;
+    font-weight: bold;
 }

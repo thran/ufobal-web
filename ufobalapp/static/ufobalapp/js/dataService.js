@@ -633,7 +633,28 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     };
 
     self.getRefereeFeedbacks = function(tournament_id) {
-        return $http.get(djangoUrl.reverse("api:get_referee_feedbacks", {tournament_id: tournament_id}));
+        return $http.get(djangoUrl.reverse("api:get_referee_feedbacks", {tournament_id: tournament_id}))
+            .then(function (response) {
+                return response.data;
+            }).catch(function (error) {
+                toastr.error(error.data);
+                throw error.data;
+            });
+    };
+
+    self.saveFeedback = function(feedback) {
+        feedback.saving = true;
+        return $http.post(djangoUrl.reverse("api:save_referee_feedback"), feedback)
+            .then(function (response){
+                var pk = response.data;
+                feedback.pk = parseInt(pk);
+                feedback.saving = false;
+                return pk;
+            }).catch(function (error) {
+                feedback.saving = false;
+                toastr.error(error.data);
+                throw error.data;
+            });
     };
 }]);
 

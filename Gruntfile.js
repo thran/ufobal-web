@@ -17,7 +17,8 @@ grunt.initConfig({
                 'bower_components/moment/min/moment.min.js',
                 'bower_components/humanize-duration/humanize-duration.js',
                 'bower_components/foundation/js/foundation.min.js',
-                'bower_components/toastr/toastr.min.js'
+                'bower_components/toastr/toastr.min.js',
+                'ufobalapp/static/ufobalapp/js/libs/star-rating.js'
             ],
             dest: 'static/dist/libs.min.js'
         },

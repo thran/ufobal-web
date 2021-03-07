@@ -3,34 +3,61 @@
 
 <h1>Hodnocení rozhodčích - {{ tournament.full_name }}</h1>
 
-<div class="loader" ng-hide="matches"></div>
+<div class="loader" ng-hide="matches || error"></div>
+
+<div class="red" ng-show="error">{{ error }}</div>
 
 <div ng-repeat="match in matches">
-    <b>{{ match.referee_team.name_pure }}</b>: {{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}
-    -
-    <a ng-hide="match.feedback" href="#" data-reveal-id="feedback-modal" ng-click="newFeedback(match)">nové hodnocení</a>
-    <a ng-show="match.feedback" href="#" data-reveal-id="feedback-modal" ng-click="editFeedback(match)">upravit hodnocení</a>
+    <span ng-class="{gray: match.referee_feedback}">
+        <b>{{ match.referee_team.name_pure }}</b>: {{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}
+        -
+        <a ng-hide="match.referee_feedback" href="#" data-reveal-id="feedback-modal" ng-click="newFeedback(match)">hodnotit</a>
+        <a ng-show="match.referee_feedback" href="#" data-reveal-id="feedback-modal" ng-click="editFeedback(match)">upravit</a>
+    </span>
     <br><br>
 </div>
 
-
 <div id="feedback-modal" class="large reveal-modal" data-reveal aria-hidden="true" role="dialog">
-    <h2 id="modalTitle">{{ match.referee_team.name_pure }}</h2>
+    <button style="float: right" ng-hide="match.referee_feedback.saving" ng-disabled="feedback.stars == 0" ng-click="save()">Uložit</button>
+    <h1 id="modalTitle">{{ match.referee_team.name_pure }}</h1>
     hlavní rozhodčí: <b>{{ match.referee.full_name }}</b>
-    {{ match.feedback }}
-    <label>
-        Hodnocení
-{#        <star-rating-comp rating="'3.0'"></star-rating-comp>#}
-    </label>
-    <label>
-        Plusy
-        <input type="text" ng-model="newTeam.name_short" placeholder="nepovinné, např. (JZM, DIK, DvT, ...)">
-    </label>
-    <label>
-        Komentář
-        <textarea name="" id="" cols="30" rows="10" title="Komentář" ng-model="match.feedback.comment"></textarea>
-    </label>
-    <button ng-hide="newTeam.saving" ng-disabled="!newTeam.name" ng-click="addTeam()">Vytvořit</button>
-    <div class="loader" ng-show="newTeam.saving"></div>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+    <br>
+    <br>
+    <b>Hodnocení</b>
+    <br>
+    <br>
+    <button class="pl-button" ng-click="starChange(-.5)">-</button>
+    <div class="stars"><star-rating-comp
+            rating="feedback.stars"
+            read-only="true"
+            size="'large'"
+            get-color="starsColor"
+            show-half-stars="true"
+            on-click="changeRating($event)"
+    ></star-rating-comp></div>
+    <button class="pl-button" ng-click="starChange(.5)">+</button>
+    <br>
+    <br>
+    <hr>
+
+    <b>Positiva</b>
+    <div id="positives">
+        <input type="text" ng-repeat="positive in feedback.positives track by $index" ng-model="feedback.positives[$index]">
+    </div>
+    <button ng-click="addPositive()">Přidat pozitivum</button>
+
+    <br>
+    <hr>
+    <b>Negativa</b>
+    <div id="negatives">
+        <input type="text" ng-repeat="negative in feedback.negatives track by $index" ng-model="feedback.negatives[$index]">
+    </div>
+    <button ng-click="addNegative()">Přidat negativum</button>
+
+    <hr>
+    <b>Komentář</b>
+    <textarea name="" id="" cols="30" rows="10" title="Komentář" ng-model="feedback.comment"></textarea>
+
+    <button ng-hide="match.referee_feedback.saving" ng-disabled="feedback.stars == 0" ng-click="save()">Uložit</button>
+    <div class="loader" ng-show="match.referee_feedback.saving"></div>
 </div>

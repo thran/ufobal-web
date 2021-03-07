@@ -697,28 +697,71 @@ app.controller("groups", ["$scope", "dataService", "$routeParams", function($sco
     });
 }]);
 
-app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
+app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "userService", "$timeout", function($scope, dataService, $routeParams, userService, $timeout){
     var tournament_id = parseInt($routeParams.id);
 
     dataService.getTournaments().then(function (tournament) {
         $scope.tournament = dataService.getObject('tournaments', tournament_id);
     });
 
-    dataService.getRefereeFeedbacks(tournament_id).then(function (matches) {
-        $scope.matches = matches.data;
+    dataService.getRefereeFeedbacks(tournament_id)
+        .then(function (matches) {
+            $scope.matches = matches;
+        }).catch(function (error){
+            $scope.error = error;
     });
 
     $scope.newFeedback = function (match) {
-        match.feedback = {
-            "stars": 0,
-            "positives": [],
-            "negatives": [],
-            "comment": "",
-        };
+        match.referee_feedback = {
+            match: match.pk,
+            author: userService.user.player.pk,
+            feedback: {
+                stars: 0,
+                positives: [],
+                negatives: [],
+                comment: "",
+            },
+
+    };
         $scope.match = match;
+        $scope.feedback = match.referee_feedback.feedback;
     };
 
     $scope.editFeedback = function (match) {
         $scope.match = match;
+        $scope.feedback = match.referee_feedback.feedback;
+    };
+
+    $scope.changeRating = function ($event) {
+        console.log($event);
+    };
+
+    $scope.starsColor = function (rating, numOfStars, staticColor) {
+        return 'ok';
+    };
+
+    $scope.starChange = function (value) {
+        $scope.feedback.stars = Math.min(5, Math.max(0, $scope.feedback.stars + value));
+    };
+
+    $scope.addPositive = function () {
+        $scope.feedback.positives.push('');
+        $timeout(function (){
+            $('#positives input:last-child')[0].focus();
+        });
+    };
+
+    $scope.addNegative = function () {
+        $scope.feedback.negatives.push('');
+        $timeout(function (){
+            $('#negatives input:last-child')[0].focus();
+        });
+    };
+
+    $scope.save = function () {
+        dataService.saveFeedback($scope.match.referee_feedback)
+            .then(function (){
+                $('#feedback-modal').foundation('reveal', 'close');
+            });
     };
 }]);

@@ -962,17 +962,21 @@ def save_referee_feedback(request):
         feedback.save()
     else:
         match = get_object_or_404(Match, pk=data['match'])
-        author_team = get_object_or_404(TeamOnTournament, pk=data['author_team'])
+        team_on_tournament = request.user.player.tournaments.filter(tournament=match.tournament)
+        if team_on_tournament.count() == 0:
+            return HttpResponseBadRequest('Nejsi členem týmu, který hraje na tomto turnaji')
+        author_team = team_on_tournament.first()
         if author_team != match.team_one and author_team != match.team_two:
             return HttpResponseBadRequest('Hodnocení může provádět jen tým, který hrál tento zápas')
         if author_team.players.filter(pk=request.user.player.pk).count() == 0:
+            # probably redundant
             return HttpResponseBadRequest('Nejsi členem týmu, který provádí toto hodnocení')
 
-        RefereeFeedback.objects.create(
+        feedback = RefereeFeedback.objects.create(
             match=match,
             author=request.user.player,
             author_team=author_team,
             feedback=data['feedback'],
         )
 
-    return HttpResponse('OK')
+    return HttpResponse(feedback.pk)

@@ -14,7 +14,8 @@
     "angular-ui-sortable": "~0.13.4",
     "humanize-duration": "~3.6.0",
     "moment": "~2.11.2",
-    "toastr": "~2.1.1"
+    "toastr": "~2.1.1",
+    "angular1-star-rating": "^1.2.11"
   },
   "resolutions": {
     "jquery": ">=1.6.3"
