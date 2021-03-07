@@ -7,7 +7,7 @@ from django.db import models
 from django.forms import SelectMultiple
 
 from .models import Player, Team, TeamOnTournament, Tournament, \
-    Match, Goal, Shot, GoalieInMatch, Penalty, Log, PairingRequest, Group
+    Match, Goal, Shot, GoalieInMatch, Penalty, Log, PairingRequest, Group, RefereeFeedback
 from django.contrib.auth.admin import UserAdmin
 
 
@@ -192,6 +192,10 @@ class GroupAdmin(admin.ModelAdmin):
         return super(GroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
+class RefereeFeedbackAdmin(admin.ModelAdmin):
+    list_display = ('match', 'author_team')
+
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(TeamOnTournament, TeamTournamentAdmin)
@@ -204,6 +208,7 @@ admin.site.register(Penalty)
 admin.site.register(Log, LogAdmin)
 admin.site.register(PairingRequest, PairingRequestAdmin)
 admin.site.register(Group, GroupAdmin)
+admin.site.register(RefereeFeedback, RefereeFeedbackAdmin)
 
 UserAdmin.list_display += ('player', )
 # jak pridat vyber hrace do Usera stejne jako v Player de vybirat User

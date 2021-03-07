@@ -15,7 +15,7 @@ if not ON_SERVER:
     DEBUG = True
 
 TEST = os.getenv('TEST', "False") == "True"
-
+TEST = True
 ALLOWED_HOSTS = ["*"]
 
 EMAIL_HOST = '127.0.0.1'

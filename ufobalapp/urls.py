@@ -43,6 +43,8 @@ urlpatterns = [
     url(r'^deny_pairing_request/(?P<request_id>\d+)$', views.deny_pairing_request, name='deny_pairing_request'),
     url(r'^get_groups/(?P<tournament_id>\d+)', views.get_groups, name='get_groups'),
     url(r'^get_empty_trournaments', views.get_empty_tournaments, name='get_emptyTournaments'),
+    url(r'^get_referee_feedbacks/(?P<tournament_id>\d+)', views.get_referee_feedbacks, name='get_referee_feedbacks'),
+    url(r'^save_referee_feedback', views.save_referee_feedback, name='save_referee_feedback'),
 ]
 
 

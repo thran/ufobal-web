@@ -19,7 +19,7 @@ from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
 from ufobal import settings
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal, \
-    Match, Shot, GoalieInMatch, Penalty, PairingRequest, Group
+    Match, Shot, GoalieInMatch, Penalty, PairingRequest, Group, RefereeFeedback
 
 SYSTEM_MAIL = 'ufobal.is@thran.cz'
 
@@ -927,3 +927,52 @@ def home(request):
         "user": json.dumps(get_user_data(request)),
         "live_tournament_pk": Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA]).order_by("-date")[0].pk,
     })
+
+
+@user_passes_test_or_401(is_authorized)
+def get_referee_feedbacks(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+
+    teams = request.user.player.tournaments.filter(tournament=tournament)
+    if teams.count() == 0:
+        return HttpResponseBadRequest('Nejsi v žádném týmu')
+    team = teams.first()
+    matches = request.user.player.match_set.filter(tournament=tournament, end__isnull=False).order_by('end')
+    feedbacks = {f.match_id: f for f in RefereeFeedback.objects.filter(match__in=matches, author_team=team)}
+    data = []
+    for match in matches:
+        d = match.to_json(events=False, extended=True)
+        if match.pk in feedbacks:
+            d['referee_feedback'] = feedbacks[match.pk].to_json()
+        data.append(d)
+
+    return JsonResponse(data, safe=False)
+
+
+@user_passes_test_or_401(is_authorized)
+@require_http_methods(["POST"])
+def save_referee_feedback(request):
+    data = json.loads(str(request.body.decode('utf-8')))
+    if 'pk' in data:
+        feedback = RefereeFeedback.objects.get(pk=data['pk'])
+        if feedback.author_team.players.filter(pk=request.user.player.pk).count() == 0:
+            return HttpResponseBadRequest('Nejsi členem týmu, který provedl toto hodnocení')
+        feedback.author = request.user.player
+        feedback.feedback = data['feedback']
+        feedback.save()
+    else:
+        match = get_object_or_404(Match, pk=data['match'])
+        author_team = get_object_or_404(TeamOnTournament, pk=data['author_team'])
+        if author_team != match.team_one and author_team != match.team_two:
+            return HttpResponseBadRequest('Hodnocení může provádět jen tým, který hrál tento zápas')
+        if author_team.players.filter(pk=request.user.player.pk).count() == 0:
+            return HttpResponseBadRequest('Nejsi členem týmu, který provádí toto hodnocení')
+
+        RefereeFeedback.objects.create(
+            match=match,
+            author=request.user.player,
+            author_team=author_team,
+            feedback=data['feedback'],
+        )
+
+    return HttpResponse('OK')

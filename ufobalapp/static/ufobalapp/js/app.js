@@ -109,6 +109,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'faq.html',
                 controller: "intro"
             }).
+            when('/hodnoceni_rozhodcich/:id', {
+                templateUrl: 'referee_feedbacks.html',
+                controller: "referee_feedbacks"
+            }).
             otherwise({
                 redirectTo: '/'
             });

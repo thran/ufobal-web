@@ -696,3 +696,29 @@ app.controller("groups", ["$scope", "dataService", "$routeParams", function($sco
         $scope.tournament = dataService.getObject('tournaments', tournament_id);
     });
 }]);
+
+app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", function($scope, dataService, $routeParams){
+    var tournament_id = parseInt($routeParams.id);
+
+    dataService.getTournaments().then(function (tournament) {
+        $scope.tournament = dataService.getObject('tournaments', tournament_id);
+    });
+
+    dataService.getRefereeFeedbacks(tournament_id).then(function (matches) {
+        $scope.matches = matches.data;
+    });
+
+    $scope.newFeedback = function (match) {
+        match.feedback = {
+            "stars": 0,
+            "positives": [],
+            "negatives": [],
+            "comment": "",
+        };
+        $scope.match = match;
+    };
+
+    $scope.editFeedback = function (match) {
+        $scope.match = match;
+    };
+}]);

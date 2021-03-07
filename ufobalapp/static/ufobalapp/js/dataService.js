@@ -585,6 +585,10 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
     self.getGroups = function(tournament_id) {
         return $http.get(djangoUrl.reverse("api:get_groups", {tournament_id: tournament_id}));
     };
+
+    self.getRefereeFeedbacks = function(tournament_id) {
+        return $http.get(djangoUrl.reverse("api:get_referee_feedbacks", {tournament_id: tournament_id}));
+    };
 }]);
 
 var genders = [

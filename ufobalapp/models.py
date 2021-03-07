@@ -12,6 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
 # generovani pairing tokenu pro hrace pri vytvoreni instance
+from jsonfield import JSONField
+
 from ufobal import settings
 
 
@@ -276,12 +278,7 @@ class Tournament(models.Model):
             "date": str(self.date) if self.date else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
-            "is_tournament_open":
-                not self.closed_edit and (
-                    self.date == datetime.date.today()
-                    or self.category in [self.LIGA, self.TRENING]
-                    or settings.TEST
-                ),
+            "is_tournament_open": self.is_tournament_open(),
             "is_after_tournament": self.date < datetime.date.today() or settings.TEST,
             "halftime_length": self.halftime_length,
             "field_count": self.field_count,
@@ -300,6 +297,13 @@ class Tournament(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.name, self.date)
+
+    def is_tournament_open(self):
+        return not self.closed_edit and (
+                    self.date == datetime.date.today()
+                    or self.category in [self.LIGA, self.TRENING]
+                    or settings.TEST
+                )
 
 
 class Match(models.Model):
@@ -322,7 +326,7 @@ class Match(models.Model):
 
     fake = models.BooleanField('Importovaný zápas', default=False)
 
-    def to_json(self, events=True, **kwargs):
+    def to_json(self, events=True, extended=False, **kwargs):
         data = {
             "pk": self.pk,
             "tournament": self.tournament_id,
@@ -346,6 +350,12 @@ class Match(models.Model):
             data["shots"] = [shot.to_json() for shot in self.shots.all()]
             data["penalties"] = [penalty.to_json() for penalty in self.penalties.all()]
             data["goalies"] = [goalie.to_json() for goalie in self.goalies_in_match.all()]
+
+        if extended:
+            data['team_one'] = self.team_one.to_json(simple=True)
+            data['team_two'] = self.team_two.to_json(simple=True)
+            data['referee_team'] = self.referee_team.to_json(simple=True)
+            data['referee'] = self.referee.to_json(simple=True)
 
         return data
 
@@ -585,3 +595,27 @@ class Group(models.Model):
             results.append(result)
 
         return results
+
+
+class RefereeFeedback(models.Model):
+
+    match = models.ForeignKey(Match)
+    author_team = models.ForeignKey(TeamOnTournament)
+    author = models.ForeignKey(Player)
+
+    feedback = JSONField()
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Feedback on {self.match} from {self.author_team}'
+
+    def to_json(self):
+        return {
+            'pk': self.pk,
+            'match': self.match_id,
+            'author_team': self.author_team_id,
+            'author': self.author_id,
+            'feedback': self.feedback,
+        }

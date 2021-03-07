@@ -1,0 +1,36 @@
+<a href back class="left">&lsaquo; zpět</a>
+<hr>
+
+<h1>Hodnocení rozhodčích - {{ tournament.full_name }}</h1>
+
+<div class="loader" ng-hide="matches"></div>
+
+<div ng-repeat="match in matches">
+    <b>{{ match.referee_team.name_pure }}</b>: {{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}
+    -
+    <a ng-hide="match.feedback" href="#" data-reveal-id="feedback-modal" ng-click="newFeedback(match)">nové hodnocení</a>
+    <a ng-show="match.feedback" href="#" data-reveal-id="feedback-modal" ng-click="editFeedback(match)">upravit hodnocení</a>
+    <br><br>
+</div>
+
+
+<div id="feedback-modal" class="large reveal-modal" data-reveal aria-hidden="true" role="dialog">
+    <h2 id="modalTitle">{{ match.referee_team.name_pure }}</h2>
+    hlavní rozhodčí: <b>{{ match.referee.full_name }}</b>
+    {{ match.feedback }}
+    <label>
+        Hodnocení
+{#        <star-rating-comp rating="'3.0'"></star-rating-comp>#}
+    </label>
+    <label>
+        Plusy
+        <input type="text" ng-model="newTeam.name_short" placeholder="nepovinné, např. (JZM, DIK, DvT, ...)">
+    </label>
+    <label>
+        Komentář
+        <textarea name="" id="" cols="30" rows="10" title="Komentář" ng-model="match.feedback.comment"></textarea>
+    </label>
+    <button ng-hide="newTeam.saving" ng-disabled="!newTeam.name" ng-click="addTeam()">Vytvořit</button>
+    <div class="loader" ng-show="newTeam.saving"></div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
