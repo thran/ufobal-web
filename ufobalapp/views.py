@@ -8,7 +8,7 @@ from itertools import takewhile
 
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.db.models import Prefetch, Count, Max, Min
+from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from django.utils.six import wraps
@@ -937,7 +937,7 @@ def get_referee_feedbacks(request, tournament_id):
     if teams.count() == 0:
         return HttpResponseBadRequest('Nejsi v žádném týmu')
     team = teams.first()
-    matches = request.user.player.match_set.filter(tournament=tournament, end__isnull=False).order_by('end')
+    matches = Match.objects.filter(Q(team_one=team) | Q(team_two=team), tournament=tournament, end__isnull=False)
     feedbacks = {f.match_id: f for f in RefereeFeedback.objects.filter(match__in=matches, author_team=team)}
     data = []
     for match in matches:
