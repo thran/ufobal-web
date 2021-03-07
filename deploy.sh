@@ -14,6 +14,8 @@ python $DIR/manage.py migrate
 
 
 #js
+export PATH="$DIR/node_modules/.bin/:$PATH"
+
 npm install
 bower install
 grunt
