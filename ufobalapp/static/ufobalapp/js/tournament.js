@@ -700,23 +700,35 @@ app.controller("groups", ["$scope", "dataService", "$routeParams", function($sco
 app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "userService", "$timeout", function($scope, dataService, $routeParams, userService, $timeout){
     var tournament_id = parseInt($routeParams.id);
 
+    $(document).foundation('reveal');
+    $(document).on('closed.fndtn.reveal', '[data-reveal]', function () {
+        if ($scope.match.referee_feedback.saved) {
+            $scope.match.referee_feedback.saved = false;
+        } else {
+            $scope.save();
+        }
+    });
+
     dataService.getTournaments().then(function (tournament) {
         $scope.tournament = dataService.getObject('tournaments', tournament_id);
     });
 
-    dataService.getRefereeFeedbacks(tournament_id)
-        .then(function (matches) {
-            $scope.matches = matches;
-        }).catch(function (error){
-            $scope.error = error;
-    });
+    $scope.getRefereeFeedbacks = function () {
+        dataService.getRefereeFeedbacks(tournament_id)
+            .then(function (matches) {
+                $scope.matches = matches;
+            }).catch(function (error){
+                $scope.error = error;
+        });
+    };
+    $scope.getRefereeFeedbacks();
 
     $scope.newFeedback = function (match) {
         match.referee_feedback = {
             match: match.pk,
             author: userService.user.player.pk,
             feedback: {
-                stars: 0,
+                stars: 2.5,
                 positives: [],
                 negatives: [],
                 comment: "",
@@ -733,7 +745,7 @@ app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "u
     };
 
     $scope.changeRating = function ($event) {
-        console.log($event);
+        $scope.feedback.stars = $event.rating;
     };
 
     $scope.starsColor = function (rating, numOfStars, staticColor) {
@@ -761,6 +773,7 @@ app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "u
     $scope.save = function () {
         dataService.saveFeedback($scope.match.referee_feedback)
             .then(function (){
+                $scope.match.referee_feedback.saved = true;
                 $('#feedback-modal').foundation('reveal', 'close');
             });
     };

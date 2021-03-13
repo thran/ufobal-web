@@ -1,6 +1,7 @@
 <a href back class="left">&lsaquo; zpět</a>
 <hr>
 
+<button style="float: right" ng-click="getRefereeFeedbacks()">Obnovit</button>
 <h1>Hodnocení rozhodčích - {{ tournament.full_name }}</h1>
 
 <div class="loader" ng-hide="matches || error"></div>
@@ -18,18 +19,51 @@
 </div>
 
 <div id="feedback-modal" class="large reveal-modal" data-reveal aria-hidden="true" role="dialog">
-    <button style="float: right" ng-hide="match.referee_feedback.saving" ng-disabled="feedback.stars == 0" ng-click="save()">Uložit</button>
     <h1 id="modalTitle">{{ match.referee_team.name_pure }}</h1>
     hlavní rozhodčí: <b>{{ match.referee.full_name }}</b>
     <br>
     <br>
-    <b>Hodnocení</b>
+
+    <b>Pozitiva</b>
+    <div id="positives">
+        <div class="row" ng-repeat="positive in feedback.positives track by $index">
+            <div class="column small-10">
+                <input type="text" ng-model="feedback.positives[$index]">
+            </div>
+            <div class="column small-2">
+                <span style="font-size: 1.7rem; cursor: pointer" ng-click="feedback.positives.splice($index, 1)">&#215;</span>
+            </div>
+        </div>
+    </div>
+    <button ng-click="addPositive()">Přidat pozitivum</button>
+
+    <br>
+    <hr>
+    <b>Negativa</b>
+    <div id="negatives">
+        <div class="row" ng-repeat="negative in feedback.negatives track by $index">
+            <div class="column small-10">
+                <input type="text" ng-model="feedback.negatives[$index]">
+            </div>
+            <div class="column small-2">
+                <span style="font-size: 1.7rem; cursor: pointer" ng-click="feedback.negatives.splice($index, 1)">&#215;</span>
+            </div>
+        </div>
+    </div>
+    <button ng-click="addNegative()">Přidat negativum</button>
+
+    <hr>
+    <b>Komentář</b>
+    <textarea name="" id="" cols="30" rows="10" title="Komentář" ng-model="feedback.comment"></textarea>
+
+    <hr>
+     <b>Celkové hodnocení</b>
     <br>
     <br>
     <button class="pl-button" ng-click="starChange(-.5)">-</button>
     <div class="stars"><star-rating-comp
             rating="feedback.stars"
-            read-only="true"
+            read-only="false"
             size="'large'"
             get-color="starsColor"
             show-half-stars="true"
@@ -39,24 +73,6 @@
     <br>
     <br>
     <hr>
-
-    <b>Positiva</b>
-    <div id="positives">
-        <input type="text" ng-repeat="positive in feedback.positives track by $index" ng-model="feedback.positives[$index]">
-    </div>
-    <button ng-click="addPositive()">Přidat pozitivum</button>
-
-    <br>
-    <hr>
-    <b>Negativa</b>
-    <div id="negatives">
-        <input type="text" ng-repeat="negative in feedback.negatives track by $index" ng-model="feedback.negatives[$index]">
-    </div>
-    <button ng-click="addNegative()">Přidat negativum</button>
-
-    <hr>
-    <b>Komentář</b>
-    <textarea name="" id="" cols="30" rows="10" title="Komentář" ng-model="feedback.comment"></textarea>
 
     <button ng-hide="match.referee_feedback.saving" ng-disabled="feedback.stars == 0" ng-click="save()">Uložit</button>
     <div class="loader" ng-show="match.referee_feedback.saving"></div>
