@@ -728,7 +728,7 @@ app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "u
             match: match.pk,
             author: userService.user.player.pk,
             feedback: {
-                stars: 2.5,
+                stars: 0,
                 positives: [],
                 negatives: [],
                 comment: "",
@@ -753,7 +753,7 @@ app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "u
     };
 
     $scope.starChange = function (value) {
-        $scope.feedback.stars = Math.min(5, Math.max(0, $scope.feedback.stars + value));
+        $scope.feedback.stars = Math.min(5, Math.max(0.5, $scope.feedback.stars + value));
     };
 
     $scope.addPositive = function () {
@@ -771,6 +771,9 @@ app.controller("referee_feedbacks", ["$scope", "dataService", "$routeParams", "u
     };
 
     $scope.save = function () {
+        if ($scope.feedback.stars === 0) {
+            return;
+        }
         dataService.saveFeedback($scope.match.referee_feedback)
             .then(function (){
                 $scope.match.referee_feedback.saved = true;

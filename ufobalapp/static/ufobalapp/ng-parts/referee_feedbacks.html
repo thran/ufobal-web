@@ -9,7 +9,7 @@
 <div class="red" ng-show="error">{{ error }}</div>
 
 <div ng-repeat="match in matches">
-    <span ng-class="{gray: match.referee_feedback}">
+    <span ng-class="{gray: match.referee_feedback.feedback.star}">
         <b>{{ match.referee_team.name_pure }}</b>: {{ match.team_one.name_pure }} - {{ match.team_two.name_pure }}
         -
         <a ng-hide="match.referee_feedback" href="#" data-reveal-id="feedback-modal" ng-click="newFeedback(match)">hodnotit</a>
