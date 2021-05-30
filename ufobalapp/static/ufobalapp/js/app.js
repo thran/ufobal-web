@@ -11,7 +11,7 @@ app.run(["$rootScope", "$location", "$window", function ($rootScope, $location, 
     });
 
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
-        //if (!localStorage.getItem("checked") && next.originalPath === "/"){
+        //if (!loadLocally("checked") && next.originalPath === "/"){
         //    $location.path("/intro");
         //    $window.location.href = "/intro";
         //}
@@ -143,7 +143,7 @@ app.controller("intro", ["$scope", "$window", function ($scope, $window) {
     $scope.intro = true;
     $scope.check = function(){
         if ($scope.checked) {
-            localStorage.setItem("checked", true);
+            saveLocally("checked", true, 60 * 60 * 24 * 365 * 10);
             $window.location.href = "/";
         }
     };
@@ -360,7 +360,7 @@ var defaultStatsFilter = {
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     var tournaments;
     $scope.filter = angular.copy(defaultStatsFilter);
-    angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsTournamentFilter")));
+    angular.extend($scope.filter, JSON.parse(loadLocally("statsTournamentFilter")));
 
     $scope.resetTournamentFilter = function () {
         $scope.filter = angular.copy(defaultStatsFilter);
@@ -400,7 +400,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                     $scope.tournaments = $filter("orderBy")($scope.tournaments, "date");
                     updateStats();
                     $scope.filterGender();
-                    localStorage.setItem("statsTournamentFilter", JSON.stringify(filter));
+                    saveLocally("statsTournamentFilter", JSON.stringify(filter), 60 * 60 * 24);
                     orderPlayers();
                 }, true);
             });
@@ -408,8 +408,8 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
     });
 
     var orderPlayers = function () {
-        if (localStorage.getItem("stats")) {
-            var savedState = JSON.parse(localStorage.getItem("stats"));
+        if (loadLocally("stats")) {
+            var savedState = JSON.parse(loadLocally("stats"));
             if (!savedState.sort.predicate){
                 savedState.sort.predicate = "canadaFiltered";
                 savedState.sort.reverse = true;
@@ -491,7 +491,7 @@ app.controller("statsGoalies", ["$scope", "dataService", "$filter", function ($s
                         $scope.tournaments = $filter("orderBy")($scope.tournaments, "date");
                         updateStats();
                         $scope.filterGender();
-                        localStorage.setItem("statsGoaliesTournamentFilter", JSON.stringify(filter));
+                        saveLocally("statsGoaliesTournamentFilter", JSON.stringify(filter), 60 * 60 * 24);
                         orderGoalies();
                     }, true);
                 });
@@ -500,8 +500,8 @@ app.controller("statsGoalies", ["$scope", "dataService", "$filter", function ($s
     });
 
     var orderGoalies = function () {
-        if (localStorage.getItem("statsGoalies")) {
-            var savedState = JSON.parse(localStorage.getItem("statsGoalies"));
+        if (loadLocally("statsGoalies")) {
+            var savedState = JSON.parse(loadLocally("statsGoalies"));
             if (!savedState.sort.predicate){
                 savedState.sort.predicate = "goalieStats.success";
                 savedState.sort.reverse = true;

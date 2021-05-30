@@ -1,3 +1,28 @@
+function saveLocally(key, value, ttl_seconds) {
+    var now = new Date();
+
+    var item = {
+        value: value,
+        expiry: now.getTime() + ttl_seconds * 1000,
+    };
+    localStorage.setItem(key, JSON.stringify(item));
+}
+
+function loadLocally(key) {
+    var itemStr = localStorage.getItem(key);
+    if (!itemStr) {
+        return null;
+    }
+
+    var item = JSON.parse(itemStr);
+    if (!item.expiry || new Date().getTime() > item.expiry) {
+        localStorage.removeItem(key);
+        return null;
+    }
+    return item.value;
+}
+
+
 var datetimeFormat = "YYYY-MM-DD HH:mm:ss";
 app.directive('stPersist', ["$timeout", function ($timeout) {
     return {
@@ -11,7 +36,7 @@ app.directive('stPersist', ["$timeout", function ($timeout) {
 
             scope.$watch(ctrl.tableState, function (newValue, oldValue) {
                 if (newValue !== oldValue && scope.dataLoaded) {
-                    localStorage.setItem(nameSpace, JSON.stringify(newValue));
+                    saveLocally(nameSpace, JSON.stringify(newValue), 60 * 60 * 24);
                     if (newValue.sort.predicate !== oldValue.sort.predicate) {
                         scope.sortCallback();
                     }
@@ -21,8 +46,9 @@ app.directive('stPersist', ["$timeout", function ($timeout) {
             scope.$watch("stPersist", function (newValue, oldValue) {
                 if (newValue) {
                     scope.dataLoaded = true;
-                    if (localStorage.getItem(nameSpace)) {
-                        var savedState = JSON.parse(localStorage.getItem(nameSpace));
+                    var savedState = loadLocally(nameSpace);
+                    if (savedState) {
+                        savedState = JSON.parse(savedState);
                         var tableState = ctrl.tableState();
                         angular.extend(tableState, savedState);
 
