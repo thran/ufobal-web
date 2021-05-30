@@ -85,7 +85,10 @@
 
 <script>
     $(document).foundation();
-    $('.top-bar li').click(function() {
+    $('.top-bar li').click(function(e) {
+        if ($(e.currentTarget).hasClass('toggle-topbar')){
+            return;
+        }
         $('.top-bar, [data-topbar]').css('height', '').removeClass('expanded');
     });
 </script>
