@@ -63,6 +63,8 @@ def get_json_all(request, model_class):
     objs = model_class.objects.all()
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
+    if model_class == Player:
+        objs = objs.prefetch_related("penalty_set", "penalty_set__match")
     if model_class == Match:
         objs = objs.filter(fake=False).prefetch_related("goals", "goalies_in_match", "shots",
                                                         "penalties", "team_one__players", "team_two__players")

@@ -102,7 +102,30 @@
             </tr>
         </tbody>
     </table>
+
+    <h3>Karty</h3>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Zdůvodnění</th>
+                <th>Turnaj</th>
+                <th>Zápas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="penalty in player.penalties">
+                <td>{{ penalty.card_verbose }}</td>
+                <td>{{ penalty.reason }}</td>
+                <td><a ng-href="/turnaj/{{ penalty.tournament.pk }}/{{ penalty.tournament.full_name }}">{{ penalty.tournament.full_name }}</a></td>
+                <td><a ng-href="/turnaj/zapas/{{ penalty.tournament.pk }}/{{ penalty.match.pk }}">detail</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br><br><br><br><br>
     <hr>
+    <h4>Přidávání historických turnajů</h4>
     <div class="row" ng-show="user.is_staff || user.player.pk === player.pk">
         <div class="text-right columns small-2">
             <select

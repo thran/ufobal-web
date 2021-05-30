@@ -58,6 +58,7 @@ class Player(models.Model):
             "full_name": self.full_name(),
             "gender": self.gender,
             "is_paired": self.user is not None,
+            "penalties": [p.to_json() for p in self.penalty_set.all()]
         }
 
         if staff:
@@ -501,8 +502,10 @@ class Penalty(models.Model):
         return {
             "pk": self.pk,
             "card": self.card,
+            "card_verbose": self.get_card_display(),
             "time": str(self.time),
-            "match": self.match_id,
+            "match": self.match.to_json(events=False),
+            "tournament": self.match.tournament_id,
             "player": self.player_id,
             "reason": self.reason,
         }

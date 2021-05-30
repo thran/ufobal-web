@@ -13,6 +13,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             player.assistsSum = 0;
             player.canada = 0;
             player.search = player.nickname + "###" + removeDiacritics(player.nickname);
+            player.penalty_count = player.penalties.length;
         },
         team: function (team) {
             if (dataMaps.teams[team.pk]){
@@ -62,6 +63,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 if (playerPk === teamOnTournament.default_goalie){
                     teamOnTournament.defaultGoalie = player;
                 }
+                angular.forEach(player.penalties, function(penalty) {
+                    if (teamOnTournament.tournament.pk === penalty.tournament) {
+                        penalty.tournament = teamOnTournament.tournament;
+                    }
+                });
             });
         },
         matchs: function (match) {

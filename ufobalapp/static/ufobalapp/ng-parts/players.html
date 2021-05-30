@@ -14,6 +14,7 @@
             <th class="text-right clickable" st-sort="goalsSum" st-descending-first="true">Góly</th>
             <th class="text-right clickable" st-sort="assistsSum" st-descending-first="true">Asistence</th>
             <th class="text-right clickable" st-sort="canada" st-descending-first="true">Kanada</th>
+            <th class="text-right clickable" st-sort="penalties" st-descending-first="true">Karty</th>
         </tr>
         </thead>
         <tbody>
@@ -25,11 +26,12 @@
             <td class="text-right">{{ player.goalsSum }}</td>
             <td class="text-right">{{ player.assistsSum }}</td>
             <td class="text-right">{{ player.canada }}</td>
+            <td class="text-right">{{ player.penalty_count }}</td>
         </tr>
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="5" class="text-center">
+                <td colspan="6" class="text-center">
                     <div st-pagination="" st-items-by-page="15" st-displayed-pages="10" st-template="utils/st-pagination.html"></div>
                 </td>
             </tr>
