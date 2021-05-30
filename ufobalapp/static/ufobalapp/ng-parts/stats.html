@@ -37,7 +37,7 @@
             <th ng-repeat="tournament in tournaments"><a ng-href="turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></th>
             <th class="text-center clickable" st-sort="goalsSumFiltered" st-descending-first='true'>G</th>
             <th class="text-center clickable" st-sort="assistsSumFiltered" st-descending-first="true">A</th>
-            <th class="text-center clickable" st-sort="canadaFiltered" st-descending-first="true">K</th>
+            <th class="text-center clickable" st-sort="canadaFiltered" st-descending-first="true" st-sort-default="true">K</th>
         </tr>
         </thead>
         <tbody>
