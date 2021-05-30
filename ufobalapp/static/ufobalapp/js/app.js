@@ -355,6 +355,7 @@ var defaultStatsFilter = {
     other: false,
     man: true,
     woman: true,
+    minMatches: 10,
 };
 
 app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
@@ -442,12 +443,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
 app.controller("statsGoalies", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
     var tournaments;
     $scope.filter = angular.copy(defaultStatsFilter);
-    angular.extend($scope.filter, JSON.parse(localStorage.getItem("statsGoaliesTournamentFilter")));
-
-    $scope.minMatches = 10;
-    $scope.$watch("minMatches", function (n, o) {
-        orderGoalies();
-    });
+    angular.extend($scope.filter, JSON.parse(loadLocally("statsGoaliesTournamentFilter")));
 
     $scope.resetTournamentFilter = function () {
         $scope.filter = angular.copy(defaultStatsFilter);
@@ -460,7 +456,7 @@ app.controller("statsGoalies", ["$scope", "dataService", "$filter", function ($s
     $scope.filterGender = function () {
         $scope.players = filterGender($scope.statsGoalies, $scope.filter.man, $scope.filter.woman, $filter);
         $scope.players = $filter('filter')($scope.players, function (player) {
-            return player.goalieStats.success > 0 && player.goalieStats.matchesSum >= $scope.minMatches;
+            return player.goalieStats.success > 0 && player.goalieStats.matchesSum >= $scope.filter.minMatches;
         });
         return $scope.players;
     };
