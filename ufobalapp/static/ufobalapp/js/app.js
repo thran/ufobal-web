@@ -26,6 +26,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'home.html',
                 controller: "home"
             }).
+            when('/privacy_policy', {
+                templateUrl: 'privacy_policy.html',
+                controller: "privacy_policy"
+            }).
             when('/sin_slavy', {
                 templateUrl: 'hall_of_records.html',
                 controller: "hall_of_records"
@@ -131,6 +135,9 @@ app.controller("home", ["$scope", "dataService", "$sce", function ($scope, dataS
     $scope.to_trusted = function(html_code) {
         return $sce.trustAsHtml(html_code);
     };
+}]);
+
+app.controller("privacy_policy", ["$scope", function ($scope) {
 }]);
 
 app.controller("hall_of_records", ["$scope", "dataService", function ($scope, dataService) {
