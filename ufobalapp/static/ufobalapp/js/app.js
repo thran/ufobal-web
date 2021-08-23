@@ -157,8 +157,16 @@ app.controller("intro", ["$scope", "$window", function ($scope, $window) {
 }]);
 
 app.controller("teams", ["$scope", "dataService", "$filter", function ($scope, dataService, $filter) {
+    $scope.medalsValue = function (team) {
+        var value = 0;
+        for (i=0; i <= 4; i++) {
+            value = value + team.medals[i] * Math.pow(10, (4 - i) * 3);
+        }
+        return -value;
+    };
+
     dataService.getTeams().then(function(teams){
-        teams = $filter('orderBy')(teams, "-medals");
+        teams = $filter('orderBy')(teams, $scope.medalsValue);
         $scope.teams = teams;
     });
 }]);
