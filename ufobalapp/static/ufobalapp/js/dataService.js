@@ -13,7 +13,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             player.assistsSum = 0;
             player.canada = 0;
             player.search = player.nickname + "###" + removeDiacritics(player.nickname);
-            player.penalty_count = player.penalties.length;
+            player.penalty_count = player.penalties ? player.penalties.length : 0;
         },
         team: function (team) {
             if (dataMaps.teams[team.pk]){
