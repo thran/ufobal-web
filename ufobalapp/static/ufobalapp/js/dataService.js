@@ -326,11 +326,11 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
         }
         return $http.post(djangoUrl.reverse("api:add_team_on_tournament"), registration)
             .then(function (response) {
-                var pk = response.data;
+                var pk = parseInt(response.data);
                 registration.saving = false;
                 var team = dataMaps.teams[registration.team];
                 var teamOnTournament = {
-                    pk: parseInt(pk),
+                    pk: pk,
                     team: team,
                     name: registration.name ? registration.name + " (" + team.name + ")" : team.name,
                     name_pure: registration.name ? registration.name : team.name,
@@ -339,6 +339,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
                 };
                 dataMaps.tournaments[registration.tournament].teamOnTournaments.push(teamOnTournament);
                 team.teamOnTournaments.push(teamOnTournament);
+                return pk;
             })
             .catch(function (error) {
                 registration.saving = false;
