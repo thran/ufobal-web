@@ -959,7 +959,7 @@ def save_referee_feedback(request):
         feedback = RefereeFeedback.objects.get(pk=data['pk'])
         if feedback.author_team.players.filter(pk=request.user.player.pk).count() == 0:
             return HttpResponseBadRequest('Nejsi členem týmu, který provedl toto hodnocení')
-        if not feedback.author_team.tournament.is_tournament_open():
+        if not feedback.author_team.tournament.closed_edit:
             return HttpResponseBadRequest('Turnaj je již uzavřený pro editaci')
         feedback.author = request.user.player
         feedback.feedback = data['feedback']
@@ -967,7 +967,7 @@ def save_referee_feedback(request):
     else:
         match = get_object_or_404(Match, pk=data['match'])
         team_on_tournament = request.user.player.tournaments.filter(tournament=match.tournament)
-        if not match.tournament.is_tournament_open():
+        if match.tournament.closed_edit:
             return HttpResponseBadRequest('Turnaj je již uzavřený pro editaci')
         if team_on_tournament.count() == 0:
             return HttpResponseBadRequest('Nejsi členem týmu, který hraje na tomto turnaji')
