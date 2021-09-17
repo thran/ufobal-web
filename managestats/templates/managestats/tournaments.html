@@ -13,6 +13,7 @@
         {% for tournament in tournaments %}
             <li>
                 <a href="{% url 'managestats:tournament' tournament.id %}">{{ tournament }}</a>
+                - <a href="{% url 'managestats:referee_feedbacks' tournament.id %}">hodnocení rozhodčích</a>
             </li>
         {% endfor %}
     </ul>

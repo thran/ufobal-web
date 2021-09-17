@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from django.db.models import Q
 
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest
+from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest, RefereeFeedback
 
 import datetime
 import logging
@@ -108,6 +108,35 @@ def tournament(request, tournament_id):
                'teams': teams,
                'unknowns': unknowns}
     return render(request, 'managestats/tournament.html', context)
+
+
+@user_passes_test(is_staff_check)
+def referee_feedbacks(request, tournament_id):
+    teams = {}
+    for feedback in RefereeFeedback.objects.filter(match__tournament_id=tournament_id)\
+            .prefetch_related('match', 'author_team', 'match__referee', 'match__referee_team', 'match__team_one', 'match__team_two', 'author'):
+        team = feedback.match.referee_team
+        if team.pk not in teams:
+            teams[team.pk] = team
+            team.matches = {}
+        else:
+            team = teams[team.pk]
+
+        match = feedback.match
+        if match.pk not in team.matches:
+            team.matches[match.pk] = match
+            match.feedbacks = []
+        else:
+            match = team.matches[match.pk]
+
+        match.feedbacks.append(feedback)
+
+    print(teams)
+
+    return render(request, 'managestats/referee_feedbacks.html', {
+        'teams': teams,
+        'tournament': Tournament.objects.get(pk=tournament_id),
+    })
 
 
 @user_passes_test(is_staff_check)

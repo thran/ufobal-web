@@ -1,0 +1,44 @@
+{% extends "managestats/base.html" %}
+
+{% block content %}
+
+    <h1>Hodnocení rozhodčích</h1>
+    <h3>{{ tournament }}</h3>
+    <a href="{% url 'managestats:tournaments' %}">zpět</a>
+
+    <hr>
+
+    {% for team in teams.values %}
+
+        <h4>{{ team.name_pure }}</h4>
+
+        <ul>
+            {% for match in team.matches.values %}
+                <li>
+                    <a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.get_name }}</b> vs. <b>{{ match.team_two.get_name }}</b></a>
+                    <ul>
+                        <li>Hlavní rozdohčí: <b>{{ match.referee }}</b></li>
+                        {% for feedback in match.feedbacks %}
+                            <li>
+                                <b>{{ feedback.feedback.stars }}☆</b> -
+                                <b>{{ feedback.author_team.get_name }}</b> ({{ feedback.author }}):
+
+                                {% for positive in feedback.feedback.positives %}
+                                    + {{ positive }};
+                                {% endfor %}
+                                {% for negative in feedback.feedback.negatives %}
+                                    - {{ negative }};
+                                {% endfor %}
+                                <i>{{ feedback.feedback.comment }}</i>
+                            </li>
+                        {% endfor %}
+
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    <hr>
+
+    {% endfor %}
+
+{% endblock %}
