@@ -17,8 +17,8 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
 
     this.get_players = function(){
         return $http.get(djangoUrl.reverse("api:get_players"))
-            .success(function(response){
-                angular.forEach(response, function(player) {
+            .then(function(response){
+                angular.forEach(response.data, function(player) {
                     prepare_player(player);
                 });
             });
@@ -45,11 +45,13 @@ app.service("backend", ["$http", 'djangoUrl', '$filter', function($http, djangoU
         var player_to_save = angular.copy(player);
         player_to_save.birthdate = $filter('date')(player_to_save.birthdate, "yyyy-MM-dd");
         return $http.post(djangoUrl.reverse("api:save_player"), player_to_save)
-            .success(function(response){
+            .then(function(response){
                 player.saving = false;
+                return response.data;
             })
-            .error(function (response) {
+            .catch(function (error) {
                 player.saving = false;
+                throw error.data;
             });
     };
 
@@ -85,21 +87,21 @@ app.controller("sortableController", ["$scope", "$window", "backend", function($
 app.controller("pairing", ["$scope", "backend", function($scope, backend){
     $scope.approve = function (id) {
         backend.approvePairingRequest(id)
-            .success(function () {
+            .then(function () {
                 alert("Spárováno");
             })
-            .error(function (response) {
-                alert("Chyba: " + response);
+            .catch(function (response) {
+                alert("Chyba: " + response.data);
             });
     };
 
     $scope.deny = function (id) {
         backend.denyPairingRequest(id)
-            .success(function () {
+            .then(function () {
                 alert("Zamítnuto");
             })
-            .error(function (response) {
-                alert("Chyba: " + response);
+            .catch(function (response) {
+                alert("Chyba: " + response.data);
             });
     };
 }]);
@@ -111,9 +113,10 @@ app.controller("player-detail", ["$scope", "backend", "$location", function($sco
     var getPlayer = function(){
         $scope.loading = true;
         backend.get_player(player_id)
-            .success(function(response){
-                $scope.player = response;
+            .then(function(response){
+                $scope.player = response.data;
                 $scope.loading = false;
+                return response.data;
         });
     };
 
@@ -129,24 +132,24 @@ app.controller("player-detail", ["$scope", "backend", "$location", function($sco
 
     $scope.save = function(){
         backend.save_player($scope.player)
-            .success(function(){
+            .then(function(){
                 $scope.edit = false;
             });
     };
 
     $scope.addAttendance = function(){
-        backend.addAttendance($scope.player.pk, $scope.selectedTeam).success(getPlayer);
+        backend.addAttendance($scope.player.pk, $scope.selectedTeam).then(getPlayer);
     };
 
     $scope.removeAttendance = function(team, index){
-        backend.removeAttendance($scope.player.pk, team).success(getPlayer);
+        backend.removeAttendance($scope.player.pk, team).then(getPlayer);
     };
 
     getPlayer();
 
     backend.get_tournaments()
-        .success(function(response){
-            $scope.tournaments = response;
+        .then(function(response){
+            $scope.tournaments = response.data;
         });
 }]);
 
@@ -172,7 +175,7 @@ app.controller("player-bulk-edit", ["$scope", "backend", function ($scope, backe
         angular.forEach($scope.players, function(player, key) {
             if (player.changed){
                 backend.save_player(player)
-                    .success(function(){
+                    .then(function(){
                         player.changed = false;
                     });
             }
@@ -180,7 +183,7 @@ app.controller("player-bulk-edit", ["$scope", "backend", function ($scope, backe
     };
 
     backend.get_players()
-        .success(function(response){
+        .then(function(response){
             $scope.players = response;
         });
 }]);
