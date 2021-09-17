@@ -131,8 +131,6 @@ def referee_feedbacks(request, tournament_id):
 
         match.feedbacks.append(feedback)
 
-    print(teams)
-
     return render(request, 'managestats/referee_feedbacks.html', {
         'teams': teams,
         'tournament': Tournament.objects.get(pk=tournament_id),
