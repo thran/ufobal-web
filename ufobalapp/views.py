@@ -689,6 +689,9 @@ def change_goalie(request, match_id, team_id):
     new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match,
                                         start=time + datetime.timedelta(seconds=1))
     new_goalie_in_match.save()
+    if team_on_tournament.default_goalie is None:
+        team_on_tournament.default_goalie = new_goalie
+        team_on_tournament.save()
 
     return HttpResponse("OK")
 
