@@ -106,7 +106,8 @@ class TeamAdmin(admin.ModelAdmin):
 
 class TeamTournamentAdmin(admin.ModelAdmin):
     list_display = ('team', 'name', 'tournament_name', 'tournament_date', 'rank')
-    fields = ['team', 'captain', 'tournament', 'name', 'name_short', 'rank', ('contact_mail', 'contact_phone'), 'strength']
+    fields = [('team', 'registration_time_with_seconds'), 'captain', 'tournament', 'name', 'name_short', 'rank', ('contact_mail', 'contact_phone'), 'strength']
+    readonly_fields = ['registration_time_with_seconds']
 
     search_fields = ['name', 'team__name', 'tournament__name', 'tournament__date']
     inlines = [PlayerInTeamsInline]

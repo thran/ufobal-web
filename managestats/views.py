@@ -95,7 +95,7 @@ def tournaments(request):
 @user_passes_test(is_staff_check)
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
-    teams = TeamOnTournament.objects.order_by('rank', 'name', 'team__name').filter(tournament=tournament)
+    teams = TeamOnTournament.objects.order_by('registration_time').filter(tournament=tournament)
     match_list = Match.objects.filter(tournament=tournament)
 
     knowns = Player.objects.filter(tournaments__tournament=tournament)

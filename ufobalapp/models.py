@@ -7,6 +7,7 @@ import os
 
 import qrcode
 from django.db import models
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
@@ -196,6 +197,8 @@ class TeamOnTournament(models.Model):
     contact_phone = models.CharField('Kontaktní telefon', max_length=20, null=True, blank=True)
     strength = models.IntegerField('Odhad síly', null=True, blank=True)
 
+    registration_time = models.DateTimeField('Čas registrace', auto_now_add=True, null=True, blank=True)
+
     objects = TeamOnTournamentManager()
 
     def to_json(self, players=True, simple=False, **kwargs):
@@ -236,6 +239,12 @@ class TeamOnTournament(models.Model):
         if self.name_short:
             return self.name_short
         return self.name if self.name else str(self.team)
+
+    @property
+    def registration_time_with_seconds(self):
+        if self.registration_time:
+            return timezone.localtime(self.registration_time).strftime("%d. %m. %Y %H:%M:%S")
+        return ''
 
 
 class Tournament(models.Model):
