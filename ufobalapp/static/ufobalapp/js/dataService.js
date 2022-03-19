@@ -362,7 +362,7 @@ app.service("dataService", ["$http", "$q", "djangoUrl", "$filter", function($htt
             })
             .catch(function(error){
                 player.saving = false;
-                toastr.error(error);
+                toastr.error(error.data);
                 throw error.data;
             });
     };
