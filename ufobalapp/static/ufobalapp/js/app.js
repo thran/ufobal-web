@@ -408,7 +408,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                                 (filter.other || tournament.category_slugname !== "other") &&
                                 (filter.hala || tournament.category_slugname !== "hala" )  &&
                                 tournament.category_slugname !== "liga" &&
-                                tournament.category_slugname !== "trening'"
+                                tournament.category_slugname !== "trening"
                         ){
                             $scope.tournaments.push(tournament);
                         }
