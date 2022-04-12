@@ -367,6 +367,7 @@ var defaultStatsFilter = {
     nizkov: true,
     brno: true,
     hala: false,
+    liga: false,
     other: false,
     man: true,
     woman: true,
@@ -407,7 +408,7 @@ app.controller("stats", ["$scope", "dataService", "$filter", function ($scope, d
                                 (filter.brno || tournament.category_slugname !== "brno") &&
                                 (filter.other || tournament.category_slugname !== "other") &&
                                 (filter.hala || tournament.category_slugname !== "hala" )  &&
-                                tournament.category_slugname !== "liga" &&
+                                (filter.liga || tournament.category_slugname !== "liga" )  &&
                                 tournament.category_slugname !== "trening"
                         ){
                             $scope.tournaments.push(tournament);
