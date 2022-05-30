@@ -112,8 +112,7 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
 
     dataService.getTournament(id).then(function () {
         $scope.tournament = dataService.getObject('tournaments', id);
-        if (!$scope.tournament.is_tournament_open && !$scope.tournament.registration_open &&
-                !$scope.user.is_staff && $location.path() !== "/turnaj-zive"){
+        if ($scope.tournament.closed_edit && !$scope.user.is_staff && $location.path() !== "/turnaj-zive"){
             var url = "turnaj/" + $scope.tournament.pk + "/" + $scope.tournament.full_name;
             $location.path(url);
             $window.location.href = url;
