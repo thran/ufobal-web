@@ -162,6 +162,17 @@ app.controller("tournamentMain", ["$scope", "dataService", "$interval", "$locati
     });
 }]);
 
+var RED_CARD_TIME = 2 * 60 * 1000;
+var YELLOW_CARD_TIME = 1 * 60 * 1000;
+
+function getCardPenaltyTime (event) {
+    if (event.data.card === "red") {
+        return RED_CARD_TIME;
+    } else {
+        return YELLOW_CARD_TIME;
+    }
+}
+
 app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$timeout", "$sce", "$filter", "$interval",
                     function($scope, $routeParams, dataService, $timeout, $sce, $filter, $interval){
     var id = parseInt($routeParams.id);
@@ -186,15 +197,16 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
             };
         }
         var team = $scope.match["team" + teamId];
-        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
         var cardsThreshold = 2;
 
         return function(event, index, events) { // TODO this is called suspiciously frequently
+            var penaltyTime = getCardPenaltyTime(event);
+
             if (!(event.type === "penalty" && event.team === team && (moment.duration(getTime()) - moment.duration(event.time)) <= penaltyTime)) {
                 return false;
             }
 
-            if (event.data.card === "red") {
+            if (event.data.card === "red" || event.data.card === "yellow") {
                 return true;
             }
 
@@ -207,7 +219,7 @@ app.controller("tournamentMatch", ["$scope", "$routeParams", "dataService", "$ti
     };
 
     $scope.getRemainingPenaltyTime = function(event) {
-        var penaltyTime = 2 * 60 * 1000; // TODO set either to constant or on backend
+        var penaltyTime = getCardPenaltyTime(event);
         var diff = moment.duration(getTime()) - moment.duration(event.time);
 
         return moment.utc(penaltyTime - diff).format("mm:ss");

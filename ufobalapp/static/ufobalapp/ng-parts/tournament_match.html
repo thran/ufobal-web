@@ -64,13 +64,13 @@
     <div class="row" ng-show="match.halftime === 1 || match.halftime === 2">
         <div class="columns small-6 medium-5 text-right">
             <div ng-repeat="event in match.events | filter : penaltyTimerFilter(1) | orderBy : '-time'">
-                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b> </div>
+                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b></span> </div>
             </div>
         </div>
         <div class="columns medium-2 show-for-medium-up text-center">&nbsp;</div>
         <div class="columns small-6 medium-5">
             <div ng-repeat="event in match.events | filter :penaltyTimerFilter(2) | orderBy : '-time'">
-                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b> </div>
+                <div ng-class="event.team.color"><span class="fi-alert"> {{ getRemainingPenaltyTime(event) }} - <b>{{ event.data.player.nickname }}</b></span> </div>
             </div>
         </div>
     </div>
