@@ -26,12 +26,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='match',
             name='team_one',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='matches1', to='ufobalapp.TeamOnTournament', verbose_name='Tým 1'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='matches1', to='ufobalapp.TeamOnTournament', verbose_name='Tým 1'),
         ),
         migrations.AlterField(
             model_name='match',
             name='team_two',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='matches2', to='ufobalapp.TeamOnTournament', verbose_name='Tým 2'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='matches2', to='ufobalapp.TeamOnTournament', verbose_name='Tým 2'),
         ),
         migrations.AlterField(
             model_name='match',

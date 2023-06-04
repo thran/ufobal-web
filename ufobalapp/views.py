@@ -1,9 +1,8 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
 import datetime
 import json
 import logging
 from collections import defaultdict
+from functools import wraps
 from itertools import takewhile
 
 from django.core.cache import cache
@@ -11,7 +10,6 @@ from django.core.mail import send_mail
 from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
-from django.utils.six import wraps
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods

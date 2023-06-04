@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "ufobal-web"
+version = "0.1.0"
+description = "Ufobal IS for gathering, processing and presenting data from tournaments."
+authors = [" Jiří Thran Řihák <exthran@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Django = "^4.2.1"
+dj-database-url = "^2.0.0"
+django-angular = "^2.3"
+django-jsonfield = "^1.4.1"
+qrcode = "^7.4.2"
+django-debug-toolbar = "^4.1.0"
+mysqlclient = "^2.1.1"
+raven = "^6.10.0"
+pymemcache = "^4.0.0"
+social-auth-app-django = "^5.2.0"
+Pillow = "^9.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

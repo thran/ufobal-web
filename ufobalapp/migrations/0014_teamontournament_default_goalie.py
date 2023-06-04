@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='teamontournament',
             name='default_goalie',
-            field=models.ForeignKey(related_name='default_goalie', to='ufobalapp.Player', blank=True, null=True, verbose_name='Nasazovaný brankář'),
+            field=models.ForeignKey(related_name='default_goalie', to='ufobalapp.Player', blank=True, null=True, verbose_name='Nasazovaný brankář', on_delete=models.CASCADE),
         ),
     ]

@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -18,11 +17,11 @@ class Migration(migrations.Migration):
             name='RefereeFeedback',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('feedback', jsonfield.fields.JSONField(default=dict)),
+                ('feedback', models.JSONField(default=dict)),
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ufobalapp.Player')),
-                ('author_team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ufobalapp.TeamOnTournament')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ufobalapp.Player')),
+                ('author_team', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ufobalapp.TeamOnTournament')),
                 ('match', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ufobalapp.Match')),
             ],
         ),

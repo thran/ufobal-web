@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
                 ('state', models.CharField(choices=[('approved', 'schváleno'), ('denied', 'odmítnuto'), ('pending', 'rozhoduje se')], max_length=15, verbose_name='stav')),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('player', models.ForeignKey(verbose_name='Hráč', to='ufobalapp.Player', related_name='pairing_request')),
-                ('user', models.ForeignKey(verbose_name='Uživatel', to=settings.AUTH_USER_MODEL, related_name='pairing_request')),
+                ('player', models.ForeignKey(verbose_name='Hráč', to='ufobalapp.Player', related_name='pairing_request', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='Uživatel', to=settings.AUTH_USER_MODEL, related_name='pairing_request', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'žádost o spárování',

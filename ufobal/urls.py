@@ -13,21 +13,21 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 
 import ufobalapp.views
 from ufobal import settings
 
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('social_django.urls', namespace='social')),
-    url(r'^close_login_popup/$', TemplateView.as_view(template_name="close_login_popup.html"), name='login_popup_close'),
+    path('admin/', admin.site.urls),
+    path('', include('social_django.urls', namespace='social')),
+    path('close_login_popup/', TemplateView.as_view(template_name="close_login_popup.html"), name='login_popup_close'),
 
-    url(r'^', include('ufobalapp.urls', namespace='api')),
-    url(r'^managestats/', include('managestats.urls', namespace='managestats')),
-    url(r'^intro$', ufobalapp.views.intro, name='intro'),
-    url(r'^.*$', ufobalapp.views.home, name='home'),
+    path('', include('ufobalapp.urls', namespace='api')),
+    path('managestats/', include('managestats.urls', namespace='managestats')),
+    path('intro', ufobalapp.views.intro, name='intro'),
+    re_path(r'.*', ufobalapp.views.home, name='home'),
 ]

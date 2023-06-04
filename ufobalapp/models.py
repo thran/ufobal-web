@@ -1,19 +1,13 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
-
 import datetime
 import math
 import os
 
 import qrcode
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
-
-# generovani pairing tokenu pro hrace pri vytvoreni instance
-from jsonfield import JSONField
 
 from ufobal import settings
 
@@ -47,7 +41,7 @@ class Player(models.Model):
     birthdate = models.DateField('Datum narození', null=True, blank=True)
     gender = models.CharField(max_length=10, verbose_name='pohlaví', choices=GENDERS, null=True, blank=True)
     pairing_token = models.CharField('Párovací token', max_length=10, null=True, blank=True, default=generate_pair)
-    user = models.OneToOneField(User, null=True, blank=True)
+    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
 
     def to_json(self, tournaments=True, simple=False, staff=False, **kwargs):
         data = {
@@ -172,8 +166,8 @@ class PairingRequest(models.Model):
     )
 
     state = models.CharField(max_length=15, verbose_name='stav', choices=STATES, default=PENDING)
-    player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request')
-    user = models.ForeignKey(User, verbose_name="Uživatel", related_name='pairing_request')
+    player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="Uživatel", related_name='pairing_request', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=True)
 
@@ -183,13 +177,13 @@ class TeamOnTournament(models.Model):
         verbose_name = "tým na turnaji"
         verbose_name_plural = "týmy na turnaji"
 
-    team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments')
-    captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True)
+    team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments', on_delete=models.CASCADE)
+    captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True, on_delete=models.CASCADE)
     default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie',
-                                       null=True, blank=True)
+                                       null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     name_short = models.CharField('Zkrácené jméno na turnaji', max_length=20, null=True, blank=True)
-    tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams')
+    tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams', on_delete=models.CASCADE)
     players = models.ManyToManyField(Player, verbose_name='Hráči', related_name='tournaments', blank=True)
     rank = models.IntegerField('Pořadí', null=True, blank=True)
 
@@ -321,16 +315,16 @@ class Match(models.Model):
         verbose_name = "zápas"
         verbose_name_plural = "zápasy"
 
-    tournament = models.ForeignKey(Tournament, verbose_name='Turnaj', related_name="matches")
-    team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='matches1', null=True, blank=True)
-    team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='matches2', null=True, blank=True)
+    tournament = models.ForeignKey(Tournament, verbose_name='Turnaj', related_name="matches", on_delete=models.CASCADE)
+    team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='matches1', null=True, blank=True, on_delete=models.PROTECT)
+    team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='matches2', null=True, blank=True, on_delete=models.PROTECT)
     start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
     halftime_length = models.TimeField('Délka poločasu', null=True, blank=True)
     length = models.TimeField('Délka zápasu', null=True, blank=True)
     goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
-    referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True)
-    referee_team = models.ForeignKey(TeamOnTournament, related_name='refereed', verbose_name='rozhodčí tým', null=True, blank=True)
+    referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True, on_delete=models.PROTECT)
+    referee_team = models.ForeignKey(TeamOnTournament, related_name='refereed', verbose_name='rozhodčí tým', null=True, blank=True, on_delete=models.PROTECT)
     place = models.CharField(max_length=50, null=True, blank=True, verbose_name="Hřiště")
     # TODO hodnoceni od tymu....
 
@@ -400,8 +394,8 @@ class GoalieInMatch(models.Model):
         verbose_name = "brankář"
         verbose_name_plural = "brankáři"
 
-    goalie = models.ForeignKey(Player, verbose_name='brankář')
-    match = models.ForeignKey(Match, verbose_name='zápas', related_name="goalies_in_match")
+    goalie = models.ForeignKey(Player, verbose_name='brankář', on_delete=models.PROTECT)
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name="goalies_in_match", on_delete=models.CASCADE)
     start = models.TimeField('Začátek chytání')
     end = models.TimeField('Konec chytání', null=True, blank=True)
 
@@ -430,9 +424,9 @@ class Goal(models.Model):
         (SHOOTOUT, 'penaltový rozstřel'),
     )
 
-    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True)
-    assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True)
-    match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals')
+    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True, on_delete=models.PROTECT)
+    assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True, on_delete=models.PROTECT)
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals', on_delete=models.CASCADE)
     time = models.TimeField('Čas v zápase', null=True, blank=True)
     type = models.CharField(max_length=20,
                             verbose_name='druh', choices=GOAL_TYPES, default=NORMAL)
@@ -473,9 +467,9 @@ class Shot(models.Model):
         verbose_name = "střela"
         verbose_name_plural = "střely"
 
-    shooter = models.ForeignKey(Player, related_name='shots', verbose_name='střelec', blank=True, null=True)
-    team = models.ForeignKey(TeamOnTournament, related_name='shots', verbose_name='tým', null=True)
-    match = models.ForeignKey(Match, verbose_name='zápas', related_name='shots')
+    shooter = models.ForeignKey(Player, related_name='shots', verbose_name='střelec', blank=True, null=True, on_delete=models.PROTECT)
+    team = models.ForeignKey(TeamOnTournament, related_name='shots', verbose_name='tým', null=True, on_delete=models.PROTECT)
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='shots', on_delete=models.CASCADE)
     time = models.TimeField('Čas v zápase')
 
     def to_json(self):
@@ -502,9 +496,9 @@ class Penalty(models.Model):
 
     card = models.CharField(max_length=10,
                             verbose_name='karta', choices=CARDS)
-    match = models.ForeignKey(Match, verbose_name='zápas', related_name='penalties')
+    match = models.ForeignKey(Match, verbose_name='zápas', related_name='penalties', on_delete=models.CASCADE)
     time = models.TimeField('čas')
-    player = models.ForeignKey(Player, verbose_name='hráč')
+    player = models.ForeignKey(Player, verbose_name='hráč', on_delete=models.PROTECT)
     reason = models.TextField('Důvod')
 
     def to_json(self):
@@ -525,7 +519,7 @@ class Log(models.Model):
         verbose_name = "log"
         verbose_name_plural = "logy"
 
-    user = models.ForeignKey(User, related_name='logs', verbose_name="uživatel")
+    user = models.ForeignKey(User, related_name='logs', verbose_name="uživatel", on_delete=models.PROTECT)
     url = models.TextField("url")
     data = models.TextField("data")
     timestamp = models.DateTimeField('timestamp', auto_now_add=True)
@@ -536,7 +530,7 @@ class Group(models.Model):
         verbose_name = 'Skupina'
         verbose_name_plural = 'Skupiny'
 
-    tournament = models.ForeignKey(Tournament, related_name='groups', verbose_name='turnaje')
+    tournament = models.ForeignKey(Tournament, related_name='groups', verbose_name='turnaje', on_delete=models.PROTECT)
     name = models.CharField(max_length=50)
     teams = models.ManyToManyField(TeamOnTournament, related_name='groups', verbose_name='týmy')
     level = models.IntegerField(default=1)
@@ -611,11 +605,11 @@ class Group(models.Model):
 
 class RefereeFeedback(models.Model):
 
-    match = models.ForeignKey(Match)
-    author_team = models.ForeignKey(TeamOnTournament)
-    author = models.ForeignKey(Player)
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    author_team = models.ForeignKey(TeamOnTournament, on_delete=models.PROTECT)
+    author = models.ForeignKey(Player, on_delete=models.PROTECT)
 
-    feedback = JSONField()
+    feedback = models.JSONField(default=dict)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

@@ -9,7 +9,7 @@ from ufobalapp.views import is_authorized
 
 def get_user_data(request):
     user = request.user
-    if user.is_anonymous():
+    if user.is_anonymous:
         return None
     else:
         return {

@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='player',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, blank=True, null=True),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='match',

@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='goalieinmatch',
             name='match',
-            field=models.ForeignKey(to='ufobalapp.Match', verbose_name='zápas'),
+            field=models.ForeignKey(to='ufobalapp.Match', verbose_name='zápas', on_delete=models.CASCADE),
         ),
     ]

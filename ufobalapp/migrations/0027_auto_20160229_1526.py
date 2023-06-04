@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='log',
             name='user',
-            field=models.ForeignKey(related_name='logs', to=settings.AUTH_USER_MODEL, verbose_name='uživatel'),
+            field=models.ForeignKey(related_name='logs', to=settings.AUTH_USER_MODEL, verbose_name='uživatel', on_delete=models.PROTECT),
         ),
     ]

@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50)),
                 ('level', models.IntegerField(default=1)),
                 ('teams', models.ManyToManyField(related_name='groups', to='ufobalapp.TeamOnTournament', verbose_name='týmy')),
-                ('tournament', models.ForeignKey(related_name='groups', verbose_name='turnaje', to='ufobalapp.Tournament')),
+                ('tournament', models.ForeignKey(related_name='groups', verbose_name='turnaje', to='ufobalapp.Tournament', on_delete=models.PROTECT)),
             ],
             options={
                 'verbose_name': 'Skupina',

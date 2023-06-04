@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='goal',
             name='shooter',
-            field=models.ForeignKey(null=True, verbose_name='střelec', related_name='goals', to='ufobalapp.Player'),
+            field=models.ForeignKey(null=True, verbose_name='střelec', related_name='goals', to='ufobalapp.Player', on_delete=models.PROTECT),
         ),
         migrations.AlterField(
             model_name='teamontournament',

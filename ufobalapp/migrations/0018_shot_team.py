@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='shot',
             name='team',
-            field=models.ForeignKey(verbose_name='tým', related_name='shots', null=True, to='ufobalapp.TeamOnTournament'),
+            field=models.ForeignKey(verbose_name='tým', related_name='shots', null=True, to='ufobalapp.TeamOnTournament', on_delete=models.PROTECT),
         ),
     ]

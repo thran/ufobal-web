@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('url', models.TextField(verbose_name='url')),
                 ('data', models.TextField(verbose_name='data')),
                 ('timestamp', models.DateTimeField(verbose_name='timestamp', auto_now_add=True)),
-                ('user', models.ForeignKey(verbose_name='uživatel', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(verbose_name='uživatel', to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)),
             ],
             options={
                 'verbose_name_plural': 'logy',

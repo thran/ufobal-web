@@ -1,14 +1,36 @@
 ## Installation
 
-#### backend stuff
+### Setup backend environment
 
-`pip install -r requirements.txt`
+#### With [conda](https://docs.conda.io/en/latest/miniconda.html) (recommended)
 
-`python manage.py makemigrations`
+```bash
+conda env create
+poetry install
+```
 
-`python manage.py migrate`
+#### Without conda
 
-#### Frontend stuff
+requirements:
+- python ^3.10
+- [poetry](https://python-poetry.org/) ^1.3.2
+
+```bash
+poetry install
+```
+
+### Setup backend
+
+#### Requirements
+
+You probably need `memcached` running
+
+#### DB
+1. Create mysql database and user.
+2. Set environment variable `DATABASE_URL='mysql://username:password@localhost/db_name` (if you have db `ufobal` with user and password `ufobal`, you can skip this step) 
+3. Migrate database `python manage.py migrate`
+
+### Frontend stuff
 
 `npm install bower`
 

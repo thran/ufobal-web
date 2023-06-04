@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('card', models.CharField(verbose_name='karta', choices=[('red', 'červená'), ('yellow', 'žlutá')], max_length=10)),
                 ('time', models.TimeField(verbose_name='čas')),
                 ('reason', models.TextField(verbose_name='Důvod')),
-                ('match', models.ForeignKey(verbose_name='zápas', related_name='penalties', to='ufobalapp.Match')),
+                ('match', models.ForeignKey(verbose_name='zápas', related_name='penalties', to='ufobalapp.Match', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'trest',
@@ -82,8 +82,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('time', models.TimeField(verbose_name='Čas v zápase')),
-                ('match', models.ForeignKey(verbose_name='zápas', related_name='shots', to='ufobalapp.Match')),
-                ('shooter', models.ForeignKey(verbose_name='střelec', related_name='shots', to='ufobalapp.Player')),
+                ('match', models.ForeignKey(verbose_name='zápas', related_name='shots', to='ufobalapp.Match', on_delete=models.CASCADE)),
+                ('shooter', models.ForeignKey(verbose_name='střelec', related_name='shots', to='ufobalapp.Player', on_delete=models.PROTECT)),
             ],
             options={
                 'verbose_name': 'střela',
@@ -107,9 +107,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('name', models.CharField(verbose_name='Jméno na turnaji', max_length=100)),
-                ('captain', models.ForeignKey(to='ufobalapp.Player', verbose_name='Kapitán', null=True, blank=True, related_name='captain')),
+                ('captain', models.ForeignKey(to='ufobalapp.Player', verbose_name='Kapitán', null=True, blank=True, related_name='captain', on_delete=models.CASCADE)),
                 ('players', models.ManyToManyField(verbose_name='Hráči', related_name='teams', to='ufobalapp.Player')),
-                ('team', models.ForeignKey(verbose_name='Tým', related_name='tournaments', to='ufobalapp.Team')),
+                ('team', models.ForeignKey(verbose_name='Tým', related_name='tournaments', to='ufobalapp.Team', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'tým na turnaji',
@@ -131,12 +131,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='teamontournament',
             name='tournament',
-            field=models.ForeignKey(verbose_name='Turnaj', related_name='teams', to='ufobalapp.Tournament'),
+            field=models.ForeignKey(verbose_name='Turnaj', related_name='teams', to='ufobalapp.Tournament', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='penalty',
             name='player',
-            field=models.ForeignKey(verbose_name='hráč', to='ufobalapp.Player'),
+            field=models.ForeignKey(verbose_name='hráč', to='ufobalapp.Player', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='match',
@@ -146,46 +146,46 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='match',
             name='referee',
-            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='rozhodčí', null=True, blank=True, related_name='refereed'),
+            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='rozhodčí', null=True, blank=True, related_name='refereed', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='match',
             name='team_one',
-            field=models.ForeignKey(to='ufobalapp.Team', verbose_name='Tým 1', null=True, blank=True, related_name='+'),
+            field=models.ForeignKey(to='ufobalapp.Team', verbose_name='Tým 1', null=True, blank=True, related_name='+', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='match',
             name='team_two',
-            field=models.ForeignKey(to='ufobalapp.Team', verbose_name='Tým 2', null=True, blank=True, related_name='+'),
+            field=models.ForeignKey(to='ufobalapp.Team', verbose_name='Tým 2', null=True, blank=True, related_name='+', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='match',
             name='tournament',
-            field=models.ForeignKey(verbose_name='Turnaj', to='ufobalapp.Tournament'),
+            field=models.ForeignKey(verbose_name='Turnaj', to='ufobalapp.Tournament', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='goalieinmatch',
             name='goalie',
-            field=models.ForeignKey(verbose_name='brankář', to='ufobalapp.Player'),
+            field=models.ForeignKey(verbose_name='brankář', to='ufobalapp.Player', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='goalieinmatch',
             name='match',
-            field=models.ForeignKey(verbose_name='zápas', related_name='goalies', to='ufobalapp.Match'),
+            field=models.ForeignKey(verbose_name='zápas', related_name='goalies', to='ufobalapp.Match', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='goal',
             name='assistance',
-            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='asistent', null=True, blank=True, related_name='assistances'),
+            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='asistent', null=True, blank=True, related_name='assistances', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='goal',
             name='match',
-            field=models.ForeignKey(verbose_name='zápas', related_name='goals', to='ufobalapp.Match'),
+            field=models.ForeignKey(verbose_name='zápas', related_name='goals', to='ufobalapp.Match', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='goal',
             name='shooter',
-            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='střelec', null=True, blank=True, related_name='goals'),
+            field=models.ForeignKey(to='ufobalapp.Player', verbose_name='střelec', null=True, blank=True, related_name='goals', on_delete=models.PROTECT),
         ),
     ]

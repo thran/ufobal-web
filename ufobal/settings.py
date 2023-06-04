@@ -38,14 +38,13 @@ INSTALLED_APPS = (
     'managestats'
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'djng.middleware.AngularUrlMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -79,7 +78,7 @@ TEMPLATES = [
 if ON_SERVER and not DEBUG:
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
             'LOCATION': '127.0.0.1:11211',
             'KEY_PREFIX': '' if not TEST else 'test_'
         }
@@ -124,7 +123,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
