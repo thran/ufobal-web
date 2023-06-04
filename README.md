@@ -51,13 +51,7 @@ You probably need `memcached` running
 `grunt watch`
 
 #### run server
-python manage.py runserver
+`python manage.py runserver`
 
-## Windows troubles
-Add this into settings.py during development if you encounter encoding errors
-
-```
-import sys
-reload(sys)
-sys.setdefaultencoding('UTF8')
-```
+#### run tests
+`pytest`

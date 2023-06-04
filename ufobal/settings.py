@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import sys
+
 import dj_database_url
 import os
 
@@ -10,6 +12,7 @@ SECRET_KEY = '@b)=16lh3$y+g=ut()rq#7o%)s4ox_3aid(8b5qtoc0hokv@r_'
 
 ON_SERVER = os.getenv('ON_VIPER', "False") == "True"
 DEBUG = os.getenv('DJANGO_DEBUG', "False") == "True"
+TESTING = sys.argv[1:2] == ['test'] or any('pytest' in arg for arg in sys.argv)
 
 if not ON_SERVER:
     DEBUG = True
@@ -90,7 +93,8 @@ WSGI_APPLICATION = 'ufobal.wsgi.application'
 # Database
 
 DATABASES = {"default": dj_database_url.config(default='mysql://ufobal:ufobal@localhost/ufobal')}
-
+if TESTING:
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
 
 # Internationalization
 
