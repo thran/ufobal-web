@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-Django = "^4.2.1"
+Django = "^4.2.3"
 dj-database-url = "^2.0.0"
 django-angular = "^2.3"
 django-jsonfield = "^1.4.1"
