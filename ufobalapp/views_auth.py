@@ -3,6 +3,8 @@ import json
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from ufobalapp.views import is_authorized
 
@@ -13,16 +15,17 @@ def get_user_data(request):
         return None
     else:
         return {
-            "first_name": user.first_name,
+            "first_name": user.first_name if user.first_name or user.last_name else user.username,
             "last_name": user.last_name,
             "is_staff": user.is_staff,
             "is_authorized": is_authorized(user),
-            "player": user.player.to_json(simple=True) if hasattr(user, "player") else None
+            "player": user.player.to_json(simple=True) if hasattr(user, "player") else None,
         }
 
 
+@ensure_csrf_cookie
 def user_profile(request):
-    return JsonResponse(get_user_data(request))
+    return JsonResponse(get_user_data(request), safe=False)
 
 
 def login(request):
@@ -131,3 +134,7 @@ def update_profile(request, status=200):
 def logout(request):
     auth.logout(request)
     return HttpResponse('ok', status=202)
+
+
+def close_login_popup(request):
+    return render(request, 'close_login_popup_new.html', {'user': json.dumps(get_user_data(request))})

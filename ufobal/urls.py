@@ -20,13 +20,15 @@ from django.views.generic import TemplateView
 
 import ufobalapp.views
 from ufobal import settings
+from ufobalapp import views_auth
 
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
     path('close_login_popup/', TemplateView.as_view(template_name="close_login_popup.html"), name='login_popup_close'),
-
+    path('login/close_login_popup', views_auth.close_login_popup, name='login_popup_close_new'),
     path('', include('ufobalapp.urls', namespace='api')),
+    path('api_frontend/', include('ufobalapp.urls', namespace='api_frontend')),
     path('managestats/', include('managestats.urls', namespace='managestats')),
     path('intro', ufobalapp.views.intro, name='intro'),
     re_path(r'.*', ufobalapp.views.home, name='home'),

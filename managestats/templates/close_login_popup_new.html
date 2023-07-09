@@ -1,0 +1,12 @@
+<html lang="en">
+    <head>
+        <title>OAuth callback</title>
+        <script>
+            let url = new URL(window.location.href);
+            let POST_ORIGIN_URI = url.searchParams.get("url");
+            let message = {{ user | safe }};
+            window.opener.postMessage(message, POST_ORIGIN_URI);
+            window.close();
+        </script>
+  </head>
+</html>
