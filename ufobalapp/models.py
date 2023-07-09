@@ -53,7 +53,7 @@ class Player(models.Model):
             "full_name": self.full_name(),
             "gender": self.gender,
             "is_paired": self.user is not None,
-            "penalties": [p.to_json() for p in self.penalty_set.all()]
+            "penalties": [p.to_json() for p in self.penalty_set.all()],
         }
 
         if staff:
@@ -116,12 +116,12 @@ class Player(models.Model):
             os.makedirs(dir_path)
 
         if not os.path.exists(path):
-            img = qrcode.make(request.get_host()+"/sparovat_ucet/"+self.pairing_token)
+            img = qrcode.make(request.get_host() + "/sparovat_ucet/" + self.pairing_token)
             img.save(path)
         return settings.MEDIA_URL + "QR_codes/" + "{}.png".format(self.pairing_token)
 
     def get_pairing_link(self, request):
-        return request.get_host()+"/sparovat_ucet/"+self.pairing_token
+        return request.get_host() + "/sparovat_ucet/" + self.pairing_token
 
 
 class Team(models.Model):
@@ -159,11 +159,7 @@ class PairingRequest(models.Model):
     APPROVED = 'approved'
     DENIED = 'denied'
     PENDING = 'pending'
-    STATES = (
-        (APPROVED, 'schváleno'),
-        (DENIED, 'odmítnuto'),
-        (PENDING, 'rozhoduje se')
-    )
+    STATES = ((APPROVED, 'schváleno'), (DENIED, 'odmítnuto'), (PENDING, 'rozhoduje se'))
 
     state = models.CharField(max_length=15, verbose_name='stav', choices=STATES, default=PENDING)
     player = models.ForeignKey(Player, verbose_name='Hráč', related_name='pairing_request', on_delete=models.CASCADE)
@@ -178,9 +174,17 @@ class TeamOnTournament(models.Model):
         verbose_name_plural = "týmy na turnaji"
 
     team = models.ForeignKey(Team, verbose_name='Tým', related_name='tournaments', on_delete=models.CASCADE)
-    captain = models.ForeignKey(Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True, on_delete=models.CASCADE)
-    default_goalie = models.ForeignKey(Player, verbose_name='Nasazovaný brankář', related_name='default_goalie',
-                                       null=True, blank=True, on_delete=models.CASCADE)
+    captain = models.ForeignKey(
+        Player, verbose_name='Kapitán', related_name='captain', null=True, blank=True, on_delete=models.CASCADE
+    )
+    default_goalie = models.ForeignKey(
+        Player,
+        verbose_name='Nasazovaný brankář',
+        related_name='default_goalie',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField('Speciální jméno na turnaji?', max_length=100, null=True, blank=True)
     name_short = models.CharField('Zkrácené jméno na turnaji', max_length=20, null=True, blank=True)
     tournament = models.ForeignKey('Tournament', verbose_name='Turnaj', related_name='teams', on_delete=models.CASCADE)
@@ -304,10 +308,8 @@ class Tournament(models.Model):
 
     def is_tournament_open(self):
         return not self.closed_edit and (
-                    self.date == datetime.date.today()
-                    or self.category in [self.LIGA, self.TRENING]
-                    or settings.TEST
-                )
+            self.date == datetime.date.today() or self.category in [self.LIGA, self.TRENING] or settings.TEST
+        )
 
 
 class Match(models.Model):
@@ -316,15 +318,28 @@ class Match(models.Model):
         verbose_name_plural = "zápasy"
 
     tournament = models.ForeignKey(Tournament, verbose_name='Turnaj', related_name="matches", on_delete=models.CASCADE)
-    team_one = models.ForeignKey(TeamOnTournament, verbose_name='Tým 1', related_name='matches1', null=True, blank=True, on_delete=models.PROTECT)
-    team_two = models.ForeignKey(TeamOnTournament, verbose_name='Tým 2', related_name='matches2', null=True, blank=True, on_delete=models.PROTECT)
+    team_one = models.ForeignKey(
+        TeamOnTournament, verbose_name='Tým 1', related_name='matches1', null=True, blank=True, on_delete=models.PROTECT
+    )
+    team_two = models.ForeignKey(
+        TeamOnTournament, verbose_name='Tým 2', related_name='matches2', null=True, blank=True, on_delete=models.PROTECT
+    )
     start = models.DateTimeField('Začátek zápasu', null=True, blank=True)
     end = models.DateTimeField('Konec zápasu', null=True, blank=True)
     halftime_length = models.TimeField('Délka poločasu', null=True, blank=True)
     length = models.TimeField('Délka zápasu', null=True, blank=True)
     goalies = models.ManyToManyField(Player, verbose_name='brankaři', through='GoalieInMatch')
-    referee = models.ForeignKey(Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True, on_delete=models.PROTECT)
-    referee_team = models.ForeignKey(TeamOnTournament, related_name='refereed', verbose_name='rozhodčí tým', null=True, blank=True, on_delete=models.PROTECT)
+    referee = models.ForeignKey(
+        Player, related_name='refereed', verbose_name='rozhodčí', null=True, blank=True, on_delete=models.PROTECT
+    )
+    referee_team = models.ForeignKey(
+        TeamOnTournament,
+        related_name='refereed',
+        verbose_name='rozhodčí tým',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
     place = models.CharField(max_length=50, null=True, blank=True, verbose_name="Hřiště")
     # TODO hodnoceni od tymu....
 
@@ -359,7 +374,7 @@ class Match(models.Model):
             data['team_one'] = self.team_one.to_json(simple=True)
             data['team_two'] = self.team_two.to_json(simple=True)
             data['referee_team'] = self.referee_team.to_json(simple=True)
-            data['referee'] = self.referee.to_json(simple=True) if self.referee else None,
+            data['referee'] = (self.referee.to_json(simple=True) if self.referee else None,)
 
         return data
 
@@ -376,7 +391,7 @@ class Match(models.Model):
             return sum([goal.shooter_id in players for goal in self.goals.all()])
 
     def with_shootout(self):
-        return self.goals.filter(type=Goal.SHOOTOUT).count() > 0
+        return sum(1 for goal in self.goals.all() if goal.type == Goal.SHOOTOUT)
 
     score_two.short_description = 'tým 2 scóre'
 
@@ -385,8 +400,12 @@ class Match(models.Model):
     def __str__(self):
         if not self.team_one and not self.team_two:
             return "%s %s %s" % (self.tournament.name, self.tournament.date, 'fake')
-        return "%s vs. %s, %s %s" % (self.team_one.get_name(), self.team_two.get_name(),
-                                     self.tournament.name, self.tournament.date)
+        return "%s vs. %s, %s %s" % (
+            self.team_one.get_name(),
+            self.team_two.get_name(),
+            self.tournament.name,
+            self.tournament.date,
+        )
 
 
 class GoalieInMatch(models.Model):
@@ -424,12 +443,15 @@ class Goal(models.Model):
         (SHOOTOUT, 'penaltový rozstřel'),
     )
 
-    shooter = models.ForeignKey(Player, related_name='goals', verbose_name='střelec', null=True, on_delete=models.PROTECT)
-    assistance = models.ForeignKey(Player, related_name='assistances', verbose_name='asistent', null=True, blank=True, on_delete=models.PROTECT)
+    shooter = models.ForeignKey(
+        Player, related_name='goals', verbose_name='střelec', null=True, on_delete=models.PROTECT
+    )
+    assistance = models.ForeignKey(
+        Player, related_name='assistances', verbose_name='asistent', null=True, blank=True, on_delete=models.PROTECT
+    )
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='goals', on_delete=models.CASCADE)
     time = models.TimeField('Čas v zápase', null=True, blank=True)
-    type = models.CharField(max_length=20,
-                            verbose_name='druh', choices=GOAL_TYPES, default=NORMAL)
+    type = models.CharField(max_length=20, verbose_name='druh', choices=GOAL_TYPES, default=NORMAL)
 
     def to_json(self):
         data = {
@@ -440,26 +462,31 @@ class Goal(models.Model):
             "time": str(self.time) if self.time is not None else None,
             "type": self.type,
         }
-        return  data
+        return data
 
     def __str__(self):
         if self.match.fake:
             return "goal import"
         else:
-            if (self.shooter and  self.shooter in self.match.team_one.players.all()) or \
-                    (self.assistance and self.assistance in self.match.team_one.players.all()):
+            if (self.shooter and self.shooter in self.match.team_one.players.all()) or (
+                self.assistance and self.assistance in self.match.team_one.players.all()
+            ):
                 teams = "{0} ---> {1}"
 
-            elif (self.shooter and self.shooter in self.match.team_two.players.all()) or \
-                    (self.assistance and self.assistance in self.match.team_two.players.all()):
+            elif (self.shooter and self.shooter in self.match.team_two.players.all()) or (
+                self.assistance and self.assistance in self.match.team_two.players.all()
+            ):
                 teams = "{1} ---> {0}"
 
             else:
                 teams = "{0} ??? {1}"
 
-            return (teams + ": {2} ({3})").format(self.match.team_one.get_name(), self.match.team_two.get_name(),
-                                                  self.shooter.nickname if self.shooter else "-",
-                                                  self.assistance.nickname if self.assistance else "-")
+            return (teams + ": {2} ({3})").format(
+                self.match.team_one.get_name(),
+                self.match.team_two.get_name(),
+                self.shooter.nickname if self.shooter else "-",
+                self.assistance.nickname if self.assistance else "-",
+            )
 
 
 class Shot(models.Model):
@@ -467,8 +494,12 @@ class Shot(models.Model):
         verbose_name = "střela"
         verbose_name_plural = "střely"
 
-    shooter = models.ForeignKey(Player, related_name='shots', verbose_name='střelec', blank=True, null=True, on_delete=models.PROTECT)
-    team = models.ForeignKey(TeamOnTournament, related_name='shots', verbose_name='tým', null=True, on_delete=models.PROTECT)
+    shooter = models.ForeignKey(
+        Player, related_name='shots', verbose_name='střelec', blank=True, null=True, on_delete=models.PROTECT
+    )
+    team = models.ForeignKey(
+        TeamOnTournament, related_name='shots', verbose_name='tým', null=True, on_delete=models.PROTECT
+    )
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='shots', on_delete=models.CASCADE)
     time = models.TimeField('Čas v zápase')
 
@@ -494,8 +525,7 @@ class Penalty(models.Model):
         (YELLOW, 'žlutá'),
     )
 
-    card = models.CharField(max_length=10,
-                            verbose_name='karta', choices=CARDS)
+    card = models.CharField(max_length=10, verbose_name='karta', choices=CARDS)
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='penalties', on_delete=models.CASCADE)
     time = models.TimeField('čas')
     player = models.ForeignKey(Player, verbose_name='hráč', on_delete=models.PROTECT)
@@ -539,7 +569,10 @@ class Group(models.Model):
         return {
             "pk": self.pk,
             "tournament": self.tournament.to_json(teams=False),
-            "teams": [team.to_json(players=False) for team in self.teams.order_by('team__name').select_related('captain', 'default_goalie')],
+            "teams": [
+                team.to_json(players=False)
+                for team in self.teams.order_by('team__name').select_related('captain', 'default_goalie')
+            ],
             "level": self.level,
             "name": self.name,
         }
@@ -569,8 +602,10 @@ class Group(models.Model):
         round = teams[:1]
         for i in range(int(math.log2(team_count))):
             for j, team in enumerate(list(round)):
-                match = team.matches[- i - 1]
-                other_team = team_map[match.team_one.pk] if match.team_one.pk != team.pk else team_map[match.team_two.pk]
+                match = team.matches[-i - 1]
+                other_team = (
+                    team_map[match.team_one.pk] if match.team_one.pk != team.pk else team_map[match.team_two.pk]
+                )
                 round.insert(2 * j + 1, other_team)
         rounds.append(round)
 

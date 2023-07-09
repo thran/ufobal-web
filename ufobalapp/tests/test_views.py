@@ -37,12 +37,19 @@ def team2():
 
 
 @pytest.mark.django_db
-def test_get_players(client):
+def test_get_players(django_assert_num_queries, client):
     player = Player.objects.create(
         name='Josef',
         lastname='Novák',
         nickname='Pepa',
         gender=Player.WOMAN,
+        birthdate=datetime.now() - timedelta(days=365 * 10 + 100),
+    )
+    Player.objects.create(
+        name='Josef2',
+        lastname='Novák2',
+        nickname='Pepa2',
+        gender=Player.MAN,
         birthdate=datetime.now() - timedelta(days=365 * 10 + 100),
     )
     expected_response = {
@@ -69,15 +76,16 @@ def test_get_players(client):
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    response = client.get(reverse('api:get_players'))
+    with django_assert_num_queries(3):
+        response = client.get(reverse('api:get_players'))
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    assert len(response.json()) == 2
     del expected_response['tournaments']
     assert response.json()[0] == expected_response
 
 
 @pytest.mark.django_db
-def test_get_tournaments(client, tournament):
+def test_get_tournaments(django_assert_num_queries, client, tournament):
     expected_response = {
         'category': 'Brno',
         'category_slugname': 'brno',
@@ -101,7 +109,8 @@ def test_get_tournaments(client, tournament):
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    response = client.get(reverse('api:get_tournaments'))
+    with django_assert_num_queries(2):
+        response = client.get(reverse('api:get_tournaments'))
     assert response.status_code == 200
     assert len(response.json()) == 1
     expected_response['teams'] = []
@@ -109,7 +118,7 @@ def test_get_tournaments(client, tournament):
 
 
 @pytest.mark.django_db
-def test_get_teams_on_tournaments(client, tournament, team):
+def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament, team):
     tot = TeamOnTournament.objects.create(
         tournament=tournament,
         team=team,
@@ -156,7 +165,8 @@ def test_get_teams_on_tournaments(client, tournament, team):
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    response = client.get(reverse('api:get_teamontournaments'))
+    with django_assert_num_queries(2):
+        response = client.get(reverse('api:get_teamontournaments'))
     assert response.status_code == 200
     del expected_response['players']
     expected_response['player_pks'] = []
@@ -165,11 +175,18 @@ def test_get_teams_on_tournaments(client, tournament, team):
 
 
 @pytest.mark.django_db
-def test_get_matches(client, tournament, team, team1, team2):
+def test_get_matches(django_assert_num_queries, client, tournament, team, team1, team2):
     team_one = TeamOnTournament.objects.create(tournament=tournament, team=team1)
     team_two = TeamOnTournament.objects.create(tournament=tournament, team=team2)
     team_ref = TeamOnTournament.objects.create(tournament=tournament, team=team)
     match = Match.objects.create(
+        tournament=tournament,
+        team_one=team_one,
+        team_two=team_two,
+        referee_team=team_ref,
+        place='1',
+    )
+    Match.objects.create(
         tournament=tournament,
         team_one=team_one,
         team_two=team_two,
@@ -202,7 +219,8 @@ def test_get_matches(client, tournament, team, team1, team2):
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    response = client.get(reverse('api:get_matchs'))
+    with django_assert_num_queries(9):
+        response = client.get(reverse('api:get_matchs'))
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    assert len(response.json()) == 2
     assert response.json()[0] == expected_response
