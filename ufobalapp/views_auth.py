@@ -32,15 +32,11 @@ def login(request):
         password=data.get('password', ''),
     )
     if user is None:
-        return JsonResponse({
-            'error': 'Špatné jméno nebo heslo.',
-            'error_type': 'password_username_not_match'
-        }, status=401)
+        return JsonResponse(
+            {'error': 'Špatné jméno nebo heslo.', 'error_type': 'password_username_not_match'}, status=401
+        )
     if not user.is_active:
-        return JsonResponse({
-            'error': 'Účet je deaktivován.',
-            'error_type': 'account_not_activated'
-        }, status=401)
+        return JsonResponse({'error': 'Účet je deaktivován.', 'error_type': 'account_not_activated'}, status=401)
     auth.login(request, user)
     return user_profile(request)
 
@@ -49,33 +45,33 @@ def _check_credentials(credentials, new=False):
     if new and not credentials.get('username'):
         return {
             'error': 'Není vyplněno uživateslé jméno',
-            'error_type': 'username_empty'
+            'error_type': 'username_empty',
         }
     if new and not credentials.get('email'):
         return {
             'error': 'Není vyplněný e-mail',
-            'error_type': 'email_empty'
+            'error_type': 'email_empty',
         }
     if new and not credentials.get('password'):
         return {
             'error': 'Není vyplněné heslo',
-            'error_type': 'password_empty'
+            'error_type': 'password_empty',
         }
 
     if credentials.get('password') and credentials['password'] != credentials.get('password_check'):
         return {
             'error': 'Hesla se liší.',
-            'error_type': 'password_not_match'
+            'error_type': 'password_not_match',
         }
     if credentials.get('username') and _user_exists(username=credentials['username']):
         return {
             'error': 'Uživatel s tímto uživatelským jménem již existuje.',
-            'error_type': 'username_exists'
+            'error_type': 'username_exists',
         }
     if new and _user_exists(email=credentials['email']):
         return {
             'error': 'Uživatel s tímto e-mailem již existuje.',
-            'error_type': 'email_exists'
+            'error_type': 'email_exists',
         }
     return None
 
@@ -92,7 +88,7 @@ def _save_user(request, credentials, new=False):
         user = request.user
         if new:
             user = User()
-            user.backend='django.contrib.auth.backends.ModelBackend'
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             user.username = credentials['username']
             user.email = credentials['email']
         if credentials.get('password'):
@@ -107,11 +103,14 @@ def _save_user(request, credentials, new=False):
 
 
 def signup(request):
-    if request.user.is_authenticated():
-        return JsonResponse({
-            'error': 'Uživatel již přihlášen',
-            'error_type': 'username_logged'
-        }, status=400)
+    if request.user.is_authenticated:
+        return JsonResponse(
+            {
+                'error': 'Uživatel již přihlášen',
+                'error_type': 'username_logged',
+            },
+            status=400,
+        )
     data = json.loads(str(request.body.decode('utf-8')))
     error = _save_user(request, data, new=True)
     if error is not None:

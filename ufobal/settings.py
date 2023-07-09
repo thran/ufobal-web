@@ -23,7 +23,7 @@ ALLOWED_HOSTS = ["*"]
 
 EMAIL_HOST = '127.0.0.1'
 
-LOGIN_URL = 'admin:index' #redirect for login_required pages
+LOGIN_URL = 'admin:index'  # redirect for login_required pages
 
 # Application definition
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'social_django',
     'djng',
     'ufobalapp',
-    'managestats'
+    'managestats',
 )
 
 MIDDLEWARE = (
@@ -83,7 +83,7 @@ if ON_SERVER and not DEBUG:
         'default': {
             'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
             'LOCATION': '127.0.0.1:11211',
-            'KEY_PREFIX': '' if not TEST else 'test_'
+            'KEY_PREFIX': '' if not TEST else 'test_',
         }
     }
 
@@ -113,7 +113,9 @@ USE_TZ = True
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/close_login_popup/'
 
 # oauth2 data for localhost
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "292645579868-u9e41sdmt269d7orrkq6j1cjhhudrgmq.apps.googleusercontent.com")
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv(
+    "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "292645579868-u9e41sdmt269d7orrkq6j1cjhhudrgmq.apps.googleusercontent.com"
+)
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", "WDLtIQEnvwHIy2ge96Uf3os-")
 SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('SOCIAL_AUTH_FACEBOOK_KEY', '300944176721659')
 SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('SOCIAL_AUTH_FACEBOOK_SECRET', '5a4b653aba18f4b589d6003ec569efb3')
@@ -127,9 +129,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATIC_ROOT = os.path.join(BASE_DIR, '..', 'static')
 STATIC_URL = '/static/'
 
@@ -149,12 +149,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
+        'verbose': {'format': '%(levelname)s %(asctime)s %(message)s'},
+        'simple': {'format': '%(levelname)s %(message)s'},
     },
     'handlers': {
         'file': {

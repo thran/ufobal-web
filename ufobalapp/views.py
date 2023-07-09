@@ -16,8 +16,20 @@ from django.views.decorators.http import require_http_methods
 
 from managestats.views import is_staff_check
 from ufobal import settings
-from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Goal, \
-    Match, Shot, GoalieInMatch, Penalty, PairingRequest, Group, RefereeFeedback
+from ufobalapp.models import (
+    Player,
+    Tournament,
+    Team,
+    TeamOnTournament,
+    Goal,
+    Match,
+    Shot,
+    GoalieInMatch,
+    Penalty,
+    PairingRequest,
+    Group,
+    RefereeFeedback,
+)
 
 SYSTEM_MAIL = 'ufobal.is@thran.cz'
 
@@ -64,8 +76,9 @@ def get_json_all(request, model_class):
     if model_class == Player:
         objs = objs.prefetch_related("penalty_set", "penalty_set__match")
     if model_class == Match:
-        objs = objs.filter(fake=False).prefetch_related("goals", "goalies_in_match", "shots",
-                                                        "penalties", "team_one__players", "team_two__players")
+        objs = objs.filter(fake=False).prefetch_related(
+            "goals", "goalies_in_match", "shots", "penalties", "team_one__players", "team_two__players"
+        )
     if model_class == TeamOnTournament:
         objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
 
@@ -83,10 +96,14 @@ def get_json_all(request, model_class):
 
 
 def goals(request):
-    shooter = Goal.objects.values("shooter", "match__tournament").filter(shooter__isnull=False).annotate(
-        count=Count("pk"))
-    assistance = Goal.objects.values("assistance", "match__tournament").filter(assistance__isnull=False).annotate(
-        count=Count("pk"))
+    shooter = (
+        Goal.objects.values("shooter", "match__tournament").filter(shooter__isnull=False).annotate(count=Count("pk"))
+    )
+    assistance = (
+        Goal.objects.values("assistance", "match__tournament")
+        .filter(assistance__isnull=False)
+        .annotate(count=Count("pk"))
+    )
     data = {
         "goals": list(shooter),
         "assists": list(assistance),
@@ -98,9 +115,11 @@ def goals(request):
 
 
 def pairs(request, tournament_pk):
-    pairs = Goal.objects.values("shooter", "assistance")\
-        .filter(shooter__isnull=False, assistance__isnull=False, match__tournament=tournament_pk)\
+    pairs = (
+        Goal.objects.values("shooter", "assistance")
+        .filter(shooter__isnull=False, assistance__isnull=False, match__tournament=tournament_pk)
         .annotate(count=Count("pk"))
+    )
 
     data = defaultdict(lambda: defaultdict(int))
     for pair in pairs:
@@ -123,7 +142,9 @@ def pairs(request, tournament_pk):
 def stats(request):
     active_players = []
     active_players_year = datetime.datetime.now().year - 1
-    for tot in TeamOnTournament.objects.filter(tournament__date__gte=datetime.datetime(year=active_players_year, month=1, day=1)).prefetch_related('players'):
+    for tot in TeamOnTournament.objects.filter(
+        tournament__date__gte=datetime.datetime(year=active_players_year, month=1, day=1)
+    ).prefetch_related('players'):
         active_players += [p.pk for p in tot.players.all()]
     data = {
         "tournament_count": Tournament.objects.all().count(),
@@ -151,24 +172,56 @@ def hall_of_glory(request, max_instances=5):
     instances = Tournament.objects.annotate(Count("matches")).order_by('-matches__count')
     max_matches_per_tournament = list(takewhile(lambda i: i.matches__count == instances[0].matches__count, instances))
 
-    instances = Goal.objects.values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count')
-    max_goal_per_tournament_player = list(takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances))
+    instances = (
+        Goal.objects.values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count')
+    )
+    max_goal_per_tournament_player = list(
+        takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances)
+    )
 
-    instances = Goal.objects.values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count')
-    max_assists_per_tournament_player = list(takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances))
+    instances = (
+        Goal.objects.values('assistance', 'match__tournament')
+        .annotate(Count('assistance'))
+        .order_by('-assistance__count')
+    )
+    max_assists_per_tournament_player = list(
+        takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances)
+    )
 
-    instances = Goal.objects.filter(shooter__gender=Player.WOMAN).values('shooter', 'match__tournament').annotate(Count('shooter')).order_by('-shooter__count')
-    max_goal_per_tournament_playerF = list(takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances))
+    instances = (
+        Goal.objects.filter(shooter__gender=Player.WOMAN)
+        .values('shooter', 'match__tournament')
+        .annotate(Count('shooter'))
+        .order_by('-shooter__count')
+    )
+    max_goal_per_tournament_playerF = list(
+        takewhile(lambda i: i['shooter__count'] == instances[0]['shooter__count'], instances)
+    )
 
-    instances = Goal.objects.filter(assistance__gender=Player.WOMAN).values('assistance', 'match__tournament').annotate(Count('assistance')).order_by('-assistance__count')
-    max_assists_per_tournament_playerF = list(takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances))
+    instances = (
+        Goal.objects.filter(assistance__gender=Player.WOMAN)
+        .values('assistance', 'match__tournament')
+        .annotate(Count('assistance'))
+        .order_by('-assistance__count')
+    )
+    max_assists_per_tournament_playerF = list(
+        takewhile(lambda i: i['assistance__count'] == instances[0]['assistance__count'], instances)
+    )
 
     teams = []
     for team in Team.objects.prefetch_related("tournaments__matches1__goals", "tournaments__matches2__goals"):
         data = {
             'team': team,
-            'matches': len([m for t in team.tournaments.all() for m in list(t.matches1.all()) + list(t.matches2.all())]),
-            'goals': sum([(m.score_one() if m.team_one == t else m.score_two()) for t in team.tournaments.all() for m in list(t.matches1.all()) + list(t.matches2.all())]),
+            'matches': len(
+                [m for t in team.tournaments.all() for m in list(t.matches1.all()) + list(t.matches2.all())]
+            ),
+            'goals': sum(
+                [
+                    (m.score_one() if m.team_one == t else m.score_two())
+                    for t in team.tournaments.all()
+                    for m in list(t.matches1.all()) + list(t.matches2.all())
+                ]
+            ),
         }
         data['goals_per_match'] = data['goals'] / data['matches'] if data['matches'] else 0
         teams.append(data)
@@ -185,11 +238,11 @@ def hall_of_glory(request, max_instances=5):
     data = {
         "max_teams_per_tournament": {
             "value": max_teams_per_tournament[0].teams__count,
-            "instances": [i.to_json(teams=False) for i in max_teams_per_tournament]
+            "instances": [i.to_json(teams=False) for i in max_teams_per_tournament],
         },
         "max_matches_per_tournament": {
             "value": max_matches_per_tournament[0].matches__count,
-            "instances": [i.to_json(teams=False) for i in max_matches_per_tournament]
+            "instances": [i.to_json(teams=False) for i in max_matches_per_tournament],
         },
         "max_matches_per_team": {
             "value": max_matches_per_team[0]['matches'],
@@ -205,31 +258,43 @@ def hall_of_glory(request, max_instances=5):
         },
         "max_goal_per_tournament_player": {
             "value": max_goal_per_tournament_player[0]['shooter__count'],
-            "instances": [[
-                Player.objects.get(pk=i['shooter']).to_json(simple=True),
-                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-            ] for i in max_goal_per_tournament_player]
+            "instances": [
+                [
+                    Player.objects.get(pk=i['shooter']).to_json(simple=True),
+                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+                ]
+                for i in max_goal_per_tournament_player
+            ],
         },
         "max_assistance_per_tournament_player": {
             "value": max_assists_per_tournament_player[0]['assistance__count'],
-            "instances": [[
-                Player.objects.get(pk=i['assistance']).to_json(simple=True),
-                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-            ] for i in max_assists_per_tournament_player]
+            "instances": [
+                [
+                    Player.objects.get(pk=i['assistance']).to_json(simple=True),
+                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+                ]
+                for i in max_assists_per_tournament_player
+            ],
         },
         "max_goal_per_tournament_player_female": {
             "value": max_goal_per_tournament_playerF[0]['shooter__count'],
-            "instances": [[
-                Player.objects.get(pk=i['shooter']).to_json(simple=True),
-                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-            ] for i in max_goal_per_tournament_playerF]
+            "instances": [
+                [
+                    Player.objects.get(pk=i['shooter']).to_json(simple=True),
+                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+                ]
+                for i in max_goal_per_tournament_playerF
+            ],
         },
         "max_assistance_per_tournament_player_female": {
             "value": max_assists_per_tournament_playerF[0]['assistance__count'],
-            "instances": [[
-                Player.objects.get(pk=i['assistance']).to_json(simple=True),
-                Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-            ] for i in max_assists_per_tournament_playerF]
+            "instances": [
+                [
+                    Player.objects.get(pk=i['assistance']).to_json(simple=True),
+                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+                ]
+                for i in max_assists_per_tournament_playerF
+            ],
         },
     }
     return JsonResponse(data, safe=False)
@@ -292,7 +357,9 @@ def add_attendance(request):
     player = get_object_or_404(Player, pk=data["player"])
     team = get_object_or_404(TeamOnTournament, pk=data["team"])
     if player.tournaments.filter(tournament=team.tournament).count():
-        return HttpResponseBadRequest('Hráč už hraje v týmu {}'.format(player.tournaments.filter(tournament=team.tournament).first().get_name()))
+        return HttpResponseBadRequest(
+            'Hráč už hraje v týmu {}'.format(player.tournaments.filter(tournament=team.tournament).first().get_name())
+        )
 
     player.tournaments.add(team)
 
@@ -357,9 +424,17 @@ def add_team_on_tournament(request):
     if name_short == '':
         name_short = None
 
-    tour_team = TeamOnTournament(team=team, tournament=tournament, captain=data.get('captain'), name_short=name_short,
-                                 name=data.get('name'), rank=data.get('rank'), strength=data.get('strength'),
-                                 contact_mail=data.get('contact_mail'), contact_phone=data.get('contact_phone'))
+    tour_team = TeamOnTournament(
+        team=team,
+        tournament=tournament,
+        captain=data.get('captain'),
+        name_short=name_short,
+        name=data.get('name'),
+        rank=data.get('rank'),
+        strength=data.get('strength'),
+        contact_mail=data.get('contact_mail'),
+        contact_phone=data.get('contact_phone'),
+    )
     tour_team.save()
 
     return HttpResponse(tour_team.pk)
@@ -372,8 +447,13 @@ def add_player(request):
 
     nickname = data.get('nickname')
     if nickname:
-        player = Player(name=data.get('name'), lastname=data.get('lastname'), nickname=nickname,
-                        birthdate=data.get('birthdate'), gender=data.get('gender'))
+        player = Player(
+            name=data.get('name'),
+            lastname=data.get('lastname'),
+            nickname=nickname,
+            birthdate=data.get('birthdate'),
+            gender=data.get('gender'),
+        )
         player.save()
         return HttpResponse(player.pk)
 
@@ -447,9 +527,16 @@ def add_match(request):
     if team_one == team_two or team_one == referee_team or team_two == referee_team:
         return HttpResponseBadRequest("Některý z vybraných týmů se shoduje.")
 
-    match = Match(tournament=tournament, team_one=team_one, team_two=team_two,
-                  referee=referee, referee_team=referee_team, start=data.get('start'), place=data.get('place'),
-                  end=data.get('end'))
+    match = Match(
+        tournament=tournament,
+        team_one=team_one,
+        team_two=team_two,
+        referee=referee,
+        referee_team=referee_team,
+        start=data.get('start'),
+        place=data.get('place'),
+        end=data.get('end'),
+    )
     match.save()
 
     if data.get('goalie_one'):
@@ -486,8 +573,13 @@ def add_penalty(request):
     if player not in match.team_one.players.all() and player not in match.team_two.players.all():
         return HttpResponseBadRequest("Hráč se nenachází ani v jednom z týmů.")
 
-    penalty = Penalty(card=data.get('card'), match=match, player=player,
-                      reason=data.get('reason'), time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
+    penalty = Penalty(
+        card=data.get('card'),
+        match=match,
+        player=player,
+        reason=data.get('reason'),
+        time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"),
+    )
     penalty.save()
 
     return HttpResponse(penalty.pk)
@@ -684,8 +776,7 @@ def change_goalie(request, match_id, team_id):
                 goalie.save()
             break
 
-    new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match,
-                                        start=time + datetime.timedelta(seconds=1))
+    new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match, start=time + datetime.timedelta(seconds=1))
     new_goalie_in_match.save()
     if team_on_tournament.default_goalie is None:
         team_on_tournament.default_goalie = new_goalie
@@ -746,7 +837,7 @@ def create_pairing_request(request, player_id):
     if player.user:
         return HttpResponseBadRequest("Hráč je již spárovaný")
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             if request.user.player:
                 return HttpResponseBadRequest("Uživatel je již spárovaný")
@@ -757,8 +848,13 @@ def create_pairing_request(request, player_id):
     pairing_req = PairingRequest(player=player, user=user, text=text)
     pairing_req.save()
 
-    send_mail('Nová žádost o spárování', '{} - {} - {} - http://is.ufobal.cz/managestats/pairing_requests/'
-              .format(player, user, text), SYSTEM_MAIL, ['ufois-admin@googlegroups.com'], fail_silently=False)
+    send_mail(
+        'Nová žádost o spárování',
+        '{} - {} - {} - http://is.ufobal.cz/managestats/pairing_requests/'.format(player, user, text),
+        SYSTEM_MAIL,
+        ['ufois-admin@googlegroups.com'],
+        fail_silently=False,
+    )
 
     return HttpResponse("OK")
 
@@ -778,8 +874,13 @@ def approve_pairing_request(request, request_id):
 
     recepient = pairing_req.user.email
     if recepient:
-        send_mail('Váš účet byl spárován', 'Ahoj, nyní můžeš využívat is.ufobal.cz na plno.', SYSTEM_MAIL,
-                  [recepient], fail_silently=False)
+        send_mail(
+            'Váš účet byl spárován',
+            'Ahoj, nyní můžeš využívat is.ufobal.cz na plno.',
+            SYSTEM_MAIL,
+            [recepient],
+            fail_silently=False,
+        )
 
     other_reqs = PairingRequest.objects.filter(player=pairing_req.player).filter(state=PairingRequest.PENDING)
     for req in other_reqs:
@@ -810,7 +911,7 @@ def pair_user(request, pairing_token):
     except Player.DoesNotExist:
         return HttpResponseBadRequest("bad token")
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             if request.user.player:
                 return HttpResponseBadRequest("Uživatel je již spárovaný")
@@ -826,10 +927,14 @@ def pair_user(request, pairing_token):
 
 
 def intro(request):
-    return render(request, "intro.html", {
-        "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
-        "DEBUG": settings.DEBUG,
-    })
+    return render(
+        request,
+        "intro.html",
+        {
+            "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
+            "DEBUG": settings.DEBUG,
+        },
+    )
 
 
 def ping(request):
@@ -837,7 +942,6 @@ def ping(request):
 
 
 def get_groups(request, tournament_id=None):
-
     def is_match_in_level(match, level):
         gs = group_teams[level]
         for g in gs:
@@ -847,7 +951,9 @@ def get_groups(request, tournament_id=None):
 
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     group_teams = defaultdict(lambda: [])
-    groups = Group.objects.filter(tournament=tournament).order_by('-level', 'name').prefetch_related('tournament', 'teams')
+    groups = (
+        Group.objects.filter(tournament=tournament).order_by('-level', 'name').prefetch_related('tournament', 'teams')
+    )
     for group in groups:
         group.team_list = list(group.teams.all())
         group_teams[group.level].append(list(team.pk for team in group.team_list))
@@ -855,9 +961,12 @@ def get_groups(request, tournament_id=None):
 
     matches = defaultdict(lambda: {})
     levels = defaultdict(lambda: 1)
-    stats = defaultdict(lambda: defaultdict(lambda: {'score': [0, 0], 'wins': 0, 'looses': 0, 'winsP': 0, 'loosesP': 0, 'draws': 0}))
-    for match in Match.objects.filter(tournament=tournament, end__isnull=False)\
-            .prefetch_related('team_one', 'team_two', 'goals', 'team_one__players', 'team_two__players'):
+    stats = defaultdict(
+        lambda: defaultdict(lambda: {'score': [0, 0], 'wins': 0, 'looses': 0, 'winsP': 0, 'loosesP': 0, 'draws': 0})
+    )
+    for match in Match.objects.filter(tournament=tournament, end__isnull=False).prefetch_related(
+        'team_one', 'team_two', 'goals', 'team_one__players', 'team_two__players'
+    ):
         one_id = match.team_one_id
         two_id = match.team_two_id
         score_one = match.score_one()
@@ -923,13 +1032,20 @@ def get_groups(request, tournament_id=None):
 @ensure_csrf_cookie
 def home(request):
     from ufobalapp.views_auth import get_user_data
-    return render(request, "index.html", {
-        "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
-        "DEBUG": settings.DEBUG,
-        "TEST": settings.TEST,
-        "user": json.dumps(get_user_data(request)),
-        "live_tournament_pk": Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA]).order_by("-date")[0].pk,
-    })
+
+    return render(
+        request,
+        "index.html",
+        {
+            "GOOGLE_ANALYTICS": settings.ON_SERVER and not settings.DEBUG,
+            "DEBUG": settings.DEBUG,
+            "TEST": settings.TEST,
+            "user": json.dumps(get_user_data(request)),
+            "live_tournament_pk": Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA])
+            .order_by("-date")[0]
+            .pk,
+        },
+    )
 
 
 @user_passes_test_or_401(is_authorized)
