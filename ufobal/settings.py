@@ -111,6 +111,7 @@ USE_TZ = True
 
 # Social auth
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/close_login_popup/'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
 
 # oauth2 data for localhost
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv(
