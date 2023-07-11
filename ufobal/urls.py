@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 
 import ufobalapp.views
 from ufobal import settings
-from ufobalapp import views_auth
+from ufobalapp import views_auth, views
 
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('admin/', admin.site.urls),
@@ -31,5 +31,8 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('api_frontend/', include('ufobalapp.urls', namespace='api_frontend')),
     path('managestats/', include('managestats.urls', namespace='managestats')),
     path('intro', ufobalapp.views.intro, name='intro'),
+    re_path(
+        r'api_frontend/.*', views.not_found, name='home'
+    ),  # TODO after removing old frontend move to ufobalapp.urls
     re_path(r'.*', ufobalapp.views.home, name='home'),
 ]
