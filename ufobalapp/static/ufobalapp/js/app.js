@@ -34,11 +34,11 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'hall_of_records.html',
                 controller: "hall_of_records"
             }).
-            when('/sparovat_ucet', {
+            when('/sparovat_ucet', {  // TODO
                 templateUrl: 'pair_account.html',
                 controller: "auth"
             }).
-            when('/sparovat_ucet/:token', {
+            when('/sparovat_ucet/:token', {  // TODO
                 templateUrl: 'pair_account.html',
                 controller: "auth"
             }).
@@ -113,7 +113,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
                 templateUrl: 'faq.html',
                 controller: "intro"
             }).
-            when('/hodnoceni_rozhodcich/:id', {
+            when('/hodnoceni_rozhodcich/:id', {  // TODO
                 templateUrl: 'referee_feedbacks.html',
                 controller: "referee_feedbacks"
             }).
