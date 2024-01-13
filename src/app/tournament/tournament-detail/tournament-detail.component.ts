@@ -8,8 +8,8 @@ import { ET, Team, Tournament } from '../../models';
   styleUrls: ['./tournament-detail.component.css']
 })
 export class TournamentDetailComponent {
-  @Input() tournamentId?: number;
-  @Input() teamId?: number;
+  @Input({transform: numberAttribute}) tournamentId?: number;
+  @Input({transform: numberAttribute}) teamId?: number;
   public tournament: Tournament | null = null;
 
   constructor(public entities: EntitiesService) {

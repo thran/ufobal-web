@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, numberAttribute } from '@angular/core';
 
 @Component({
   selector: 'app-tournament',
@@ -6,6 +6,6 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./tournament.component.css']
 })
 export class TournamentComponent {
-  @Input() tournamentId?: number;
+  @Input({transform: numberAttribute}) tournamentId?: number;
 
 }

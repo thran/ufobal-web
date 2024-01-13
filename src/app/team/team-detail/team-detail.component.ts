@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, numberAttribute } from '@angular/core';
 import { ET, Team } from '../../models';
 import { EntitiesService } from '../../entities.service';
 
@@ -8,7 +8,7 @@ import { EntitiesService } from '../../entities.service';
   styleUrls: ['./team-detail.component.css']
 })
 export class TeamDetailComponent {
-  @Input() teamId?: number;
+  @Input({transform: numberAttribute}) teamId?: number;
   public team: Team | null = null;
 
   constructor(public entities: EntitiesService) {

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, numberAttribute } from '@angular/core';
 
 @Component({
   selector: 'app-match',
@@ -6,7 +6,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./match.component.css']
 })
 export class MatchComponent {
-  @Input() tournamentId ?: number;
-  @Input() matchId?: number;
+  @Input({transform: numberAttribute}) tournamentId ?: number;
+  @Input({transform: numberAttribute}) matchId?: number;
 
 }

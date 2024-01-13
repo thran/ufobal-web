@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, numberAttribute } from '@angular/core';
 
 @Component({
   selector: 'app-player-detail',
@@ -6,5 +6,5 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./player-detail.component.css']
 })
 export class PlayerDetailComponent {
-  @Input() playerId?: number;
+  @Input({transform: numberAttribute}) playerId?: number;
 }
