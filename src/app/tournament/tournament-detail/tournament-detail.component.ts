@@ -1,6 +1,6 @@
 import { Component, Input, numberAttribute } from '@angular/core';
 import { EntitiesService } from '../../entities.service';
-import { TeamOnTournament, Tournament } from '../../models';
+import { Match, TeamOnTournament, Tournament } from '../../models';
 
 @Component({
   selector: 'app-tournament-detail',
@@ -22,7 +22,6 @@ export class TournamentDetailComponent {
   }
 
   ngOnInit(): void {
-    console.log(this.teamId);
     this.entities.getTournament(this.tournamentId!).subscribe((tournament) => {
         this.tournament = tournament as Tournament;
         this.entities.getPlayersWithGoalStats().subscribe((players) => {
@@ -45,12 +44,10 @@ export class TournamentDetailComponent {
     }
 
     for (const match of this.tournament!.matches!) {
-      const teamOnePk = typeof match.team_one === "number" ? match.team_one : match.team_one.pk;
-      const teamTwoPk = typeof match.team_two === "number" ? match.team_two : match.team_two.pk;
-      this.teams[teamOnePk].goals_scored! += match.score_one;
-      this.teams[teamTwoPk].goals_scored! += match.score_two;
-      this.teams[teamOnePk].goals_received! += match.score_two;
-      this.teams[teamTwoPk].goals_received! += match.score_one;
+      this.teams[match.team_one.pk].goals_scored! += match.score_one;
+      this.teams[match.team_two.pk].goals_scored! += match.score_two;
+      this.teams[match.team_one.pk].goals_received! += match.score_two;
+      this.teams[match.team_two.pk].goals_received! += match.score_one;
       this.goalCount += match.score_one + match.score_two;
     }
   }

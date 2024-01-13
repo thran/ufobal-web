@@ -81,14 +81,14 @@ export class Tournament extends Entity {
 
 export class Match extends Entity {
   tournament!: Tournament | number;
-  team_one!: TeamOnTournament | number;
-  team_two!: TeamOnTournament | number;
+  team_one!: TeamOnTournament;
+  team_two!: TeamOnTournament;
   start!: Date | string | null;
   end!: Date | string | null;
   halftime_length!: number | null;
   length!: number | null;
   referee!: Player | number | null;
-  referee_team!: TeamOnTournament | number | null;
+  referee_team!: TeamOnTournament | null;
   fake!: boolean;
   score_one!: number;
   score_two!: number;
