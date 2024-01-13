@@ -1,16 +1,65 @@
-<p>tournament-detail works!</p>
-
 tournament: <span *ngIf="tournamentId">{{ tournamentId }}</span> <br>
 team: <span *ngIf="teamId">{{ teamId }}</span>
 
+<spinner [hide]='tournament'/>
 <div *ngIf="tournament">
   <h1>{{ tournament.full_name }}</h1>
 
-  <ul *ngIf="goalCount">
-      <li>lokace: {{ tournament.location }}</li>
-      <li>kategorie: {{ tournament.category }}</li>
-      <li><b>{{ tournament.team_on_tournaments.length }}</b> týmů odehrálo <b>{{ tournament.matches.length }}</b> zápasů</li>
-      <li>celkem se zúčastnilo <b>{{ playerCount }}</b> hráčů</li>
-      <li>bylo vstřeleno <b>{{ goalCount }}</b> branek</li>
+  <spinner [hide]='teams'/>
+  <ul *ngIf="teams">
+    <li>lokace: {{ tournament.location }}</li>
+    <li>kategorie: {{ tournament.category }}</li>
+    <li><b>{{ tournament.team_on_tournaments!.length }}</b> týmů odehrálo <b>{{ tournament.matches!.length }}</b> zápasů
+    </li>
+    <li>celkem se zúčastnilo <b>{{ playerCount }}</b> hráčů</li>
+    <li>bylo vstřeleno <b>{{ goalCount }}</b> branek</li>
   </ul>
+
+  <div class="row mb-3 mt-5">
+    <div class="col-md-6 col-lg-4">
+      <select class="form-select" [(ngModel)]="selectedTeam" (change)="teamId = selectedTeam ? selectedTeam.pk : NaN">
+        <option [ngValue]="null">Všechny týmy</option>
+        <option *ngFor="let team of tournament.team_on_tournaments! | sort:'name'" [ngValue]="team">
+          {{ team.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <span *ngIf="selectedTeam">{{ selectedTeam!.name }}</span>
+
+  <div class="row">
+    <div class="col-md-7">
+      <h3>Týmy</h3>
+
+      <smart-table *ngIf="teams" [data]="tournament.team_on_tournaments! | filter:selectedTeam | sort:'rank'"
+                   [pageSize]="null">
+        <thead>
+        <tr>
+          <td>#</td>
+          <th>Jméno</th>
+          <th>Skóre</th>
+          <th>Hráči</th>
+        </tr>
+        </thead>
+        <ng-template #tr let-row>
+          <th>{{ row.rank || '-' }}</th>
+          <td><a routerLink="/team/{{ row.team.pk }}">{{ row.name }}</a></td>
+          <td>{{ row.goals_scored }}:{{ row.goals_received }}</td>
+          <td>
+            <span *ngFor="let player of row.players; let last = last">
+              <a routerLink="/player/{{ player.pk }}">{{ player.nickname }}</a>
+              <span *ngIf="!last">, </span>
+            </span>
+          </td>
+        </ng-template>
+      </smart-table>
+
+    </div>
+
+    <div class="col">
+      right
+    </div>
+  </div>
+
 </div>

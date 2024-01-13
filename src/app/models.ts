@@ -123,6 +123,8 @@ export class TeamOnTournament extends Entity {
   matches!: Match[];
   players?: Player[];
   player_pks?: number[];
+  goals_scored?: number;
+  goals_received?: number;
 }
 
 export class GoalPair extends Entity {
