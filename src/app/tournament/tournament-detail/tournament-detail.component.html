@@ -17,7 +17,7 @@ team: <span *ngIf="teamId">{{ teamId }}</span>
 
   <div class="row mb-3 mt-5">
     <div class="col-md-6 col-lg-4">
-      <select class="form-select" [(ngModel)]="selectedTeam" (change)="teamId = selectedTeam ? selectedTeam.pk : NaN">
+      <select class="form-select" [(ngModel)]="selectedTeam" (ngModelChange)="updateFilter()">
         <option [ngValue]="null">Všechny týmy</option>
         <option *ngFor="let team of tournament.team_on_tournaments! | sort:'name'" [ngValue]="team">
           {{ team.name }}
@@ -26,15 +26,14 @@ team: <span *ngIf="teamId">{{ teamId }}</span>
     </div>
   </div>
 
-  <span *ngIf="selectedTeam">{{ selectedTeam!.name }}</span>
-
   <div class="row">
     <div class="col-md-7">
       <h3>Týmy</h3>
 
-      <smart-table *ngIf="teams"
-                   [data]="selectedTeam ? (tournament.team_on_tournaments! | filter:{'name': selectedTeam.name}) : (tournament.team_on_tournaments! | sort:'rank')"
-                   [pageSize]="null">
+      <smart-table #teamsTable *ngIf="teams"
+                   [data]="tournament.team_on_tournaments! | sort:'rank'"
+                   [pageSize]="null"
+      >
         <thead>
         <tr>
           <td>#</td>
@@ -58,19 +57,15 @@ team: <span *ngIf="teamId">{{ teamId }}</span>
 
       <h3 *ngIf="tournament.matches">Zápasy</h3>
 
-      <table *ngIf="tournament.matches" class="table table-striped">
-        <tbody>
-        <tr
-          *ngFor="let match of tournament.matches! | filter: {'searchable': selectedTeam ? selectedTeam.name : ''}:true | sort: 'start'">
-          <td class="text-right"> {{ match.team_one.name_pure }}</td>
-          <td class="text-right"><b>{{ match.score_one }}</b></td>
-          <td><b>{{ match.score_two }}<span *ngIf="match.with_shootout">P</span></b></td>
-          <td>{{ match.team_two.name_pure }}</td>
-          <td><a href="/record/{{ tournament.pk }}/match/{{ match.pk }}">detail</a></td>
-        </tr>
-        </tbody>
-      </table>
-
+      <smart-table #matchesTable *ngIf="tournament.matches" [pageSize]="20" [data]="tournament.matches! | sort: 'start'">
+        <ng-template #tr let-row>
+          <td class="text-right"> {{ row.team_one.name_pure }}</td>
+          <td class="text-right"><b>{{ row.score_one }}</b></td>
+          <td><b>{{ row.score_two }}<span *ngIf="row.with_shootout">P</span></b></td>
+          <td>{{ row.team_two.name_pure }}</td>
+          <td><a href="/record/{{ tournament.pk }}/match/{{ row.pk }}">detail</a></td>
+        </ng-template>
+      </smart-table>
     </div>
 
     <div class="col">

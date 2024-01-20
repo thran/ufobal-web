@@ -1,6 +1,7 @@
-import { Component, Input, numberAttribute } from '@angular/core';
+import { Component, Input, numberAttribute, ViewChild } from '@angular/core';
 import { EntitiesService } from '../../entities.service';
 import { Match, TeamOnTournament, Tournament } from '../../models';
+import { SmartTableComponent } from '../../utils/table/smart-table.component';
 
 @Component({
   selector: 'app-tournament-detail',
@@ -10,6 +11,9 @@ import { Match, TeamOnTournament, Tournament } from '../../models';
 export class TournamentDetailComponent {
   @Input({transform: numberAttribute}) tournamentId?: number;
   @Input({transform: numberAttribute}) teamId?: number;
+  @ViewChild('teamsTable') teamsTable: SmartTableComponent | null = null;
+  @ViewChild('matchesTable') matchesTable: SmartTableComponent | null = null;
+
   public tournament: Tournament | null = null;
   // public players: Player[] | null = null;
   public teams: { [pk: number]: TeamOnTournament } | null = null;
@@ -40,6 +44,7 @@ export class TournamentDetailComponent {
       team.goals_received = 0;
       if (team.pk === this.teamId) {
         this.selectedTeam = team;
+        setTimeout(() => this.updateFilter());
       }
     }
 
@@ -53,4 +58,23 @@ export class TournamentDetailComponent {
   }
 
   protected readonly NaN = NaN;
+
+  updateFilter() {
+    this.teamId = this.selectedTeam ? this.selectedTeam.pk : NaN;
+
+    if (this.teamsTable) {
+      this.teamsTable.filterRows((row: TeamOnTournament) => {
+        return this.selectedTeam === null || row.pk === this.selectedTeam.pk;
+      })
+    }
+
+    if (this.matchesTable) {
+      this.matchesTable.filterRows((row: Match) => {
+        return this.selectedTeam === null
+          || row.team_one.pk === this.selectedTeam.pk
+          || row.team_two.pk === this.selectedTeam.pk;
+      });
+
+    }
+  }
 }
