@@ -60,7 +60,7 @@ export class SmartTableComponent {
       });
     }
 
-    this.rows = this.rows.map((country, i) => ({ rowNumber: i + 1, ...country }));
+    this.rows = this.rows.map((row, i) => ({ rowNumber: i + 1, ...row }));
 
     if (this.filter) {
       this.filteredRows = this.rows.filter(this.filter);
@@ -70,6 +70,8 @@ export class SmartTableComponent {
 
     if (this.pageSize) {
       this.rows = this.filteredRows.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
+    } else {
+      this.rows = this.filteredRows;
     }
   }
 }
