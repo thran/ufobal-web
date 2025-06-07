@@ -45,13 +45,14 @@ def test_get_players(django_assert_num_queries, client):
         gender=Player.WOMAN,
         birthdate=datetime.now() - timedelta(days=365 * 10 + 100),
     )
-    Player.objects.create(
-        name='Josef2',
-        lastname='Novák2',
-        nickname='Pepa2',
-        gender=Player.MAN,
-        birthdate=datetime.now() - timedelta(days=365 * 10 + 100),
-    )
+    for i in range(20):
+        Player.objects.create(
+            name=f'Josef_{i}',
+            lastname=f'Novák_{i}',
+            nickname=f'Pepa_{i}',
+            gender=Player.MAN,
+            birthdate=datetime.now() - timedelta(days=365 * 10 + 100 + i),
+        )
     expected_response = {
         'pk': player.pk,
         'name': 'Josef',
@@ -79,7 +80,7 @@ def test_get_players(django_assert_num_queries, client):
     with django_assert_num_queries(3):
         response = client.get(reverse('api:get_players'))
     assert response.status_code == 200
-    assert len(response.json()) == 2
+    assert len(response.json()) == 21
     del expected_response['tournaments']
     assert response.json()[0] == expected_response
 
@@ -96,7 +97,7 @@ def test_get_tournaments(django_assert_num_queries, client, tournament):
         'full_name': 'Test 2021',
         'halftime_length': 8,
         'is_after_tournament': True,
-        'is_tournament_open': False,
+        'is_tournament_open': True,
         'location': 'Zamilec',
         'name': 'Test',
         'pk': tournament.pk,
@@ -151,7 +152,7 @@ def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament,
             'full_name': 'Test 2021',
             'halftime_length': 8,
             'is_after_tournament': True,
-            'is_tournament_open': False,
+            'is_tournament_open': True,
             'location': 'Zamilec',
             'name': 'Test',
             'pk': tournament.pk,

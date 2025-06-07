@@ -74,13 +74,14 @@ def get_json_all(request, model_class):
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
     if model_class == Player:
-        objs = objs.prefetch_related("penalty_set", "penalty_set__match")
+        objs = objs.prefetch_related("user", "penalty_set", "penalty_set__match")
     if model_class == Match:
         objs = objs.filter(fake=False).prefetch_related(
             "goals", "goalies_in_match", "shots", "penalties", "team_one__players", "team_two__players"
         )
     if model_class == TeamOnTournament:
-        objs = objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
+        objs = (objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
+                .select_related('default_goalie', 'captain'))
 
     filtering = dict(request.GET)
     if len(filtering):

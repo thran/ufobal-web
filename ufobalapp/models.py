@@ -358,9 +358,6 @@ class Match(models.Model):
             "referee": self.referee_id,
             "referee_team": self.referee_team_id,
             "fake": self.fake,
-            "score_one": self.score_one(),
-            "score_two": self.score_two(),
-            "with_shootout": self.with_shootout(),
             "place": self.place,
         }
 
@@ -369,6 +366,9 @@ class Match(models.Model):
             data["shots"] = [shot.to_json() for shot in self.shots.all()]
             data["penalties"] = [penalty.to_json() for penalty in self.penalties.all()]
             data["goalies"] = [goalie.to_json() for goalie in self.goalies_in_match.all()]
+            data["with_shootout"] = self.with_shootout()
+            data["score_one"] = self.score_one()
+            data["score_two"] = self.score_two()
 
         if extended:
             data['team_one'] = self.team_one.to_json(simple=True)
