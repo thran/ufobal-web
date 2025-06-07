@@ -36,3 +36,6 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     ),  # TODO after removing old frontend move to ufobalapp.urls
     re_path(r'.*', ufobalapp.views.home, name='home'),
 ]
+
+if settings.SILK:
+    urlpatterns = [path('silk/', include('silk.urls', namespace='silk'))] + urlpatterns

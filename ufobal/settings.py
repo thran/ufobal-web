@@ -54,6 +54,13 @@ MIDDLEWARE = (
     'ufobal.middleware.api_logging_middleware.ApiLoggingMiddleware',
 )
 
+if DEBUG and not ON_SERVER and not TEST:
+    INSTALLED_APPS += ('silk',)
+    MIDDLEWARE += ('silk.middleware.SilkyMiddleware',)
+    SILK = True
+else:
+    SILK = False
+
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
