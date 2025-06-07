@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
+from django.core.cache import cache
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -270,3 +270,8 @@ def pairing_requests(request):
     return render(request, 'managestats/pairing_requests.html', {
         "requests": PairingRequest.objects.filter(state=PairingRequest.PENDING).select_related("player", "user")
     })
+
+@user_passes_test(is_staff_check)
+def clear_cache(request):
+    cache.clear()
+    return redirect("managestats:index")
