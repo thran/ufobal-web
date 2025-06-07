@@ -4,8 +4,11 @@ import os
 
 import qrcode
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.signals import post_save, m2m_changed
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
@@ -660,3 +663,15 @@ class RefereeFeedback(models.Model):
             'author': self.author_id,
             'feedback': self.feedback,
         }
+
+
+@receiver(post_save, sender=Player)
+@receiver(post_save, sender=TeamOnTournament)
+@receiver(post_save, sender=Tournament)
+@receiver(post_save, sender=Team)
+@receiver(m2m_changed, sender=TeamOnTournament.players.through)
+def reset_cache(sender, instance, **kwargs):
+    if sender in [Player, TeamOnTournament, Tournament, Team, TeamOnTournament.players.through]:
+        cache.delete(str(TeamOnTournament))
+        cache.delete(str(Tournament))
+        cache.delete(str(Player))

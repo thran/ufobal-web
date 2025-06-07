@@ -70,6 +70,13 @@ def get_json_one(request, model_class, pk):
 
 
 def get_json_all(request, model_class):
+    filtering = dict(request.GET)
+    use_cache = model_class != Match and not filtering
+    if use_cache:
+        cached = cache.get(str(model_class))
+        if cached:
+            return JsonResponse(cached, safe=False)
+
     objs = model_class.objects.all()
     if model_class == Tournament:
         objs = objs.prefetch_related("teams")
@@ -83,7 +90,6 @@ def get_json_all(request, model_class):
         objs = (objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
                 .select_related('default_goalie', 'captain'))
 
-    filtering = dict(request.GET)
     if len(filtering):
         if "html" in filtering:
             del filtering["html"]
@@ -93,6 +99,8 @@ def get_json_all(request, model_class):
     data = [obj.to_json(simple=True, staff=request.user.is_staff) for obj in objs]
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(data, indent=4)})
+    if use_cache:
+        cache.set(str(model_class), data, 60 * 60 * 24)
     return JsonResponse(data, safe=False)
 
 
@@ -140,6 +148,7 @@ def pairs(request, tournament_pk):
     return JsonResponse(data, safe=False)
 
 
+@cache_page(60 * 60 * 24)
 def stats(request):
     active_players = []
     active_players_year = datetime.datetime.now().year - 1
@@ -166,7 +175,6 @@ def stats(request):
 
 @cache_page(60 * 60 * 24)
 def hall_of_glory(request, max_instances=5):
-    cache.clear()
     instances = Tournament.objects.annotate(Count("teams")).order_by('-teams__count')[:max_instances]
     max_teams_per_tournament = list(takewhile(lambda i: i.teams__count == instances[0].teams__count, instances))
 
