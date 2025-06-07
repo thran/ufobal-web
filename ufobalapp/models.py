@@ -671,7 +671,6 @@ class RefereeFeedback(models.Model):
 @receiver(post_save, sender=Team)
 @receiver(m2m_changed, sender=TeamOnTournament.players.through)
 def reset_cache(sender, instance, **kwargs):
-    if sender in [Player, TeamOnTournament, Tournament, Team, TeamOnTournament.players.through]:
-        cache.delete(str(TeamOnTournament))
-        cache.delete(str(Tournament))
-        cache.delete(str(Player))
+        cache.delete(TeamOnTournament.__name__)
+        cache.delete(Tournament.__name__)
+        cache.delete(Team.__name__)

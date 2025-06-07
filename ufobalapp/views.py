@@ -73,7 +73,7 @@ def get_json_all(request, model_class):
     filtering = dict(request.GET)
     use_cache = model_class != Match and not filtering
     if use_cache:
-        cached = cache.get(str(model_class))
+        cached = cache.get(model_class.__name__)
         if cached:
             return JsonResponse(cached, safe=False)
 
@@ -100,7 +100,7 @@ def get_json_all(request, model_class):
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(data, indent=4)})
     if use_cache:
-        cache.set(str(model_class), data, 60 * 60 * 24)
+        cache.set(model_class.__name__, data, 60 * 60 * 24)
     return JsonResponse(data, safe=False)
 
 
