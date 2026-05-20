@@ -31,7 +31,7 @@ from ufobalapp.models import (
     RefereeFeedback,
 )
 
-SYSTEM_MAIL = 'ufobal.is@thran.cz'
+SYSTEM_MAIL = 'ufobal.is@pugna.cz'
 
 logger = logging.getLogger(__name__)
 
