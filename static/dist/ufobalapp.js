@@ -351,7 +351,7 @@ app.controller("player", ["$scope", "dataService", "$routeParams", "userService"
                 toastr.info('Žádost o spárování odeslána.');
             })
             .catch(function (response) {
-                toastr.error('Chyba: ' + response);
+                toastr.error('Chyba: ' + response.data);
             });
     };
 
