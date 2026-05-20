@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo python -m smtpd -n -c DebuggingServer localhost:25
+sudo python -m aiosmtpd -n -l localhost:25
