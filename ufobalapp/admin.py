@@ -151,7 +151,7 @@ class MatchAdmin(admin.ModelAdmin):
 
 
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ['name', 'date', 'category', 'location', 'registration_to', 'halftime_length', 'field_count', 'closed_edit']
+    list_display = ['name', 'date', 'category', 'location', 'registration_from', 'registration_to', 'halftime_length', 'field_count', 'closed_edit']
     search_fields = ['name', 'date', 'category']
 
 

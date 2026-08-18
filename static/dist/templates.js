@@ -761,6 +761,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        <h3><a href=\"/turnaj/{{ liveTournament.pk }}\">{{ liveTournament.full_name }}</a></h3>\n" +
     "        <strong>datum:</strong> {{ liveTournament.date | date : \"d. M. yyyy\"}}<br>\n" +
     "        <div ng-show=\"liveTournament.registration_open\"><a href=\"/turnaj/prihlasovani/{{ liveTournament.pk }}\">přihlásit se na turnaj</a> - do {{ liveTournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
+    "        <div ng-show=\"liveTournament.registration_scheduled\">přihlašování začne {{ liveTournament.registration_from | date : \"d. M. yyyy H:mm\"}}</div>\n" +
     "        <span ng-show=\"liveTournament.description\" ng-bind-html=\"to_trusted(liveTournament.description)\"></span>\n" +
     "    </div>\n" +
     "\n" +
@@ -1535,6 +1536,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "\n" +
     "    <div class=\"row\">\n" +
     "        <div ng-show=\"tournament.registration_open\"><a href=\"/turnaj/prihlasovani/{{ tournament.pk }}\">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
+    "        <div ng-show=\"tournament.registration_scheduled\">přihlašování začne {{ tournament.registration_from | date : \"d. M. yyyy H:mm\"}}</div>\n" +
     "        <h3>Týmy</h3>\n" +
     "        <div class=\"small-6 medium-4 large-3 columns\" ng-repeat=\"team in tournament.teamOnTournaments | orderBy:'name'\"><a href=\"/turnaj/{{ tournament.pk }}/tym/{{ team.pk }}\">{{ team.name }}</a></div>\n" +
     "    </div>\n" +
@@ -1926,7 +1928,11 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "\n" +
     "<div class=\"row\"><div ng-show=\"tournament\" class=\"columns medium-6 medium-offset-3\">\n" +
     "\n" +
-    "    <div ng-cloak class=\"text-center\" ng-hide=\"tournament.registration_open\">\n" +
+    "    <div ng-cloak class=\"text-center\" ng-show=\"tournament.registration_scheduled\">\n" +
+    "        Přihlašování na turnaj začne {{ tournament.registration_from | date : \"d. M. yyyy H:mm\" }}.\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div ng-cloak class=\"text-center\" ng-hide=\"tournament.registration_open || tournament.registration_scheduled\">\n" +
     "        Přihlašování na turnaj bylo již uzavřeno.\n" +
     "    </div>\n" +
     "\n" +

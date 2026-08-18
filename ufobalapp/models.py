@@ -270,6 +270,11 @@ class Tournament(models.Model):
 
     category = models.CharField(max_length=15, verbose_name='kategorie', choices=CATEGORIES, null=True)
     date = models.DateField('Datum')
+    registration_from = models.DateTimeField(
+        'Přihlašování od', null=True, blank=True,
+        help_text='Kdy se turnaj vypustí. Dokud tento čas nenastane, přihlašování je zavřené. '
+                  'Prázdné znamená, že přihlašování je otevřené hned.'
+    )
     registration_to = models.DateField('Přihlašování do', null=True, blank=True)
     name = models.CharField('Název', max_length=50)
     location = models.CharField('Lokace', max_length=50, null=True, blank=True)
@@ -287,8 +292,10 @@ class Tournament(models.Model):
             "location": self.location,
             "full_name": self.name + " " + str(self.date.year),
             "date": str(self.date) if self.date else None,
+            "registration_from": self.registration_from.isoformat() if self.registration_from else None,
             "registration_to": str(self.registration_to),
             "registration_open": self.is_registration_open(),
+            "registration_scheduled": self.is_registration_scheduled(),
             "is_tournament_open": self.is_tournament_open(),
             "is_after_tournament": self.date < datetime.date.today() or settings.TEST,
             "halftime_length": self.halftime_length,
@@ -304,6 +311,17 @@ class Tournament(models.Model):
         return data
 
     def is_registration_open(self):
+        return self.has_registration_deadline() and not self.is_registration_scheduled()
+
+    def is_registration_scheduled(self):
+        """Turnaj se vypustí až v budoucnosti, přihlašování ještě nezačalo."""
+        return (
+            self.has_registration_deadline()
+            and self.registration_from is not None
+            and self.registration_from > timezone.now()
+        )
+
+    def has_registration_deadline(self):
         return self.registration_to is not None and self.registration_to >= datetime.date.today()
 
     def __str__(self):

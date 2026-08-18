@@ -1,9 +1,12 @@
+import json
 from datetime import datetime, timedelta
 
 import pytest
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from ufobalapp.models import Player, Tournament, TeamOnTournament, Team, Match
+from ufobalapp.views import seconds_to_next_release
 
 from django.urls import reverse
 
@@ -101,7 +104,9 @@ def test_get_tournaments(django_assert_num_queries, client, tournament):
         'location': 'Zamilec',
         'name': 'Test',
         'pk': tournament.pk,
+        'registration_from': None,
         'registration_open': False,
+        'registration_scheduled': False,
         'registration_to': '2020-01-01',
         'year': 2021,
     }
@@ -110,12 +115,59 @@ def test_get_tournaments(django_assert_num_queries, client, tournament):
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    with django_assert_num_queries(2):
+    # 3 = turnaje, týmy, dotaz na nejbližší vypuštění turnaje (kvůli expiraci cache)
+    with django_assert_num_queries(3):
         response = client.get(reverse('api:get_tournaments'))
     assert response.status_code == 200
     assert len(response.json()) == 1
     expected_response['teams'] = []
     assert response.json()[0] == expected_response
+
+
+@pytest.mark.django_db
+def test_scheduled_registration_release(client, tournament, team):
+    tournament.registration_to = (datetime.now() + timedelta(days=10)).date()
+    tournament.registration_from = timezone.now() + timedelta(hours=1)
+    tournament.save()
+
+    assert tournament.is_registration_scheduled()
+    assert not tournament.is_registration_open()
+
+    response = client.get(reverse('api:get_tournament', kwargs={'pk': tournament.pk}))
+    assert response.json()['registration_open'] is False
+    assert response.json()['registration_scheduled'] is True
+
+    # cache nesmí přežít vypuštění turnaje
+    assert seconds_to_next_release(60 * 60 * 24) <= 60 * 60 + 1
+
+    user = User.objects.create_user(username='captain', password='test')
+    Player.objects.create(name='Josef', lastname='Novák', nickname='Pepa', gender=Player.MAN, user=user)
+    client.force_login(user)
+    registration = {
+        'team': team.pk,
+        'tournament': tournament.pk,
+        'contact_mail': 'pepa@example.com',
+        'contact_phone': '123456789',
+        'strength': 2,
+    }
+
+    response = client.post(
+        reverse('api:add_team_on_tournament'), data=json.dumps(registration), content_type='application/json'
+    )
+    assert response.status_code == 400
+    assert 'Přihlašování začne' in response.content.decode()
+
+    tournament.registration_from = timezone.now() - timedelta(minutes=1)
+    tournament.save()
+
+    assert not tournament.is_registration_scheduled()
+    assert tournament.is_registration_open()
+
+    response = client.post(
+        reverse('api:add_team_on_tournament'), data=json.dumps(registration), content_type='application/json'
+    )
+    assert response.status_code == 200
+    assert TeamOnTournament.objects.filter(team=team, tournament=tournament).exists()
 
 
 @pytest.mark.django_db
@@ -156,7 +208,9 @@ def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament,
             'location': 'Zamilec',
             'name': 'Test',
             'pk': tournament.pk,
+            'registration_from': None,
             'registration_open': False,
+            'registration_scheduled': False,
             'registration_to': '2020-01-01',
             'year': 2021,
         },
@@ -166,7 +220,7 @@ def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament,
     assert response.status_code == 200
     assert response.json() == expected_response
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = client.get(reverse('api:get_teamontournaments'))
     assert response.status_code == 200
     del expected_response['players']

@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -100,8 +101,23 @@ def get_json_all(request, model_class):
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(data, indent=4)})
     if use_cache:
-        cache.set(model_class.__name__, data, 60 * 60 * 24)
+        timeout = 60 * 60 * 24
+        # Tournament i TeamOnTournament nesou v datech stav přihlašování
+        if model_class in (Tournament, TeamOnTournament):
+            timeout = seconds_to_next_release(timeout)
+        cache.set(model_class.__name__, data, timeout)
     return JsonResponse(data, safe=False)
+
+
+def seconds_to_next_release(default):
+    """Cache nesmí přežít vypuštění turnaje, jinak by přihlašování zůstalo zavřené i po termínu."""
+    now = timezone.now()
+    next_release = Tournament.objects.filter(registration_from__gt=now).aggregate(Min("registration_from"))[
+        "registration_from__min"
+    ]
+    if next_release is None:
+        return default
+    return min(default, int((next_release - now).total_seconds()) + 1)
 
 
 def goals(request):
@@ -423,6 +439,10 @@ def add_team_on_tournament(request):
     team = get_object_or_404(Team, pk=data.get('team'))
     tournament = get_object_or_404(Tournament, pk=data.get('tournament'))
     if not tournament.is_registration_open():
+        if tournament.is_registration_scheduled():
+            return HttpResponseBadRequest(
+                "Přihlašování začne %s." % timezone.localtime(tournament.registration_from).strftime("%d. %m. %Y %H:%M")
+            )
         return HttpResponseBadRequest("Registrace ukončena.")
 
     tots = TeamOnTournament.objects.filter(team=team, tournament=tournament)
