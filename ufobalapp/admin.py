@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-from django.contrib import admin
-from django.contrib.admin import ModelAdmin
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import SelectMultiple
 
@@ -11,56 +11,23 @@ from .models import Player, Team, TeamOnTournament, Tournament, \
 from django.contrib.auth.admin import UserAdmin
 
 
+@admin.action(description="Sloučit")
 def merge(modeladmin, request, queryset):
-    main = queryset[0]
-    tail = queryset[1:]
+    # sort by id so the oldest row wins no matter how the changelist is sorted
+    selected = sorted(queryset, key=lambda obj: obj.pk)
+    if len(selected) < 2:
+        modeladmin.message_user(request, 'Vyberte alespoň dva objekty ke sloučení', level=messages.WARNING)
+        return
 
-    related = main._meta.get_all_related_objects()
-    valnames = dict()
+    # the oldest selected object survives, the rest are absorbed into it and deleted
+    survivor = selected[0]
+    try:
+        survivor.merge_duplicates(selected[1:])
+    except ValidationError as error:
+        modeladmin.message_user(request, '; '.join(error.messages), level=messages.ERROR)
+        return
 
-    for r in related:
-        valnames.setdefault(r.related_model, []).append(r.field.name)
-
-    manyrelated = main._meta.get_all_related_many_to_many_objects()
-    manyvalnames = dict()
-    for r in manyrelated:
-        manyvalnames.setdefault(r.related_model, []).append(r.field.name)
-
-    for place in tail:
-        for model, field_names in valnames.items():
-            for field_name in field_names:
-                model.objects.filter(**{field_name: place}).update(**{field_name: main})
-
-        for model, field_names in manyvalnames.items():
-            for field_name in field_names:
-                for manytomany in model.objects.filter(**{field_name: place}):
-                    manyfield = getattr(manytomany, field_name)  # gets attribute from string
-                    manyfield.remove(place)
-                    manyfield.add(main)
-
-        place.delete()
-
-    # merge all TeamsOnTournament on same Tournament for this Team
-    modelname = modeladmin.__class__.__name__
-    if modelname is 'TeamAdmin':
-        tours = []
-        team = Team.objects.get(name=main)
-        totm = TeamOnTournament.objects.filter(team=team)
-        for tour in totm:
-            if tour.tournament not in tours:
-                tours.append(tour.tournament)
-        for tour in tours:
-            totm = TeamOnTournament.objects.filter(team=team).filter(tournament=tour)
-            if len(totm) > 1:
-                for instance in totm[1:]:
-                    for player in instance.players.all():
-                        totm[0].players.add(player)
-                    instance.delete()
-
-    ModelAdmin.message_user(modeladmin, request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
-
-
-merge.short_description = "Sloučit"
+    modeladmin.message_user(request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
 
 
 class PlayerInTeamsInline(admin.TabularInline):
@@ -113,6 +80,7 @@ class TeamTournamentAdmin(admin.ModelAdmin):
     inlines = [PlayerInTeamsInline]
     actions = ['mergeTeamTour']
 
+    @admin.action(description="Sloučit")
     def mergeTeamTour(self, request, queryset):
         main = queryset[0]
         tail = queryset[1:]
@@ -125,19 +93,13 @@ class TeamTournamentAdmin(admin.ModelAdmin):
 
         self.message_user(request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
 
-    mergeTeamTour.short_description = "Sloučit"
-
+    @admin.display(description="Turnaj", ordering='tournament__name')
     def tournament_name(self, obj):
         return obj.tournament.name
 
-    tournament_name.short_description = "Turnaj"
-    tournament_name.admin_order_field = 'tournament__name'
-
+    @admin.display(description="Datum", ordering='tournament__date')
     def tournament_date(self, obj):
         return obj.tournament.date
-
-    tournament_date.short_description = "Datum"
-    tournament_date.admin_order_field = 'tournament__date'
 
 
 class MatchAdmin(admin.ModelAdmin):
