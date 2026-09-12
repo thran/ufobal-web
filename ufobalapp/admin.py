@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import SelectMultiple
 
@@ -20,7 +21,11 @@ def merge(modeladmin, request, queryset):
 
     # the oldest selected object survives, the rest are absorbed into it and deleted
     survivor = selected[0]
-    survivor.merge_duplicates(selected[1:])
+    try:
+        survivor.merge_duplicates(selected[1:])
+    except ValidationError as error:
+        modeladmin.message_user(request, '; '.join(error.messages), level=messages.ERROR)
+        return
 
     modeladmin.message_user(request, 'sloučeno, v objektu můžete zvolit výsledné jméno')
 

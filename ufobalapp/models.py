@@ -5,7 +5,7 @@ import os
 import qrcode
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
@@ -181,22 +181,22 @@ class Team(MergeableModel):
         return self.name_short if self.name_short else self.name
 
     def merge_duplicates(self, duplicates):
+        self.check_never_met(duplicates)
         super().merge_duplicates(duplicates)
-        self.squash_duplicate_registrations()
 
-    @transaction.atomic
-    def squash_duplicate_registrations(self):
-        """Absorbing another team can leave this team registered twice on one tournament."""
-        tournament_ids = self.tournaments.values_list('tournament_id', flat=True).distinct()
+    def check_never_met(self, duplicates):
+        """Two teams that played the same tournament are rivals, not one team entered twice."""
+        shared = (
+            Tournament.objects.filter(teams__team__in=[self, *duplicates])
+            .annotate(team_count=models.Count('teams__team', distinct=True))
+            .filter(team_count__gt=1)
+        )
 
-        for tournament_id in tournament_ids:
-            registrations = list(self.tournaments.filter(tournament_id=tournament_id))
-            if len(registrations) > 1:
-                kept_registration = registrations[0]
-                for duplicate_registration in registrations[1:]:
-                    for player in duplicate_registration.players.all():
-                        kept_registration.players.add(player)
-                    duplicate_registration.delete()
+        if shared:
+            raise ValidationError(
+                'Nelze sloučit týmy, které spolu byly na turnaji: %s'
+                % ', '.join(str(tournament) for tournament in shared)
+            )
 
 
 class TeamOnTournamentManager(models.Manager):
