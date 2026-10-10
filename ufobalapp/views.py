@@ -21,6 +21,7 @@ from django.views.decorators.http import require_http_methods
 from managestats.views import is_staff_check
 from ufobal import settings
 from ufobalapp.models import (
+    list_cache_key,
     Player,
     Tournament,
     Team,
@@ -76,8 +77,9 @@ def get_json_one(request, model_class, pk):
 def get_json_all(request, model_class):
     filtering = dict(request.GET)
     use_cache = model_class != Match and not filtering
+    cache_key = list_cache_key(model_class, request.user.is_staff)
     if use_cache:
-        cached = cache.get(model_class.__name__)
+        cached = cache.get(cache_key)
         if cached:
             return JsonResponse(cached, safe=False)
 
@@ -108,7 +110,7 @@ def get_json_all(request, model_class):
         # Tournament i TeamOnTournament nesou v datech stav přihlašování
         if model_class in (Tournament, TeamOnTournament):
             timeout = seconds_to_next_release(timeout)
-        cache.set(model_class.__name__, data, timeout)
+        cache.set(cache_key, data, timeout)
     return JsonResponse(data, safe=False)
 
 

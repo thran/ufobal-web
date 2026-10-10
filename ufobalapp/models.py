@@ -733,12 +733,17 @@ class RefereeFeedback(models.Model):
         }
 
 
+def list_cache_key(model_class, staff):
+    """Cache key of a list endpoint; staff responses contain extra fields (e.g. birthdate)."""
+    return f"{model_class.__name__}:staff" if staff else model_class.__name__
+
+
 @receiver(post_save, sender=Player)
 @receiver(post_save, sender=TeamOnTournament)
 @receiver(post_save, sender=Tournament)
 @receiver(post_save, sender=Team)
 @receiver(m2m_changed, sender=TeamOnTournament.players.through)
 def reset_cache(sender, instance, **kwargs):
-    cache.delete(TeamOnTournament.__name__)
-    cache.delete(Tournament.__name__)
-    cache.delete(Player.__name__)
+    for model_class in (TeamOnTournament, Tournament, Player):
+        for staff in (False, True):
+            cache.delete(list_cache_key(model_class, staff))
