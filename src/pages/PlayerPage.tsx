@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { isOwnPlayer, isStaff } from '../auth/permissions';
+import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
 import Spinner from '../components/Spinner';
@@ -6,12 +9,22 @@ import { scoreWithoutTeam } from '../domain/graph';
 import { formatRank } from '../format';
 import { teamPath, tournamentResultsPath } from '../paths';
 import { useGraph } from '../queries/data';
+import { useAddAttendance, useRemoveAttendance } from '../queries/mutations';
+import PlayerEditForm from './PlayerEditForm';
+import PlayerPairingDialog from './PlayerPairingDialog';
 
 const SIGNS: Record<string, string> = { man: '♂', woman: '♀' };
 
 export default function PlayerPage() {
   const { id } = useParams();
   const { graph, error, isPending, refetch } = useGraph();
+  const { data: user } = useUser();
+  const removeAttendance = useRemoveAttendance();
+  const addAttendance = useAddAttendance();
+  const [editing, setEditing] = useState(false);
+  const [pairing, setPairing] = useState(false);
+  const [histTournament, setHistTournament] = useState('');
+  const [histTeam, setHistTeam] = useState('');
   if (error) return <ErrorBox error={error} onRetry={refetch} />;
   if (isPending || !graph) return <Spinner />;
 
@@ -26,6 +39,24 @@ export default function PlayerPage() {
       </>
     );
 
+  const canEdit = isStaff(user) || isOwnPlayer(user, player.pk);
+  const histTournamentVM = graph.tournamentsById.get(Number(histTournament));
+  const histTots = [...(histTournamentVM?.tots ?? [])].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+  const allTournaments = [...graph.tournaments].sort((a, b) => b.date.localeCompare(a.date));
+  const removeTot = (totPk: number) => {
+    if (window.confirm('Opravdu chcete smazat tuto účast na turnaji?'))
+      removeAttendance.mutate({ player: player.pk, team: totPk });
+  };
+  const addHistorical = () =>
+    addAttendance.mutate(
+      { player: player.pk, team: Number(histTeam) },
+      {
+        onSuccess: () => {
+          setHistTournament('');
+          setHistTeam('');
+        },
+      },
+    );
   const tots = [...player.tots].sort((a, b) => b.tournament.date.localeCompare(a.tournament.date));
   const noTeam = scoreWithoutTeam(player, graph);
   const fullName = [player.name, player.lastname].filter(Boolean).join(' ');
@@ -36,12 +67,31 @@ export default function PlayerPage() {
   return (
     <>
       <BackLink fallback="/players" />
-      <h1 className="text-3xl">{player.nickname}</h1>
-      {subtitle && (
-        <h2>
-          {sign && <span aria-hidden="true">{sign} </span>}
-          {subtitle}
-        </h2>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl">{player.nickname}</h1>
+          {subtitle && (
+            <h2>
+              {sign && <span aria-hidden="true">{sign} </span>}
+              {subtitle}
+            </h2>
+          )}
+        </div>
+        <div className="flex gap-3">
+          {canEdit && !editing && (
+            <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
+              upravit profil
+            </button>
+          )}
+          {user && !user.player && !player.is_paired && (
+            <button type="button" className="btn btn-secondary" onClick={() => setPairing(true)}>
+              spárovat
+            </button>
+          )}
+        </div>
+      </div>
+      {editing && (
+        <PlayerEditForm player={player} isStaffUser={isStaff(user)} onDone={() => setEditing(false)} />
       )}
       <hr className="my-3 border-gray-300" />
       <h3 className="text-xl font-bold">Turnaje</h3>
@@ -54,6 +104,7 @@ export default function PlayerPage() {
             <th className="text-right">Asistence</th>
             <th className="text-right">Kanada</th>
             <th className="text-right">Umístění</th>
+            {canEdit && <th></th>}
           </tr>
         </thead>
         <tbody>
@@ -75,11 +126,73 @@ export default function PlayerPage() {
                   {goals == null && assists == null ? '' : (goals ?? 0) + (assists ?? 0)}
                 </td>
                 <td className="text-right">{formatRank(tot.rank)}</td>
+                {canEdit && (
+                  <td>
+                    <button
+                      type="button"
+                      className="cursor-pointer text-red-700"
+                      aria-label={`Smazat účast ${t.full_name}`}
+                      onClick={() => removeTot(tot.pk)}
+                    >
+                      ×
+                    </button>
+                  </td>
+                )}
               </tr>
             );
           })}
         </tbody>
       </table>
+      {canEdit && (
+        <>
+          <h4 className="mt-4 font-bold">Přidávání historických turnajů</h4>
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label htmlFor="hist-tournament">Turnaj</label>
+              <select
+                id="hist-tournament"
+                className="input"
+                value={histTournament}
+                onChange={(e) => {
+                  setHistTournament(e.target.value);
+                  setHistTeam('');
+                }}
+              >
+                <option value="">----</option>
+                {allTournaments.map((t) => (
+                  <option key={t.pk} value={t.pk}>
+                    {t.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="hist-team">Tým</label>
+              <select
+                id="hist-team"
+                className="input"
+                value={histTeam}
+                onChange={(e) => setHistTeam(e.target.value)}
+              >
+                <option value="">----</option>
+                {histTots.map((t) => (
+                  <option key={t.pk} value={t.pk}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={!histTournament || !histTeam || addAttendance.isPending}
+              onClick={addHistorical}
+            >
+              přidat
+            </button>
+          </div>
+        </>
+      )}
       <h3 className="mt-4 text-xl font-bold">Karty</h3>
       <table className="table-basic">
         <thead>
@@ -114,11 +227,12 @@ export default function PlayerPage() {
           <h4 className="mt-4 font-bold">What? Turnaje se skórem, ale bez týmu</h4>
           {noTeam.map((s) => (
             <div key={s.tournament.pk}>
-              {s.tournament.full_name} - {s.goals} golů a {s.assists} assistencí
+              {s.tournament.full_name} - {s.goals} gólů a {s.assists} asistencí
             </div>
           ))}
         </>
       )}
+      <PlayerPairingDialog open={pairing} onClose={() => setPairing(false)} playerPk={player.pk} />
     </>
   );
 }
