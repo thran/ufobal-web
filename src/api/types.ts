@@ -114,3 +114,82 @@ export interface HallOfGloryDto {
   max_goal_per_tournament_player_female: HallRecord<[PlayerSimple, TournamentDto]>;
   max_assistance_per_tournament_player_female: HallRecord<[PlayerSimple, TournamentDto]>;
 }
+
+export interface GoalDto {
+  pk: number;
+  shooter: number | null;
+  assistance: number | null;
+  match: number;
+  time: string | null;
+  type: 'normal' | 'penalty' | 'shootout';
+}
+
+export interface MatchDto {
+  pk: number;
+  tournament: number;
+  team_one: number | null;
+  team_two: number | null;
+  start: string | null;
+  end: string | null;
+  halftime_length: string | null;
+  length: string | null;
+  referee: number | null;
+  referee_team: number | null;
+  fake: boolean;
+  place: string | null;
+  goals: GoalDto[];
+  /** Typed in the match-page plan; not used by results pages. */
+  shots: unknown[];
+  penalties: unknown[];
+  goalies: unknown[];
+  /** Number of shootout goals (truthy = decided by shootout). */
+  with_shootout: number;
+  score_one: number | null;
+  score_two: number | null;
+}
+
+export interface PairDto {
+  players: [number, number];
+  points: number;
+  goals_first?: number;
+  goals_second?: number;
+}
+
+export type GroupTotDto = Omit<TotDto, 'player_pks'>;
+export type PlayoffEntryDto = GroupTotDto & { score: number; win: boolean };
+
+export interface GroupDto {
+  pk: number;
+  tournament: TournamentDto;
+  teams: GroupTotDto[];
+  level: number;
+  name: string;
+  /** 3 rounds × 8 slots when the group is a detected 8-team playoff. */
+  playoff?: PlayoffEntryDto[][];
+}
+
+export interface GroupLevelStats {
+  score: [number, number];
+  wins: number;
+  looses: number;
+  winsP: number;
+  loosesP: number;
+  draws: number;
+}
+
+export interface GroupsDto {
+  groups: GroupDto[];
+  /** key `${totA}-${totB}` → level → [scoreA, scoreB, shootoutCount] */
+  matches: Record<string, Record<string, [number, number, number]>>;
+  /** tot pk → level → stats */
+  stats: Record<string, Record<string, GroupLevelStats>>;
+}
+
+export interface GoalieStatDto {
+  goalie: number;
+  tournament: number;
+  team: number | null;
+  matches: number;
+  shots: number;
+  goals: number;
+}

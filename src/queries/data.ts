@@ -2,8 +2,12 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import {
   getEmptyTournaments,
+  getGoalieStats,
   getGoals,
+  getGroups,
   getHallOfGlory,
+  getMatches,
+  getPairs,
   getPlayers,
   getStats,
   getTeamOnTournaments,
@@ -21,6 +25,10 @@ export const dataKeys = {
   tournament: (pk: number) => ['tournament', pk] as const,
   stats: ['stats'] as const,
   hallOfGlory: ['hallOfGlory'] as const,
+  matches: (pk: number) => ['matches', pk] as const,
+  pairs: (pk: number) => ['pairs', pk] as const,
+  groups: (pk: number) => ['groups', pk] as const,
+  goalieStats: (pk: number | 'all') => ['goalieStats', pk] as const,
 };
 
 export function useGraph() {
@@ -72,4 +80,20 @@ export const useTournament = (pk: number | null) =>
     queryKey: dataKeys.tournament(pk ?? 0),
     queryFn: ({ signal }) => getTournament(pk!, signal),
     enabled: pk != null,
+  });
+
+export const useMatches = (pk: number) =>
+  useQuery({ queryKey: dataKeys.matches(pk), queryFn: ({ signal }) => getMatches(pk, signal) });
+
+export const usePairs = (pk: number) =>
+  useQuery({ queryKey: dataKeys.pairs(pk), queryFn: ({ signal }) => getPairs(pk, signal) });
+
+export const useGroups = (pk: number) =>
+  useQuery({ queryKey: dataKeys.groups(pk), queryFn: ({ signal }) => getGroups(pk, signal) });
+
+export const useGoalieStats = (tournament?: number) =>
+  useQuery({
+    queryKey: dataKeys.goalieStats(tournament ?? 'all'),
+    queryFn: ({ signal }) => getGoalieStats(tournament, signal),
+    ...(tournament === undefined ? { staleTime: LIST_STALE } : {}),
   });
