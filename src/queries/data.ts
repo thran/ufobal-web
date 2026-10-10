@@ -9,6 +9,7 @@ import {
   getMatches,
   getPairs,
   getPlayers,
+  getRefereeFeedbacks,
   getStats,
   getTeamOnTournaments,
   getTournament,
@@ -29,6 +30,7 @@ export const dataKeys = {
   pairs: (pk: number) => ['pairs', pk] as const,
   groups: (pk: number) => ['groups', pk] as const,
   goalieStats: (pk: number | 'all') => ['goalieStats', pk] as const,
+  refereeFeedbacks: (pk: number) => ['refereeFeedbacks', pk] as const,
 };
 
 export function useGraph() {
@@ -82,8 +84,19 @@ export const useTournament = (pk: number | null) =>
     enabled: pk != null,
   });
 
-export const useMatches = (pk: number) =>
-  useQuery({ queryKey: dataKeys.matches(pk), queryFn: ({ signal }) => getMatches(pk, signal) });
+export const useMatches = (pk: number, opts: { refetchInterval?: number | false } = {}) =>
+  useQuery({
+    queryKey: dataKeys.matches(pk),
+    queryFn: ({ signal }) => getMatches(pk, signal),
+    refetchInterval: opts.refetchInterval,
+  });
+
+export const useRefereeFeedbacks = (pk: number) =>
+  useQuery({
+    queryKey: dataKeys.refereeFeedbacks(pk),
+    queryFn: ({ signal }) => getRefereeFeedbacks(pk, signal),
+    staleTime: 0,
+  });
 
 export const usePairs = (pk: number) =>
   useQuery({ queryKey: dataKeys.pairs(pk), queryFn: ({ signal }) => getPairs(pk, signal) });

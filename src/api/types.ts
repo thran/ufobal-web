@@ -30,6 +30,8 @@ export interface PenaltyDto {
 
 export interface PlayerDto extends PlayerSimple {
   penalties: PenaltyDto[];
+  /** Only present in responses for staff users. */
+  birthdate?: string | null;
 }
 
 export interface TeamDto {
@@ -192,4 +194,74 @@ export interface GoalieStatDto {
   matches: number;
   shots: number;
   goals: number;
+}
+
+export interface RefereeFeedbackContent {
+  stars: number;
+  positives: string[];
+  negatives: string[];
+  comment: string;
+}
+
+export interface RefereeFeedbackDto {
+  pk: number;
+  match: number;
+  author_team: number;
+  author: number;
+  feedback: RefereeFeedbackContent;
+}
+
+export interface RefereeMatchDto {
+  pk: number;
+  tournament: number;
+  start: string | null;
+  end: string | null;
+  place: string | null;
+  team_one: TotDto;
+  team_two: TotDto;
+  referee_team: TotDto | null;
+  referee: PlayerSimple | null;
+  referee_feedback?: RefereeFeedbackDto;
+}
+
+export interface NewTeam {
+  name: string;
+  name_short?: string;
+  description?: string;
+}
+export interface NewRegistration {
+  tournament: number;
+  team: number;
+  name?: string;
+  name_short?: string;
+  contact_mail: string;
+  contact_phone: string;
+  strength: number;
+}
+export interface NewPlayer {
+  nickname: string;
+  name?: string;
+  lastname?: string;
+  gender?: 'man' | 'woman' | null;
+  birthdate?: string | null;
+}
+export interface PlayerUpdate {
+  pk: number;
+  nickname?: string;
+  name?: string;
+  lastname?: string;
+  gender?: 'man' | 'woman' | null;
+  birthdate?: string | null;
+}
+export interface NewMatch {
+  tournament: number;
+  team_one: number;
+  team_two: number;
+  referee_team: number;
+  place: string;
+}
+export interface RefereeFeedbackInput {
+  pk?: number;
+  match: number;
+  feedback: RefereeFeedbackContent;
 }

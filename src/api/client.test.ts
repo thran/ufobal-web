@@ -75,3 +75,10 @@ test('params are encoded into the query string, undefined skipped; signal is pas
   expect(url).toBe('/api_frontend/matchs?tournament=5&q=%C3%A1+b');
   expect(init.signal).toBe(controller.signal);
 });
+
+test('HTML error body becomes a generic message', async () => {
+  respond(404, '<!doctype html><title>Not Found</title>');
+  const err = (await api('x').catch((e) => e)) as ApiError;
+  expect(err.status).toBe(404);
+  expect(err.message).toBe('Požadavek se nezdařil.');
+});

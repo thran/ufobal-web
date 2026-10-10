@@ -70,6 +70,9 @@ export async function api<T>(
       const errorType = 'error_type' in body && typeof body.error_type === 'string' ? body.error_type : null;
       throw new ApiError(res.status, body.error, errorType);
     }
+    if (typeof body === 'string' && body.trimStart().startsWith('<')) {
+      throw new ApiError(res.status, 'Požadavek se nezdařil.');
+    }
     throw new ApiError(res.status, typeof body === 'string' && body ? body : res.statusText);
   }
   return body as T;
