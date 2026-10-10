@@ -57,7 +57,7 @@ export function parseStatsFilter(params: URLSearchParams, thisYear: number): Sta
     >;
   }
   const g = params.get('g');
-  if (g !== null && g !== 'mw') {
+  if (g === 'm' || g === 'w' || g === '0') {
     f.man = g === 'm';
     f.woman = g === 'w';
   }

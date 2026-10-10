@@ -77,3 +77,12 @@ test('goalieStatsRows aggregates per goalie over selected tournaments', () => {
   expect(Number.isNaN(rows[1].success)).toBe(true);
   expect(tournamentsWithGoalieStats(sampleGoalieStats(), graph.tournaments).map((t) => t.pk)).toEqual([1, 2]);
 });
+
+test('unknown gender param means both genders', () => {
+  for (const q of ['g=x', 'g=', 'g=mw']) {
+    const f = parseStatsFilter(new URLSearchParams(q), 2025);
+    expect([f.man, f.woman]).toEqual([true, true]);
+  }
+  expect(parseStatsFilter(new URLSearchParams('g=m'), 2025).woman).toBe(false);
+  expect(parseStatsFilter(new URLSearchParams('g=w'), 2025).man).toBe(false);
+});

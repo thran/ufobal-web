@@ -36,6 +36,7 @@ export function useStatsFilter(): [StatsFilter, (patch: Partial<StatsFilter>) =>
       (prev) => {
         const next = new URLSearchParams(prev);
         for (const k of STATS_PARAM_KEYS) next.delete(k);
+        next.delete('q');
         next.delete('page');
         return next;
       },
@@ -43,6 +44,13 @@ export function useStatsFilter(): [StatsFilter, (patch: Partial<StatsFilter>) =>
     );
   }, [setParams]);
   return [filter, set, reset];
+}
+
+/** Empty clears the bound; non-numeric input leaves the filter unchanged. */
+function yearPatch(v: string): number | null | undefined {
+  if (v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.trunc(n) : undefined;
 }
 
 const CATEGORY_ORDER: CategoryKey[] = ['nizkov', 'brno', 'hala', 'liga', 'other'];
@@ -66,11 +74,15 @@ export default function StatsFilterForm({
   );
   const [yearFrom, setYearFrom] = useDebouncedInput(
     filter.yearFrom == null ? '' : String(filter.yearFrom),
-    (v) => onChange({ yearFrom: v === '' ? null : Number(v) }),
+    (v) => {
+      const year = yearPatch(v);
+      if (year !== undefined) onChange({ yearFrom: year });
+    },
   );
-  const [yearTo, setYearTo] = useDebouncedInput(filter.yearTo == null ? '' : String(filter.yearTo), (v) =>
-    onChange({ yearTo: v === '' ? null : Number(v) }),
-  );
+  const [yearTo, setYearTo] = useDebouncedInput(filter.yearTo == null ? '' : String(filter.yearTo), (v) => {
+    const year = yearPatch(v);
+    if (year !== undefined) onChange({ yearTo: year });
+  });
 
   return (
     <div className="mb-4 gap-4 md:grid md:grid-cols-2">

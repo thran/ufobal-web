@@ -16,8 +16,10 @@ function RoundRobinTable({ group, data }: { group: GroupDto; data: GroupsDto }) 
           <tr>
             <th />
             {teams.map((t) => (
-              <th key={t.pk} className="max-w-[7em] truncate">
-                <Link to={teamPath({ pk: t.team.pk, name: t.team.name })}>{t.name_pure}</Link>
+              <th key={t.pk}>
+                <span className="block max-w-[7em] truncate">
+                  <Link to={teamPath({ pk: t.team.pk, name: t.team.name })}>{t.name_pure}</Link>
+                </span>
               </th>
             ))}
             <th>V / P / R</th>
@@ -84,7 +86,9 @@ export default function GroupsPage() {
       {groups.error && <ErrorBox error={groups.error} onRetry={() => void groups.refetch()} />}
       {groups.data?.groups.map((group) => (
         <section key={group.pk}>
-          <h3 id={group.name}>{group.name}</h3>
+          <h3 id={group.name} className="mt-4 text-xl font-bold">
+            {group.name}
+          </h3>
           {group.playoff ? (
             <PlayoffBracket rounds={group.playoff} />
           ) : (
