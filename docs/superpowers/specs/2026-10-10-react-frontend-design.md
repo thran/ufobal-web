@@ -85,7 +85,7 @@ src/
 
 ### 3.2 New frontend at root
 - `home` catch-all renders `templates/spa.html` (Vite's built `index.html`), injecting
-  `window.__INITIAL__ = {user, liveTournamentPk, googleAnalytics}`; keeps `@ensure_csrf_cookie`.
+  initial data `{user, liveTournamentPk, test}` as a JSON `<script id="initial-data">` (`test` drives the "Testovací verze" banner); keeps `@ensure_csrf_cookie`.
 - API only under `/api_frontend/`.
 - Remove Django `/intro` view (React page replaces it).
 - Build: Vite `base: '/static/spa/'`; deploy copies `dist/assets` into Django static
@@ -95,7 +95,7 @@ src/
 ### 3.3 Dev
 - Vite dev server on :5173 proxies `/api_frontend`, `/login`, `/complete`, `/logout`,
   `/disconnect`, `/managestats`, `/admin`, `/static`, `/media`, `/old` to Django on :8000.
-- In dev, `__INITIAL__` is absent; the user is loaded from `user_profile`.
+- In dev, the initial data is absent (raw placeholder); the user is loaded from `user_profile`.
 
 ## 4. Data layer
 
@@ -110,7 +110,7 @@ src/
   `['teamontournaments']`, `['matches', tournamentId]`, `['groups', id]`, `['stats']`,
   `['hallOfGlory']`, `['goals']`, `['pairs', tournamentId]`, `['user']`.
 - Default `staleTime` 5 min for big lists; polling via `refetchInterval: 15_000` on live views.
-- `['user']` uses `__INITIAL__.user` as initial data.
+- `['user']` is seeded from the injected initial data.
 
 ### 4.3 Linking & stats
 - DTOs reference others by id. Pure functions in `domain/link.ts` build linked view
@@ -179,7 +179,7 @@ column, filter state persisted to `localStorage`.
 - Top bar like Foundation's: logo, nav, live tournament link, "Admin" (staff →
   `/managestats/`), login dropdown; hamburger on mobile.
 - Feedback link hidden on the match page.
-- Google Analytics only when `__INITIAL__.googleAnalytics`.
+- No Google Analytics (old Universal Analytics is dropped).
 
 ## 7. Error handling
 - Query errors: inline `<ErrorBox>` with retry.
