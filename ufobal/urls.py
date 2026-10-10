@@ -27,14 +27,13 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('', include('social_django.urls', namespace='social')),
     path('close_login_popup/', TemplateView.as_view(template_name="close_login_popup.html"), name='login_popup_close'),
     path('login/close_login_popup', views_auth.close_login_popup, name='login_popup_close_new'),
-    path('', include('ufobalapp.urls', namespace='api')),
+    path('old/api/', include('ufobalapp.urls', namespace='api')),
     path('api_frontend/', include('ufobalapp.urls', namespace='api_frontend')),
     path('managestats/', include('managestats.urls', namespace='managestats')),
     path('intro', ufobalapp.views.intro, name='intro'),
-    re_path(
-        r'api_frontend/.*', views.not_found, name='home'
-    ),  # TODO after removing old frontend move to ufobalapp.urls
-    re_path(r'.*', ufobalapp.views.home, name='home'),
+    re_path(r'^api_frontend/', views.not_found, name='api_frontend_not_found'),
+    re_path(r'^old/', views.home_old, name='home_old'),
+    re_path(r'.*', views.home_old, name='home'),
 ]
 
 if settings.SILK:

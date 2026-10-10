@@ -1058,8 +1058,15 @@ def get_groups(request, tournament_id=None):
     return JsonResponse(data, safe=False)
 
 
+def _live_tournament_pk():
+    tournament = (
+        Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA]).order_by("-date").first()
+    )
+    return tournament.pk if tournament else None
+
+
 @ensure_csrf_cookie
-def home(request):
+def home_old(request):
     from ufobalapp.views_auth import get_user_data
 
     return render(
@@ -1070,9 +1077,7 @@ def home(request):
             "DEBUG": settings.DEBUG,
             "TEST": settings.TEST,
             "user": json.dumps(get_user_data(request)),
-            "live_tournament_pk": Tournament.objects.exclude(category__in=[Tournament.TRENING, Tournament.LIGA])
-            .order_by("-date")[0]
-            .pk,
+            "live_tournament_pk": _live_tournament_pk(),
         },
     )
 
