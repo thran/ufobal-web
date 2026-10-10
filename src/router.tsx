@@ -12,6 +12,7 @@ import PlayerPage from './pages/PlayerPage';
 import GoalieStatsPage from './pages/GoalieStatsPage';
 import PlayerStatsPage from './pages/PlayerStatsPage';
 import PlayersPage from './pages/PlayersPage';
+import TournamentRecordPage from './pages/TournamentRecordPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TeamPage from './pages/TeamPage';
@@ -49,7 +50,14 @@ export const routes: RouteObject[] = [
       { path: 'teams/:id/:slug?', element: <TeamPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
       { path: 'tournaments/:id/results/:teamId?', element: <TournamentResultsPage /> },
-      page('tournaments/:id/record', 'Správa turnaje', 'authorized'),
+      {
+        path: 'tournaments/:id/record',
+        element: (
+          <RequireAuth level="authorized">
+            <TournamentRecordPage />
+          </RequireAuth>
+        ),
+      },
       page('tournaments/:id/live', 'Turnaj živě'),
       { path: 'tournaments/:id/groups', element: <GroupsPage /> },
       page('tournaments/:id/register', 'Přihlášení na turnaj', 'authorized'),
