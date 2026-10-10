@@ -29,7 +29,8 @@ function StringList({
   useEffect(() => {
     if (!grew.current) return;
     grew.current = false;
-    box.current?.querySelector<HTMLInputElement>('input:last-of-type')?.focus();
+    const inputs = box.current?.querySelectorAll<HTMLInputElement>('input');
+    inputs?.[inputs.length - 1]?.focus();
   }, [items.length]);
 
   return (

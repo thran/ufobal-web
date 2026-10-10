@@ -72,3 +72,55 @@ test('server error text shown', async () => {
   });
   expect(await screen.findByRole('alert')).toBeInTheDocument();
 });
+
+test('second added positive gets focus and order is kept', async () => {
+  const fetchMock = render();
+  await userEvent.click(await screen.findByRole('button', { name: 'hodnotit' }));
+  const dialog = await screen.findByRole('dialog');
+  const add = within(dialog).getByRole('button', { name: 'Přidat pozitivum' });
+  await userEvent.click(add);
+  await userEvent.keyboard('Prvni');
+  await userEvent.click(add);
+  await userEvent.keyboard('Druhy');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Zvýšit hodnocení' }));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Uložit' }));
+  const call = (fetchMock.mock.calls as unknown as [unknown, RequestInit][]).find(([u]) =>
+    String(u).endsWith('save_referee_feedback'),
+  )!;
+  expect(JSON.parse(call[1].body as string).feedback.positives).toEqual(['Prvni', 'Druhy']);
+});
+
+test('editing existing feedback is prefilled and sends pk', async () => {
+  const withFeedback = [
+    {
+      ...feedbackMatches[0]!,
+      referee_feedback: {
+        pk: 5,
+        match: 500,
+        author_team: 1000,
+        author: 100,
+        feedback: { stars: 3, positives: ['a'], negatives: [], comment: 'c' },
+      },
+    },
+  ];
+  const fetchMock = mockApi({
+    'tournament/1': { ...t1, closed_edit: false },
+    'get_referee_feedbacks/1': withFeedback,
+    save_referee_feedback: 5,
+  });
+  renderWithProviders(<RefereeFeedbackPage />, {
+    route: '/tournaments/1/referee-feedback',
+    path: '/tournaments/:id/referee-feedback',
+    user: testUser({ is_authorized: true }),
+  });
+  await userEvent.click(await screen.findByRole('button', { name: 'upravit' }));
+  const dialog = await screen.findByRole('dialog');
+  expect(within(dialog).getByDisplayValue('a')).toBeInTheDocument();
+  expect(within(dialog).getByDisplayValue('c')).toBeInTheDocument();
+  expect(within(dialog).getByRole('slider')).toHaveAttribute('aria-valuenow', '3');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Uložit' }));
+  const call = (fetchMock.mock.calls as unknown as [unknown, RequestInit][]).find(([u]) =>
+    String(u).endsWith('save_referee_feedback'),
+  )!;
+  expect(JSON.parse(call[1].body as string)).toMatchObject({ pk: 5, match: 500 });
+});
