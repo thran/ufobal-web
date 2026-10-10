@@ -16,6 +16,7 @@ import TournamentLivePage from './pages/TournamentLivePage';
 import TournamentRecordPage from './pages/TournamentRecordPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import RegistrationPage from './pages/RegistrationPage';
 import TeamPage from './pages/TeamPage';
 import TournamentsPage from './pages/TournamentsPage';
 import TeamsPage from './pages/TeamsPage';
@@ -61,7 +62,14 @@ export const routes: RouteObject[] = [
       },
       { path: 'tournaments/:id/live', element: <TournamentLivePage /> },
       { path: 'tournaments/:id/groups', element: <GroupsPage /> },
-      page('tournaments/:id/register', 'Přihlášení na turnaj', 'authorized'),
+      {
+        path: 'tournaments/:id/register',
+        element: (
+          <RequireAuth level="authorized">
+            <RegistrationPage />
+          </RequireAuth>
+        ),
+      },
       page('tournaments/:id/teams/:totId', 'Soupiska týmu', 'authorized'),
       page('tournaments/:id/matches/:matchId', 'Zápas'),
       page('tournaments/:id/matches/:matchId/edit', 'Záznam zápasu', 'authorized'),
