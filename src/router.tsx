@@ -3,6 +3,7 @@ import RequireAuth from './auth/RequireAuth';
 import Layout from './components/Layout';
 import RouteError from './components/RouteError';
 import FaqPage from './pages/FaqPage';
+import HallOfRecordsPage from './pages/HallOfRecordsPage';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
@@ -31,7 +32,7 @@ export const routes: RouteObject[] = [
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
       { path: 'faq', element: <FaqPage /> },
       { path: 'intro', element: <Navigate replace to="/faq" /> },
-      page('hall-of-records', 'Síň rekordů'),
+      { path: 'hall-of-records', element: <HallOfRecordsPage /> },
       page('pair-account/:token?', 'Spárovat účet', 'login'),
       page('players', 'Hráči'),
       page('players/:id/:slug?', 'Hráč'),
