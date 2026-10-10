@@ -17,6 +17,7 @@ import TournamentLivePage from './pages/TournamentLivePage';
 import TournamentRecordPage from './pages/TournamentRecordPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import RefereeFeedbackPage from './pages/RefereeFeedbackPage';
 import RegistrationPage from './pages/RegistrationPage';
 import RosterPage from './pages/RosterPage';
 import TeamPage from './pages/TeamPage';
@@ -82,7 +83,14 @@ export const routes: RouteObject[] = [
       },
       page('tournaments/:id/matches/:matchId', 'Zápas'),
       page('tournaments/:id/matches/:matchId/edit', 'Záznam zápasu', 'authorized'),
-      page('tournaments/:id/referee-feedback', 'Hodnocení rozhodčích', 'authorized'),
+      {
+        path: 'tournaments/:id/referee-feedback',
+        element: (
+          <RequireAuth level="authorized">
+            <RefereeFeedbackPage />
+          </RequireAuth>
+        ),
+      },
       { path: 'stats/players', element: <PlayerStatsPage /> },
       { path: 'stats/goalies', element: <GoalieStatsPage /> },
       ...legacyRoutes,
