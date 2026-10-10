@@ -128,6 +128,7 @@ export default function DataTable<T>({
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex: false,
+    enableMultiSort: false,
   });
 
   const windowStart = Math.max(
@@ -145,6 +146,7 @@ export default function DataTable<T>({
             className="input pr-8"
             placeholder={searchPlaceholder}
             value={query}
+            aria-label="Hledat"
             onChange={(e) => update({ q: e.target.value || null, page: null })}
           />
           {query && (
@@ -216,6 +218,7 @@ export default function DataTable<T>({
           <button
             type="button"
             className={pageButton}
+            aria-label="První stránka"
             disabled={pageIndex === 0}
             onClick={() => table.setPageIndex(0)}
           >
@@ -224,6 +227,7 @@ export default function DataTable<T>({
           <button
             type="button"
             className={pageButton}
+            aria-label="Předchozí stránka"
             disabled={pageIndex === 0}
             onClick={() => table.previousPage()}
           >
@@ -243,6 +247,7 @@ export default function DataTable<T>({
           <button
             type="button"
             className={pageButton}
+            aria-label="Další stránka"
             disabled={pageIndex >= pageCount - 1}
             onClick={() => table.nextPage()}
           >
@@ -251,6 +256,7 @@ export default function DataTable<T>({
           <button
             type="button"
             className={pageButton}
+            aria-label="Poslední stránka"
             disabled={pageIndex >= pageCount - 1}
             onClick={() => table.setPageIndex(pageCount - 1)}
           >
