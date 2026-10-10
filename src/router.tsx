@@ -6,8 +6,9 @@ import FaqPage from './pages/FaqPage';
 import GroupsPage from './pages/GroupsPage';
 import HallOfRecordsPage from './pages/HallOfRecordsPage';
 import HomePage from './pages/HomePage';
+import MatchRecordPage from './pages/MatchRecordPage';
+import MatchViewPage from './pages/MatchViewPage';
 import NotFound from './pages/NotFound';
-import Placeholder from './pages/Placeholder';
 import PairAccountPage from './pages/PairAccountPage';
 import PlayerPage from './pages/PlayerPage';
 import GoalieStatsPage from './pages/GoalieStatsPage';
@@ -24,19 +25,6 @@ import TeamPage from './pages/TeamPage';
 import TournamentsPage from './pages/TournamentsPage';
 import TeamsPage from './pages/TeamsPage';
 import { legacyRoutes } from './routes/legacyRedirects';
-
-type Level = 'login' | 'authorized' | 'staff';
-
-const page = (path: string, title: string, level?: Level): RouteObject => ({
-  path,
-  element: level ? (
-    <RequireAuth level={level}>
-      <Placeholder title={title} />
-    </RequireAuth>
-  ) : (
-    <Placeholder title={title} />
-  ),
-});
 
 export const routes: RouteObject[] = [
   {
@@ -81,8 +69,15 @@ export const routes: RouteObject[] = [
           </RequireAuth>
         ),
       },
-      page('tournaments/:id/matches/:matchId', 'Zápas'),
-      page('tournaments/:id/matches/:matchId/edit', 'Záznam zápasu', 'authorized'),
+      { path: 'tournaments/:id/matches/:matchId', element: <MatchViewPage /> },
+      {
+        path: 'tournaments/:id/matches/:matchId/edit',
+        element: (
+          <RequireAuth level="authorized">
+            <MatchRecordPage />
+          </RequireAuth>
+        ),
+      },
       {
         path: 'tournaments/:id/referee-feedback',
         element: (

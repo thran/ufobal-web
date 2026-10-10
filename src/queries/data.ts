@@ -85,11 +85,15 @@ export const useTournament = (pk: number | null) =>
     enabled: pk != null,
   });
 
-export const useMatches = (pk: number, opts: { refetchInterval?: number | false } = {}) =>
+export const useMatches = (
+  pk: number,
+  opts: { refetchInterval?: number | false; refetchOnMount?: boolean | 'always' } = {},
+) =>
   useQuery({
     queryKey: dataKeys.matches(pk),
     queryFn: ({ signal }) => getMatches(pk, signal),
     refetchInterval: opts.refetchInterval,
+    refetchOnMount: opts.refetchOnMount,
   });
 
 export const useRefereeFeedbacks = (pk: number) =>

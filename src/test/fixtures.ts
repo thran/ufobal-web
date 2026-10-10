@@ -188,3 +188,32 @@ export function sampleRaw(): RawData {
     emptyTournaments: [t3],
   };
 }
+
+export const recordedMatch = (): MatchDto =>
+  matchDto({
+    pk: 500,
+    goals: [{ pk: 1, shooter: 100, assistance: 101, match: 500, time: '00:02:00', type: 'normal' }],
+    shots: [{ pk: 2, time: '00:03:00', match: 500, shooter: null, team: 1001 }],
+    penalties: [
+      {
+        pk: 3,
+        player: 100,
+        card: 'yellow',
+        card_verbose: 'žlutá',
+        reason: 'Držení',
+        time: '00:04:00',
+        match: { pk: 500 },
+        tournament: 1,
+      },
+    ],
+    goalies: [
+      { pk: 4, goalie: 101, match: 500, start: '00:00:00', end: null },
+      { pk: 5, goalie: 100, match: 500, start: '00:05:00', end: null },
+    ],
+    halftime_length: '00:10:00',
+    length: null,
+    start: '2023-06-10 09:00:00+00:00',
+    referee: 102,
+    referee_team: 1001,
+    place: '1',
+  });

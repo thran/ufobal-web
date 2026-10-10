@@ -62,4 +62,26 @@
   .table-basic tbody tr:nth-child(even) {
     background: #f9f9f9;
   }
+  .pressbutton {
+    @apply cursor-pointer border border-primary px-5 py-2.5 whitespace-nowrap shadow-[3px_3px_5px_rgba(0,0,0,0.19)] select-none;
+    margin: 5px;
+    background: rgba(0, 140, 186, 0.3);
+    color: rgb(0, 39, 58);
+  }
+  .pressbutton:hover {
+    background: rgba(0, 140, 186, 0.4);
+  }
+  .pressbutton-red {
+    border-color: #7b080c;
+    background: rgba(123, 8, 12, 0.3);
+  }
+  .pressbutton-red:hover {
+    background: rgba(123, 8, 12, 0.4);
+  }
+  .team-one {
+    color: darkblue;
+  }
+  .team-two {
+    color: darkred;
+  }
 }

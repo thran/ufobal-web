@@ -66,15 +66,18 @@ export const getRefereeFeedbacks = (tournament: number, signal?: AbortSignal) =>
   api<RefereeMatchDto[]>(`get_referee_feedbacks/${tournament}`, { signal });
 export const saveRefereeFeedback = (f: RefereeFeedbackInput) =>
   pk(api<number>('save_referee_feedback', { method: 'POST', body: f }));
-export const addGoal = (b: GoalBody) => pk(api<number>('add_goal', { method: 'POST', body: b }));
-export const editGoal = (id: number, b: GoalBody) =>
-  api<string>(`edit_goal/${id}`, { method: 'POST', body: b });
-export const addShot = (b: ShotBody) => pk(api<number>('add_shot', { method: 'POST', body: b }));
-export const addPenalty = (b: PenaltyBody) => pk(api<number>('add_penalty', { method: 'POST', body: b }));
-export const editPenalty = (id: number, b: PenaltyBody) =>
-  api<string>(`edit_penalty/${id}`, { method: 'POST', body: b });
-export const editMatch = (id: number, p: MatchPatch) =>
-  api<string>(`edit_match/${id}`, { method: 'POST', body: p });
+export const addGoal = (b: GoalBody, signal?: AbortSignal) =>
+  pk(api<number>('add_goal', { method: 'POST', body: b, signal }));
+export const editGoal = (id: number, b: GoalBody, signal?: AbortSignal) =>
+  api<string>(`edit_goal/${id}`, { method: 'POST', body: b, signal });
+export const addShot = (b: ShotBody, signal?: AbortSignal) =>
+  pk(api<number>('add_shot', { method: 'POST', body: b, signal }));
+export const addPenalty = (b: PenaltyBody, signal?: AbortSignal) =>
+  pk(api<number>('add_penalty', { method: 'POST', body: b, signal }));
+export const editPenalty = (id: number, b: PenaltyBody, signal?: AbortSignal) =>
+  api<string>(`edit_penalty/${id}`, { method: 'POST', body: b, signal });
+export const editMatch = (id: number, p: MatchPatch, signal?: AbortSignal) =>
+  api<string>(`edit_match/${id}`, { method: 'POST', body: p, signal });
 export const removeMatchEvent = (type: 'goal' | 'shot' | 'penalty', id: number) =>
   api<string>(`remove_${type}/${id}`, { method: 'DELETE' });
 // URL uses a literal hyphen between match and team pk.
@@ -82,4 +85,5 @@ export const changeGoalie = (
   match: number,
   team: number,
   b: { goalie: number; time: string; client_id?: string },
-) => api<string>(`change_goalie/${match}-${team}`, { method: 'POST', body: b });
+  signal?: AbortSignal,
+) => api<string>(`change_goalie/${match}-${team}`, { method: 'POST', body: b, signal });

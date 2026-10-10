@@ -1,0 +1,15 @@
+export const ICONS = {
+  rewind: '⏪',
+  back1: '◀',
+  play: '▶',
+  pause: '⏸',
+  fwd1: '▶',
+  fastForward: '⏩',
+  next: '➜',
+  swap: '⇄',
+  card: '⚠',
+  unlink: '⛓',
+  remove: '✕',
+  edit: '✎',
+  goalie: '⟳',
+} as const;

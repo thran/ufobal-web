@@ -26,6 +26,7 @@ export interface PenaltyDto {
   tournament: number;
   player: number;
   reason: string;
+  client_id?: string | null;
 }
 
 export interface PlayerDto extends PlayerSimple {
@@ -124,6 +125,7 @@ export interface GoalDto {
   match: number;
   time: string | null;
   type: 'normal' | 'penalty' | 'shootout';
+  client_id?: string | null;
 }
 
 export interface ShotDto {
@@ -132,6 +134,7 @@ export interface ShotDto {
   match: number;
   shooter: number | null;
   team: number | null;
+  client_id?: string | null;
 }
 export interface GoalieInMatchDto {
   pk: number;
@@ -139,6 +142,7 @@ export interface GoalieInMatchDto {
   match: number;
   start: string;
   end: string | null;
+  client_id?: string | null;
 }
 export type GoalType = 'normal' | 'penalty' | 'shootout';
 export type CardType = 'yellow' | 'red';

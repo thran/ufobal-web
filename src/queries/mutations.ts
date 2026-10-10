@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, type QueryClient, type QueryKey } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { ApiError } from '../api/client';
 import * as ep from '../api/endpoints';
 import { userQueryKey } from '../auth/user';
 import { dataKeys } from './data';
@@ -74,7 +75,12 @@ export function invalidateMatchData(qc: QueryClient, tournament: number) {
 export const useRemoveMatchEvent = (tournament: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { type: 'goal' | 'shot' | 'penalty'; pk: number }) => ep.removeMatchEvent(v.type, v.pk),
+    // Already deleted (e.g. by a retried request or another device) counts as success.
+    mutationFn: (v: { type: 'goal' | 'shot' | 'penalty'; pk: number }) =>
+      ep.removeMatchEvent(v.type, v.pk).catch((err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) return 'OK';
+        throw err;
+      }),
     onSuccess: () => invalidateMatchData(qc, tournament),
   });
 };

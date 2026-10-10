@@ -64,11 +64,6 @@ test('unknown route shows 404', async () => {
   expect(await screen.findByText('Stránka nenalezena')).toBeInTheDocument();
 });
 
-test('new route renders placeholder', async () => {
-  renderAt('/tournaments/5/matches/7');
-  expect(await screen.findByRole('heading', { name: 'Zápas' })).toBeInTheDocument();
-});
-
 test('protected route asks anonymous user to log in', async () => {
   renderAt('/tournaments/5/record');
   expect(await screen.findByRole('alert')).toHaveTextContent('přihlásit');
