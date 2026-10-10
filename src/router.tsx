@@ -17,6 +17,7 @@ import TournamentRecordPage from './pages/TournamentRecordPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import RegistrationPage from './pages/RegistrationPage';
+import RosterPage from './pages/RosterPage';
 import TeamPage from './pages/TeamPage';
 import TournamentsPage from './pages/TournamentsPage';
 import TeamsPage from './pages/TeamsPage';
@@ -70,7 +71,14 @@ export const routes: RouteObject[] = [
           </RequireAuth>
         ),
       },
-      page('tournaments/:id/teams/:totId', 'Soupiska týmu', 'authorized'),
+      {
+        path: 'tournaments/:id/teams/:totId',
+        element: (
+          <RequireAuth level="authorized">
+            <RosterPage />
+          </RequireAuth>
+        ),
+      },
       page('tournaments/:id/matches/:matchId', 'Zápas'),
       page('tournaments/:id/matches/:matchId/edit', 'Záznam zápasu', 'authorized'),
       page('tournaments/:id/referee-feedback', 'Hodnocení rozhodčích', 'authorized'),
