@@ -16,7 +16,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="team in rows">
-            <td><a ng-href="/tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
+            <td><a ng-href="tym/{{ team.pk }}/{{ team.name }}">{{ team.name }}</a></td>
             <td>
                 <span ng-repeat="n in team.names | filter:'!'+team.name:true | orderBy:'-count'">{{ n.name }}<span ng-hide="$last">, </span></span>
             </td>

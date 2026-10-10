@@ -13,7 +13,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="tournament in rows">
-            <td><a ng-href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></td>
+            <td><a ng-href="turnaj/{{ tournament.pk }}/{{ tournament.full_name }}">{{ tournament.full_name }}</a></td>
             <td>{{ tournament.date }}</td>
             <td>{{ tournament.teamOnTournaments.length }}</td>
             <td>{{ tournament.location }}</td>

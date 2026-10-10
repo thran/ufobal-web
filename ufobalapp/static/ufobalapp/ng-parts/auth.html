@@ -1,4 +1,4 @@
-<li><a href="/faq">Co a jak?</a></li>
+<li><a href="faq">Co a jak?</a></li>
 <li ng-show="user.is_staff"><a href="/managestats/" target="_self">Admin</a></li>
 
 <li class="has-dropdown not-click">
@@ -10,13 +10,13 @@
         <li ng-show="userService.status.logged"><a ng-click="userService.logout()">Odhlásit se</a></li>
         <li ng-hide="userService.status.logged">
             <a class="login-provider" id="login-google" ng-click="userService.loginGoogle()">
-                <img width="24" height="24" class="provider-signup-img" src="static/google-icon.png">
+                <img width="24" height="24" class="provider-signup-img" src="/static/google-icon.png">
                 <span class="provider-signup-text">přes <b>Google</b></span>
             </a>
         </li>
         <li ng-hide="userService.status.logged">
             <a class="login-provider" id="login-facebook" ng-click="userService.loginFacebook()">
-                <img width="24" height="24" class="provider-signup-img" src="static/facebook-icon.png">
+                <img width="24" height="24" class="provider-signup-img" src="/static/facebook-icon.png">
                 <span class="provider-signup-text">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </a>
         </li>

@@ -5,10 +5,10 @@
 <div ng-hide="user.is_authorized">Přihlaš se prosím účtem, který je spárovaný s nějakým hráčem.</div>
 <div class="text-center" ng-show="matchesLoaded && user.is_authorized">
 
-    <a class="right" href="/skupiny/{{ tournament.pk }}"><button>Skupiny</button></a>
-    <a class="right" style="margin-right: 10px;" href="/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
-    <a class="right" style="margin-right: 10px;" href="/turnaj-zive/{{ tournament.pk }}"><button>Divácký pohled</button></a>
-    <a class="right" style="margin-right: 10px;" href="/hodnoceni_rozhodcich/{{ tournament.pk }}"><button>Hodnocení rozhodčích</button></a>
+    <a class="right" href="skupiny/{{ tournament.pk }}"><button>Skupiny</button></a>
+    <a class="right" style="margin-right: 10px;" href="turnaj/{{ tournament.pk }}/{{ tournament.full_name }}"><button>Statistiky</button></a>
+    <a class="right" style="margin-right: 10px;" href="turnaj-zive/{{ tournament.pk }}"><button>Divácký pohled</button></a>
+    <a class="right" style="margin-right: 10px;" href="hodnoceni_rozhodcich/{{ tournament.pk }}"><button>Hodnocení rozhodčích</button></a>
     <h1>{{ tournament.full_name }}</h1>
     <hr>
     <div ng-show="tournament.is_tournament_open || user.is_staff">
@@ -20,8 +20,8 @@
 
                 <div ng-repeat="match in tournament.matches | filter:{place: field}:strict | orderBy:['pk'] " class="row hoverLight stripes">
                     <div class="columns small-1 one-line">{{ $index + 1 }}.</div>
-                    <div class="text-right columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_one.name_pure }}</b></a></div>
-                    <div class="text-left columns small-3 one-line"><a href="/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_two.name_pure }}</b></a></div>
+                    <div class="text-right columns small-3 one-line"><a href="turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_one.name_pure }}</b></a></div>
+                    <div class="text-left columns small-3 one-line"><a href="turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit"><b>{{ match.team_two.name_pure }}</b></a></div>
                     <div class="text-left columns small-2 one-line">({{ match.referee_team.name_pure }})</div>
                     <div class="columns small-3 one-line">
                         <span ng-show="match.start"><b>{{ match.score_one }}:{{ match.score_two }}<span ng-show="match.with_shootout">P</span></b></span>
@@ -34,10 +34,10 @@
     </div>
 
     <div class="row">
-        <div ng-show="tournament.registration_open"><a href="/turnaj/prihlasovani/{{ tournament.pk }}">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
+        <div ng-show="tournament.registration_open"><a href="turnaj/prihlasovani/{{ tournament.pk }}">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : "d. M. yyyy"}}</div>
         <div ng-show="tournament.registration_scheduled">přihlašování začne {{ tournament.registration_from | date : "d. M. yyyy H:mm"}}</div>
         <h3>Týmy</h3>
-        <div class="small-6 medium-4 large-3 columns" ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="/turnaj/{{ tournament.pk }}/tym/{{ team.pk }}">{{ team.name }}</a></div>
+        <div class="small-6 medium-4 large-3 columns" ng-repeat="team in tournament.teamOnTournaments | orderBy:'name'"><a href="turnaj/{{ tournament.pk }}/tym/{{ team.pk }}">{{ team.name }}</a></div>
     </div>
 </div>
 

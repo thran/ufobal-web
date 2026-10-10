@@ -151,7 +151,7 @@ app.controller("intro", ["$scope", "$window", function ($scope, $window) {
     $scope.check = function(){
         if ($scope.checked) {
             saveLocally("checked", true, 60 * 60 * 24 * 365 * 10);
-            $window.location.href = "/";
+            $window.location.href = "./";
         }
     };
 }]);
@@ -2653,7 +2653,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('auth.html',
-    "<li><a href=\"/faq\">Co a jak?</a></li>\n" +
+    "<li><a href=\"faq\">Co a jak?</a></li>\n" +
     "<li ng-show=\"user.is_staff\"><a href=\"/managestats/\" target=\"_self\">Admin</a></li>\n" +
     "\n" +
     "<li class=\"has-dropdown not-click\">\n" +
@@ -2665,13 +2665,13 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        <li ng-show=\"userService.status.logged\"><a ng-click=\"userService.logout()\">Odhlásit se</a></li>\n" +
     "        <li ng-hide=\"userService.status.logged\">\n" +
     "            <a class=\"login-provider\" id=\"login-google\" ng-click=\"userService.loginGoogle()\">\n" +
-    "                <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"static/google-icon.png\">\n" +
+    "                <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"/static/google-icon.png\">\n" +
     "                <span class=\"provider-signup-text\">přes <b>Google</b></span>\n" +
     "            </a>\n" +
     "        </li>\n" +
     "        <li ng-hide=\"userService.status.logged\">\n" +
     "            <a class=\"login-provider\" id=\"login-facebook\" ng-click=\"userService.loginFacebook()\">\n" +
-    "                <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"static/facebook-icon.png\">\n" +
+    "                <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"/static/facebook-icon.png\">\n" +
     "                <span class=\"provider-signup-text\">přes <b>Facebook</b>&nbsp;&nbsp;&nbsp;&nbsp;</span>\n" +
     "            </a>\n" +
     "        </li>\n" +
@@ -2826,7 +2826,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    <table class=\"group\" ng-if=\"!group.playoff\">\n" +
     "        <tr class=\"first-line\">\n" +
     "            <th></th>\n" +
-    "            <th ng-repeat=\"team in group.teams\"><a href=\"/tym/{{ team.team.pk }}/{{ team.team.name }}\">{{ team.name_pure }}</a></th>\n" +
+    "            <th ng-repeat=\"team in group.teams\"><a href=\"tym/{{ team.team.pk }}/{{ team.team.name }}\">{{ team.name_pure }}</a></th>\n" +
     "            <td>V / P / R</td>\n" +
     "            <td>Skóre</td>\n" +
     "        </tr>\n" +
@@ -3409,9 +3409,9 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    <hr>\n" +
     "\n" +
     "    <div ng-show=\"liveTournament\">\n" +
-    "        <h3><a href=\"/turnaj/{{ liveTournament.pk }}\">{{ liveTournament.full_name }}</a></h3>\n" +
+    "        <h3><a href=\"turnaj/{{ liveTournament.pk }}\">{{ liveTournament.full_name }}</a></h3>\n" +
     "        <strong>datum:</strong> {{ liveTournament.date | date : \"d. M. yyyy\"}}<br>\n" +
-    "        <div ng-show=\"liveTournament.registration_open\"><a href=\"/turnaj/prihlasovani/{{ liveTournament.pk }}\">přihlásit se na turnaj</a> - do {{ liveTournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
+    "        <div ng-show=\"liveTournament.registration_open\"><a href=\"turnaj/prihlasovani/{{ liveTournament.pk }}\">přihlásit se na turnaj</a> - do {{ liveTournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
     "        <div ng-show=\"liveTournament.registration_scheduled\">přihlašování začne {{ liveTournament.registration_from | date : \"d. M. yyyy H:mm\"}}</div>\n" +
     "        <span ng-show=\"liveTournament.description\" ng-bind-html=\"to_trusted(liveTournament.description)\"></span>\n" +
     "    </div>\n" +
@@ -3431,7 +3431,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "<p ng-show=\"userService.status.logged\">\n" +
     "    Před tím než bodeš moci dělat akce v systému (měnit osobní informace, přihlašovat tým, zaznamenávat zápas, ...),\n" +
     "    je potřeba, aby si svůj účet spároval s hráčem v systému.\n" +
-    "    Pokud máš kód, tak ho zadej níže. Jinak se můžeš najít mezi <a href=\"/hraci\">hráči</a> a kliknout na <i>sparovat</i> v pravém horním rohu.\n" +
+    "    Pokud máš kód, tak ho zadej níže. Jinak se můžeš najít mezi <a href=\"hraci\">hráči</a> a kliknout na <i>sparovat</i> v pravém horním rohu.\n" +
     "\n" +
     "    Pokud se nemůžeš najít nebo máš jiný problém, prosím obrať se na <a href=\"mailto:thran@centrum.cz\">správce systému</a>.\n" +
     "</p>\n" +
@@ -3440,11 +3440,11 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "\n" +
     "<div ng-hide=\"userService.status.logged\">\n" +
     "    <a class=\"login-provider standalone\" id=\"login-google\" ng-click=\"userService.loginGoogle()\">\n" +
-    "        <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"static/google-icon.png\">\n" +
+    "        <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"/static/google-icon.png\">\n" +
     "        <span class=\"provider-signup-text\"><b>Google</b></span>\n" +
     "    </a>\n" +
     "        <a class=\"login-provider standalone\" id=\"login-facebook\" ng-click=\"userService.loginFacebook()\">\n" +
-    "        <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"static/facebook-icon.png\">\n" +
+    "        <img width=\"24\" height=\"24\" class=\"provider-signup-img\" src=\"/static/facebook-icon.png\">\n" +
     "        <span class=\"provider-signup-text\"><b>Facebook</b></span>\n" +
     "    </a>\n" +
     "\n" +
@@ -3576,7 +3576,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        </thead>\n" +
     "        <tbody>\n" +
     "            <tr ng-repeat=\"t in player.tournaments | orderBy:'tournament.date':true\">\n" +
-    "                <td><a ng-href=\"/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}/{{ t.pk }}\">{{ t.tournament.full_name }}</a></td>\n" +
+    "                <td><a ng-href=\"turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}/{{ t.pk }}\">{{ t.tournament.full_name }}</a></td>\n" +
     "                <td><a ng-href=\"tym/{{ t.team.pk }}/{{ t.name }}\">{{ t.name}}</a></td>\n" +
     "                <td class=\"text-right\">{{ player.goals[t.tournament.pk] }}</td>\n" +
     "                <td class=\"text-right\">{{ player.assists[t.tournament.pk] }}</td>\n" +
@@ -3604,8 +3604,8 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "            <tr ng-repeat=\"penalty in player.penalties\">\n" +
     "                <td>{{ penalty.card_verbose }}</td>\n" +
     "                <td>{{ penalty.reason }}</td>\n" +
-    "                <td><a ng-href=\"/turnaj/{{ penalty.tournament.pk }}/{{ penalty.tournament.full_name }}\">{{ penalty.tournament.full_name }}</a></td>\n" +
-    "                <td><a ng-href=\"/turnaj/zapas/{{ penalty.tournament.pk }}/{{ penalty.match.pk }}\">detail</a></td>\n" +
+    "                <td><a ng-href=\"turnaj/{{ penalty.tournament.pk }}/{{ penalty.tournament.full_name }}\">{{ penalty.tournament.full_name }}</a></td>\n" +
+    "                <td><a ng-href=\"turnaj/zapas/{{ penalty.tournament.pk }}/{{ penalty.match.pk }}\">detail</a></td>\n" +
     "            </tr>\n" +
     "        </tbody>\n" +
     "    </table>\n" +
@@ -4030,7 +4030,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        </thead>\n" +
     "        <tbody>\n" +
     "            <tr ng-repeat=\"t in team.teamOnTournaments | orderBy:'tournament.date':true\">\n" +
-    "                <td><a ng-href=\"/turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}/{{ t.pk }}\">{{ t.tournament.full_name }}</a></td>\n" +
+    "                <td><a ng-href=\"turnaj/{{ t.tournament.pk }}/{{ t.tournament.full_name }}/{{ t.pk }}\">{{ t.tournament.full_name }}</a></td>\n" +
     "                <td><span ng-hide=\"t.name == team.name\">{{ t.name }}</span></td>\n" +
     "\n" +
     "                <td>\n" +
@@ -4070,7 +4070,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        </thead>\n" +
     "        <tbody>\n" +
     "        <tr ng-repeat=\"team in rows\">\n" +
-    "            <td><a ng-href=\"/tym/{{ team.pk }}/{{ team.name }}\">{{ team.name }}</a></td>\n" +
+    "            <td><a ng-href=\"tym/{{ team.pk }}/{{ team.name }}\">{{ team.name }}</a></td>\n" +
     "            <td>\n" +
     "                <span ng-repeat=\"n in team.names | filter:'!'+team.name:true | orderBy:'-count'\">{{ n.name }}<span ng-hide=\"$last\">, </span></span>\n" +
     "            </td>\n" +
@@ -4101,9 +4101,9 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "<div class=\"loader\" ng-hide=\"matchesLoaded\"></div>\n" +
     "<div ng-show=\"matchesLoaded\">\n" +
     "\n" +
-    "    <a class=\"right\" href=\"/skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
-    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\"><button>Statistiky</button></a>\n" +
-    "    <a class=\"right\" style=\"margin: 0 10px;\" href=\"/turnaj/{{ tournament.pk }}\"><button>Správa turnaje</button></a>\n" +
+    "    <a class=\"right\" href=\"skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
+    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\"><button>Statistiky</button></a>\n" +
+    "    <a class=\"right\" style=\"margin: 0 10px;\" href=\"turnaj/{{ tournament.pk }}\"><button>Správa turnaje</button></a>\n" +
     "    <div class=\"small switch right text-right\" style=\"margin-bottom: 0\">živě<br><input id='refresh' type=\"checkbox\" ng-model=\"refresh\"><label for=\"refresh\"></label></div>\n" +
     "\n" +
     "    <h1>{{ tournament.full_name }}</h1>\n" +
@@ -4111,8 +4111,8 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    <h4>Probíhající zápasy </h4>\n" +
     "    <div ng-repeat=\"match in tournament.matches | filter:{state: 'ongoing'} | orderBy:['-pk']\" class=\"row hoverLight stripes\">\n" +
     "        <div class=\"columns small-1 one-line\">{{ match.place }}</div>\n" +
-    "        <div class=\"text-right columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
-    "        <div class=\"columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
+    "        <div class=\"text-right columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
+    "        <div class=\"columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
     "        <div class=\"columns small-2 one-line\">\n" +
     "            <span ng-show=\"match.start\"><b>{{ match.score_one }}:{{ match.score_two }}<span ng-show=\"match.with_shootout\">P</span></b></span>\n" +
     "            <span ng-show=\"match.start && ! match.end\">hraje se</span>\n" +
@@ -4124,8 +4124,8 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    <h4>Ukončené zápasy </h4>\n" +
     "    <div ng-repeat=\"match in tournament.matches | filter:{state: 'ended'} | orderBy:['-pk']\" class=\"row hoverLight stripes\">\n" +
     "        <div class=\"columns small-1 one-line\">{{ match.place }}</div>\n" +
-    "        <div class=\"text-right columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
-    "        <div class=\"columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
+    "        <div class=\"text-right columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
+    "        <div class=\"columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
     "        <div class=\"columns small-2 one-line\">\n" +
     "            <span ng-show=\"match.start\"><b>{{ match.score_one }}:{{ match.score_two }}<span ng-show=\"match.with_shootout\">P</span></b></span>\n" +
     "            <span ng-show=\"match.start && ! match.end\">hraje se</span>\n" +
@@ -4137,8 +4137,8 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    <h4>Budoucí zápasy </h4>\n" +
     "    <div ng-repeat=\"match in tournament.matches | filter:{state: 'waiting'} | orderBy:['-pk']\" class=\"row hoverLight stripes\">\n" +
     "        <div class=\"columns small-1 one-line\">{{ match.place }}</div>\n" +
-    "        <div class=\"text-right columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
-    "        <div class=\"columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
+    "        <div class=\"text-right columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
+    "        <div class=\"columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
     "        <div class=\"columns small-2 one-line\">\n" +
     "            <span ng-show=\"match.start\"><b>{{ match.score_one }}:{{ match.score_two }}<span ng-show=\"match.with_shootout\">P</span></b></span>\n" +
     "            <span ng-show=\"match.start && ! match.end\">hraje se</span>\n" +
@@ -4157,10 +4157,10 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "<div ng-hide=\"user.is_authorized\">Přihlaš se prosím účtem, který je spárovaný s nějakým hráčem.</div>\n" +
     "<div class=\"text-center\" ng-show=\"matchesLoaded && user.is_authorized\">\n" +
     "\n" +
-    "    <a class=\"right\" href=\"/skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
-    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\"><button>Statistiky</button></a>\n" +
-    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"/turnaj-zive/{{ tournament.pk }}\"><button>Divácký pohled</button></a>\n" +
-    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"/hodnoceni_rozhodcich/{{ tournament.pk }}\"><button>Hodnocení rozhodčích</button></a>\n" +
+    "    <a class=\"right\" href=\"skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
+    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\"><button>Statistiky</button></a>\n" +
+    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"turnaj-zive/{{ tournament.pk }}\"><button>Divácký pohled</button></a>\n" +
+    "    <a class=\"right\" style=\"margin-right: 10px;\" href=\"hodnoceni_rozhodcich/{{ tournament.pk }}\"><button>Hodnocení rozhodčích</button></a>\n" +
     "    <h1>{{ tournament.full_name }}</h1>\n" +
     "    <hr>\n" +
     "    <div ng-show=\"tournament.is_tournament_open || user.is_staff\">\n" +
@@ -4172,8 +4172,8 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "\n" +
     "                <div ng-repeat=\"match in tournament.matches | filter:{place: field}:strict | orderBy:['pk'] \" class=\"row hoverLight stripes\">\n" +
     "                    <div class=\"columns small-1 one-line\">{{ $index + 1 }}.</div>\n" +
-    "                    <div class=\"text-right columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
-    "                    <div class=\"text-left columns small-3 one-line\"><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
+    "                    <div class=\"text-right columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit\"><b>{{ match.team_one.name_pure }}</b></a></div>\n" +
+    "                    <div class=\"text-left columns small-3 one-line\"><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}/edit\"><b>{{ match.team_two.name_pure }}</b></a></div>\n" +
     "                    <div class=\"text-left columns small-2 one-line\">({{ match.referee_team.name_pure }})</div>\n" +
     "                    <div class=\"columns small-3 one-line\">\n" +
     "                        <span ng-show=\"match.start\"><b>{{ match.score_one }}:{{ match.score_two }}<span ng-show=\"match.with_shootout\">P</span></b></span>\n" +
@@ -4186,10 +4186,10 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "\n" +
     "    <div class=\"row\">\n" +
-    "        <div ng-show=\"tournament.registration_open\"><a href=\"/turnaj/prihlasovani/{{ tournament.pk }}\">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
+    "        <div ng-show=\"tournament.registration_open\"><a href=\"turnaj/prihlasovani/{{ tournament.pk }}\">přihlásit se na turnaj</a> - do {{ tournament.registration_to | date : \"d. M. yyyy\"}}</div>\n" +
     "        <div ng-show=\"tournament.registration_scheduled\">přihlašování začne {{ tournament.registration_from | date : \"d. M. yyyy H:mm\"}}</div>\n" +
     "        <h3>Týmy</h3>\n" +
-    "        <div class=\"small-6 medium-4 large-3 columns\" ng-repeat=\"team in tournament.teamOnTournaments | orderBy:'name'\"><a href=\"/turnaj/{{ tournament.pk }}/tym/{{ team.pk }}\">{{ team.name }}</a></div>\n" +
+    "        <div class=\"small-6 medium-4 large-3 columns\" ng-repeat=\"team in tournament.teamOnTournaments | orderBy:'name'\"><a href=\"turnaj/{{ tournament.pk }}/tym/{{ team.pk }}\">{{ team.name }}</a></div>\n" +
     "    </div>\n" +
     "</div>\n" +
     "\n" +
@@ -4665,7 +4665,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "<div class=\"loader\" ng-hide=\"team\"></div>\n" +
     "\n" +
     "<div ng-show=\"team\" class=\"row\">\n" +
-    "    <a href=\"/turnaj/{{ tournament.pk }}\" class=\"left\">&lsaquo; zpět</a>\n" +
+    "    <a href=\"turnaj/{{ tournament.pk }}\" class=\"left\">&lsaquo; zpět</a>\n" +
     "\n" +
     "    <hr>\n" +
     "\n" +
@@ -4797,9 +4797,9 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "\n" +
     "    <hr>\n" +
     "\n" +
-    "    <a class=\"right\" href=\"/skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
-    "    <a ng-if=\"tournament.is_tournament_open\" class=\"right\" href=\"/turnaj/{{ tournament.pk }}\" style=\"margin-right: 10px;\"><button>Spravovat</button></a>\n" +
-    "    <a ng-if=\"!tournament.closed_edit\" class=\"right\" href=\"/hodnoceni_rozhodcich/{{ tournament.pk }}\" style=\"margin-right: 10px;\"><button>Hodnocení rozhodčích</button></a>\n" +
+    "    <a class=\"right\" href=\"skupiny/{{ tournament.pk }}\"><button>Skupiny</button></a>\n" +
+    "    <a ng-if=\"tournament.is_tournament_open\" class=\"right\" href=\"turnaj/{{ tournament.pk }}\" style=\"margin-right: 10px;\"><button>Spravovat</button></a>\n" +
+    "    <a ng-if=\"!tournament.closed_edit\" class=\"right\" href=\"hodnoceni_rozhodcich/{{ tournament.pk }}\" style=\"margin-right: 10px;\"><button>Hodnocení rozhodčích</button></a>\n" +
     "\n" +
     "    <h1>{{ tournament.full_name }}</h1>\n" +
     "\n" +
@@ -4862,7 +4862,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "                            <td class=\"text-right\"><b>{{ match.score_one }}</b></td>\n" +
     "                            <td><b>{{ match.score_two }}<span ng-show=\"match.with_shootout\">P</span></b></td>\n" +
     "                            <td>{{ match.team_two.name_pure }}</td>\n" +
-    "                            <td><a href=\"/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\">detail</a></td>\n" +
+    "                            <td><a href=\"turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}\">detail</a></td>\n" +
     "                    </tr>\n" +
     "                </tbody>\n" +
     "            </table>\n" +
@@ -4995,7 +4995,7 @@ angular.module('ufoIS').run(['$templateCache', function($templateCache) {
     "        </thead>\n" +
     "        <tbody>\n" +
     "        <tr ng-repeat=\"tournament in rows\">\n" +
-    "            <td><a ng-href=\"/turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\">{{ tournament.full_name }}</a></td>\n" +
+    "            <td><a ng-href=\"turnaj/{{ tournament.pk }}/{{ tournament.full_name }}\">{{ tournament.full_name }}</a></td>\n" +
     "            <td>{{ tournament.date }}</td>\n" +
     "            <td>{{ tournament.teamOnTournaments.length }}</td>\n" +
     "            <td>{{ tournament.location }}</td>\n" +

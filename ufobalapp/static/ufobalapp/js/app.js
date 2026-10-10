@@ -151,7 +151,7 @@ app.controller("intro", ["$scope", "$window", function ($scope, $window) {
     $scope.check = function(){
         if ($scope.checked) {
             saveLocally("checked", true, 60 * 60 * 24 * 365 * 10);
-            $window.location.href = "/";
+            $window.location.href = "./";
         }
     };
 }]);
