@@ -8,6 +8,7 @@ import HallOfRecordsPage from './pages/HallOfRecordsPage';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
+import PairAccountPage from './pages/PairAccountPage';
 import PlayerPage from './pages/PlayerPage';
 import GoalieStatsPage from './pages/GoalieStatsPage';
 import PlayerStatsPage from './pages/PlayerStatsPage';
@@ -46,7 +47,7 @@ export const routes: RouteObject[] = [
       { path: 'faq', element: <FaqPage /> },
       { path: 'intro', element: <Navigate replace to="/faq" /> },
       { path: 'hall-of-records', element: <HallOfRecordsPage /> },
-      page('pair-account/:token?', 'Spárovat účet', 'login'),
+      { path: 'pair-account/:token?', element: <PairAccountPage /> },
       { path: 'players', element: <PlayersPage /> },
       { path: 'players/:id/:slug?', element: <PlayerPage /> },
       { path: 'teams', element: <TeamsPage /> },
