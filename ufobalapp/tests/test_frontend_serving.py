@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pytest
 from django.contrib.auth.models import User
+from django.template import TemplateDoesNotExist
 from django.urls import reverse
 
 from ufobalapp.models import Player, Tournament
@@ -87,3 +88,19 @@ def test_close_login_popup_posts_message(client):
     response = client.get('/login/close_login_popup')
     assert response.status_code == 200
     assert b'ufo-social-login' in response.content
+
+
+@pytest.mark.django_db
+def test_spa_missing_build_returns_503_with_hint(client, monkeypatch):
+    def missing(*args, **kwargs):
+        raise TemplateDoesNotExist('spa.html')
+
+    monkeypatch.setattr('ufobalapp.views.render', missing)
+    response = client.get('/players')
+    assert response.status_code == 503
+    assert b'build-to-backend.sh' in response.content
+
+
+@pytest.mark.django_db
+def test_unknown_old_api_endpoint_is_404(client):
+    assert client.get('/old/api/does_not_exist').status_code == 404

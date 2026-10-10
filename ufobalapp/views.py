@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
+from django.template import TemplateDoesNotExist
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
@@ -1099,7 +1100,14 @@ def home(request):
         "liveTournamentPk": _live_tournament_pk(),
         "test": settings.TEST,
     }
-    return render(request, "spa.html", {"initial_json": _json_for_script(initial)})
+    try:
+        return render(request, "spa.html", {"initial_json": _json_for_script(initial)})
+    except TemplateDoesNotExist:
+        return HttpResponse(
+            "Frontend is not built. Run ufobal-web-frontend/scripts/build-to-backend.sh.",
+            status=503,
+            content_type="text/plain; charset=utf-8",
+        )
 
 
 @user_passes_test_or_401(is_authorized)

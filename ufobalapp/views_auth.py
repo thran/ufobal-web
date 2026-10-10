@@ -137,4 +137,4 @@ def logout(request):
 
 
 def close_login_popup(request):
-    return render(request, 'close_login_popup_new.html', {'user': json.dumps(get_user_data(request))})
+    return render(request, 'close_login_popup_new.html')

@@ -7,7 +7,7 @@
             <h1>Žádosti o spárování</h1>
             {% for request in requests %}
                 <b>
-                    <a href="/hrac/{{ request.player.pk }}/{{ request.player.nickname }}">{{ request.player }}</a> -
+                    <a href="/old/hrac/{{ request.player.pk }}/{{ request.player.nickname }}">{{ request.player }}</a> -
                     <a href="{%  url 'admin:auth_user_change' request.user.pk %}">{{ request.user }}</a>
                 </b> - {{ request.text }} -
                 <i class="fi-check clickable" ng-click="approve({{ request.pk }})"></i>

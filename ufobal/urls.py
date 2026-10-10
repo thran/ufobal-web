@@ -30,6 +30,7 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('api_frontend/', include('ufobalapp.urls', namespace='api_frontend')),
     path('managestats/', include('managestats.urls', namespace='managestats')),
     re_path(r'^api_frontend/', views.not_found, name='api_frontend_not_found'),
+    re_path(r'^old/api/', views.not_found),
     re_path(r'^old/', views.home_old, name='home_old'),
     re_path(r'.*', views.home, name='home'),
 ]
