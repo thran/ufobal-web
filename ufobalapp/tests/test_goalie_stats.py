@@ -73,10 +73,10 @@ def test_goalie_stats_non_integer_tournament_is_400(client, setup):
 
 
 @pytest.mark.django_db
-def test_goalie_stats_unfiltered_is_cached_filtered_is_not(client, setup):
+def test_goalie_stats_cache_is_invalidated_on_new_goal(client, setup):
     assert client.get('/api_frontend/goalie_stats').json()[0]['goals'] == 1
     match = Match.objects.get(tournament=setup['t'], length=time(0, 20), fake=False)
     shooter = Player.objects.get(nickname='B1')
     Goal.objects.create(match=match, shooter=shooter, time=time(0, 10))
-    assert client.get('/api_frontend/goalie_stats').json()[0]['goals'] == 1
+    assert client.get('/api_frontend/goalie_stats').json()[0]['goals'] == 2
     assert client.get(f'/api_frontend/goalie_stats?tournament={setup["t"].pk}').json()[0]['goals'] == 2

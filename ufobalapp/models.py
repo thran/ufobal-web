@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -489,6 +489,8 @@ class GoalieInMatch(models.Model):
     start = models.TimeField('Začátek chytání')
     end = models.TimeField('Konec chytání', null=True, blank=True)
 
+    client_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
+
     def to_json(self):
         return {
             "pk": self.pk,
@@ -496,6 +498,7 @@ class GoalieInMatch(models.Model):
             "match": self.match_id,
             "start": str(self.start),
             "end": str(self.end) if self.end else None,
+            "client_id": self.client_id,
         }
 
 
@@ -524,6 +527,8 @@ class Goal(models.Model):
     time = models.TimeField('Čas v zápase', null=True, blank=True)
     type = models.CharField(max_length=20, verbose_name='druh', choices=GOAL_TYPES, default=NORMAL)
 
+    client_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
+
     def to_json(self):
         data = {
             "pk": self.pk,
@@ -532,6 +537,7 @@ class Goal(models.Model):
             "match": self.match_id,
             "time": str(self.time) if self.time is not None else None,
             "type": self.type,
+            "client_id": self.client_id,
         }
         return data
 
@@ -574,6 +580,8 @@ class Shot(models.Model):
     match = models.ForeignKey(Match, verbose_name='zápas', related_name='shots', on_delete=models.CASCADE)
     time = models.TimeField('Čas v zápase')
 
+    client_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
+
     def to_json(self):
         return {
             "pk": self.pk,
@@ -581,6 +589,7 @@ class Shot(models.Model):
             "match": self.match_id,
             "shooter": self.shooter_id,
             "team": self.team_id,
+            "client_id": self.client_id,
         }
 
 
@@ -602,6 +611,8 @@ class Penalty(models.Model):
     player = models.ForeignKey(Player, verbose_name='hráč', on_delete=models.PROTECT)
     reason = models.TextField('Důvod')
 
+    client_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
+
     def to_json(self):
         return {
             "pk": self.pk,
@@ -612,6 +623,7 @@ class Penalty(models.Model):
             "tournament": self.match.tournament_id,
             "player": self.player_id,
             "reason": self.reason,
+            "client_id": self.client_id,
         }
 
 
@@ -747,3 +759,14 @@ def reset_cache(sender, instance, **kwargs):
     for model_class in (TeamOnTournament, Tournament, Player):
         for staff in (False, True):
             cache.delete(list_cache_key(model_class, staff))
+
+
+@receiver(post_save, sender=Goal)
+@receiver(post_delete, sender=Goal)
+@receiver(post_save, sender=Shot)
+@receiver(post_delete, sender=Shot)
+@receiver(post_save, sender=GoalieInMatch)
+@receiver(post_delete, sender=GoalieInMatch)
+@receiver(post_save, sender=Match)
+def reset_goalie_stats_cache(sender, instance, **kwargs):
+    cache.delete('goalie_stats')

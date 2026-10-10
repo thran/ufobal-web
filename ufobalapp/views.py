@@ -8,6 +8,7 @@ from itertools import takewhile
 from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.mail import send_mail
+from django.db import IntegrityError, transaction
 from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
@@ -543,10 +544,19 @@ def add_player(request):
     return HttpResponseBadRequest("Chybí přezdívka")
 
 
+def _find_by_client_id(model, client_id):
+    """Row created by an earlier request with the same client_id (idempotent replay), or None."""
+    return model.objects.filter(client_id=client_id).first() if client_id else None
+
+
 @user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def add_goal(request):
     data = json.loads(str(request.body.decode('utf-8')))
+    client_id = data.get('client_id') or None
+    existing = _find_by_client_id(Goal, client_id)
+    if existing:
+        return HttpResponse(existing.pk)
 
     match = get_object_or_404(Match, pk=data.get('match'))
     shooter = get_object_or_404(Player, pk=data.get('shooter'))
@@ -554,7 +564,7 @@ def add_goal(request):
     if shooter not in match.team_one.players.all() and shooter not in match.team_two.players.all():
         return HttpResponseBadRequest("Střelec se nenachází ani v jednom z týmů.")
 
-    goal = Goal(shooter=shooter, match=match, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
+    goal = Goal(client_id=client_id, shooter=shooter, match=match, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
 
     if data.get("type"):
         goal.type = data.get("type")
@@ -562,7 +572,14 @@ def add_goal(request):
     assistance = Player.objects.filter(pk=data.get('assistance'))
     if len(assistance) > 0:
         goal.assistance = assistance[0]
-    goal.save()
+    try:
+        with transaction.atomic():
+            goal.save()
+    except IntegrityError:
+        existing = _find_by_client_id(Goal, client_id)
+        if not existing:
+            raise
+        return HttpResponse(existing.pk)
 
     return HttpResponse(goal.pk)
 
@@ -571,6 +588,10 @@ def add_goal(request):
 @require_http_methods(["POST"])
 def add_shot(request):
     data = json.loads(str(request.body.decode('utf-8')))
+    client_id = data.get('client_id') or None
+    existing = _find_by_client_id(Shot, client_id)
+    if existing:
+        return HttpResponse(existing.pk)
 
     match = get_object_or_404(Match, pk=data.get('match'))
     team = get_object_or_404(TeamOnTournament, pk=data.get('team'))
@@ -581,8 +602,15 @@ def add_shot(request):
     else:
         shooter = None
 
-    shot = Shot(match=match, team=team, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
-    shot.save()
+    shot = Shot(client_id=client_id, match=match, team=team, shooter=shooter, time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"))
+    try:
+        with transaction.atomic():
+            shot.save()
+    except IntegrityError:
+        existing = _find_by_client_id(Shot, client_id)
+        if not existing:
+            raise
+        return HttpResponse(existing.pk)
 
     return HttpResponse(shot.pk)
 
@@ -644,6 +672,10 @@ def add_match(request):
 @require_http_methods(["POST"])
 def add_penalty(request):
     data = json.loads(str(request.body.decode('utf-8')))
+    client_id = data.get('client_id') or None
+    existing = _find_by_client_id(Penalty, client_id)
+    if existing:
+        return HttpResponse(existing.pk)
 
     match = get_object_or_404(Match, pk=data.get('match'))
     player = get_object_or_404(Player, pk=data.get('player'))
@@ -652,13 +684,21 @@ def add_penalty(request):
         return HttpResponseBadRequest("Hráč se nenachází ani v jednom z týmů.")
 
     penalty = Penalty(
+        client_id=client_id,
         card=data.get('card'),
         match=match,
         player=player,
         reason=data.get('reason'),
         time=datetime.datetime.strptime(data.get('time'), "%H:%M:%S"),
     )
-    penalty.save()
+    try:
+        with transaction.atomic():
+            penalty.save()
+    except IntegrityError:
+        existing = _find_by_client_id(Penalty, client_id)
+        if not existing:
+            raise
+        return HttpResponse(existing.pk)
 
     return HttpResponse(penalty.pk)
 
@@ -836,6 +876,9 @@ def remove_penalty(request, penalty_id):
 @require_http_methods(["POST"])
 def change_goalie(request, match_id, team_id):
     data = json.loads(str(request.body.decode('utf-8')))
+    client_id = data.get('client_id') or None
+    if _find_by_client_id(GoalieInMatch, client_id):
+        return HttpResponse('OK')
 
     match = get_object_or_404(Match, pk=match_id)
     team_on_tournament = get_object_or_404(TeamOnTournament, pk=team_id)
@@ -845,17 +888,25 @@ def change_goalie(request, match_id, team_id):
     if new_goalie not in match.team_one.players.all() and new_goalie not in match.team_two.players.all():
         return HttpResponseBadRequest("Nový brankář se nenachází ani v jednom z týmů.")
 
-    for goalie in GoalieInMatch.objects.filter(match=match).all():
-        if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
-            goalie.end = time
-            if str(goalie.end).endswith(str(goalie.start)):
-                goalie.delete()
-            else:
-                goalie.save()
-            break
+    try:
+        with transaction.atomic():
+            for goalie in GoalieInMatch.objects.filter(match=match).all():
+                if goalie.goalie in team_on_tournament.players.all() and goalie.end is None:
+                    goalie.end = time
+                    if str(goalie.end).endswith(str(goalie.start)):
+                        goalie.delete()
+                    else:
+                        goalie.save()
+                    break
 
-    new_goalie_in_match = GoalieInMatch(goalie=new_goalie, match=match, start=time + datetime.timedelta(seconds=1))
-    new_goalie_in_match.save()
+            GoalieInMatch.objects.create(
+                client_id=client_id, goalie=new_goalie, match=match, start=time + datetime.timedelta(seconds=1)
+            )
+    except IntegrityError:
+        if not _find_by_client_id(GoalieInMatch, client_id):
+            raise
+        return HttpResponse("OK")
+
     if team_on_tournament.default_goalie is None:
         team_on_tournament.default_goalie = new_goalie
         team_on_tournament.save()
