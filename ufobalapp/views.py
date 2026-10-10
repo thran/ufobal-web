@@ -144,6 +144,55 @@ def goals(request):
     return JsonResponse(data, safe=False)
 
 
+def compute_goalie_stats(tournament_id=None):
+    """Per (goalie, tournament) shots/goals against, as the old frontend's getGoalieScore computed it."""
+    matches = Match.objects.filter(fake=False, length__isnull=False)
+    if tournament_id is not None:
+        matches = matches.filter(tournament_id=tournament_id)
+    matches = matches.order_by('tournament_id', 'pk').prefetch_related(
+        'goalies_in_match', 'goals', 'shots', 'team_one__players'
+    )
+    stats = {}
+    for match in matches:
+        team_one_players = {p.pk for p in match.team_one.players.all()} if match.team_one else set()
+
+        def team_of(player_id):
+            return match.team_one_id if player_id in team_one_players else match.team_two_id
+
+        for gim in match.goalies_in_match.all():
+            row = stats.setdefault(
+                (gim.goalie_id, match.tournament_id),
+                {'goalie': gim.goalie_id, 'tournament': match.tournament_id, 'team': team_of(gim.goalie_id),
+                 'matches': set(), 'shots': 0, 'goals': 0},
+            )
+            row['matches'].add(match.pk)
+            if gim.end is None:
+                continue
+            for goal in match.goals.all():
+                if goal.time is not None and gim.start <= goal.time <= gim.end and team_of(goal.shooter_id) != row['team']:
+                    row['goals'] += 1
+                    row['shots'] += 1
+            for shot in match.shots.all():
+                if gim.start <= shot.time <= gim.end and shot.team_id != row['team']:
+                    row['shots'] += 1
+    return [{**row, 'matches': len(row['matches'])} for row in stats.values()]
+
+
+def goalie_stats(request):
+    tournament = request.GET.get('tournament')
+    if tournament is not None:
+        try:
+            tournament_id = int(tournament)
+        except ValueError:
+            return HttpResponseBadRequest('tournament must be an integer')
+        return JsonResponse(compute_goalie_stats(tournament_id), safe=False)
+    data = cache.get('goalie_stats')
+    if data is None:
+        data = compute_goalie_stats()
+        cache.set('goalie_stats', data, 60 * 60)
+    return JsonResponse(data, safe=False)
+
+
 def pairs(request, tournament_pk):
     pairs = (
         Goal.objects.values("shooter", "assistance")

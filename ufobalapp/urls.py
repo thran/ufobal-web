@@ -11,6 +11,7 @@ urlpatterns = [
     path('remove_attendance/<int:player>-(<int:team>', views.remove_attendance, name='remove_attendance'),
     path('goals', views.goals, name='get_goals'),
     path('pairs/<int:tournament_pk>', views.pairs, name='get_pairs'),
+    path('goalie_stats', views.goalie_stats, name='goalie_stats'),
     path('stats', views.stats, name='get_stats'),
     path('hall_of_glory', views.hall_of_glory, name='get_hall_of_glory'),
     path('add_team', views.add_team, name='add_team'),
