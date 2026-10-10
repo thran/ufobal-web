@@ -65,8 +65,8 @@ test('unknown route shows 404', async () => {
 });
 
 test('new route renders placeholder', async () => {
-  renderAt('/tournaments/5/live');
-  expect(await screen.findByRole('heading', { name: 'Turnaj živě' })).toBeInTheDocument();
+  renderAt('/tournaments/5/matches/7');
+  expect(await screen.findByRole('heading', { name: 'Zápas' })).toBeInTheDocument();
 });
 
 test('protected route asks anonymous user to log in', async () => {

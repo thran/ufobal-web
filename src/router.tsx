@@ -12,6 +12,7 @@ import PlayerPage from './pages/PlayerPage';
 import GoalieStatsPage from './pages/GoalieStatsPage';
 import PlayerStatsPage from './pages/PlayerStatsPage';
 import PlayersPage from './pages/PlayersPage';
+import TournamentLivePage from './pages/TournamentLivePage';
 import TournamentRecordPage from './pages/TournamentRecordPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -58,7 +59,7 @@ export const routes: RouteObject[] = [
           </RequireAuth>
         ),
       },
-      page('tournaments/:id/live', 'Turnaj živě'),
+      { path: 'tournaments/:id/live', element: <TournamentLivePage /> },
       { path: 'tournaments/:id/groups', element: <GroupsPage /> },
       page('tournaments/:id/register', 'Přihlášení na turnaj', 'authorized'),
       page('tournaments/:id/teams/:totId', 'Soupiska týmu', 'authorized'),
