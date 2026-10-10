@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head><meta charset="utf-8"><title>Přihlášení</title></head>
+<body>
+<p>Přihlášení dokončeno, okno můžeš zavřít.</p>
+<script>
+    if (window.opener) {
+        window.opener.postMessage({type: "ufo-social-login"}, window.location.origin);
+        window.close();
+    }
+</script>
+</body>
+</html>

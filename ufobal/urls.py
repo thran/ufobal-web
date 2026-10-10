@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 
-import ufobalapp.views
 from ufobal import settings
 from ufobalapp import views_auth, views
 
@@ -30,10 +29,9 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('old/api/', include('ufobalapp.urls', namespace='api')),
     path('api_frontend/', include('ufobalapp.urls', namespace='api_frontend')),
     path('managestats/', include('managestats.urls', namespace='managestats')),
-    path('intro', ufobalapp.views.intro, name='intro'),
     re_path(r'^api_frontend/', views.not_found, name='api_frontend_not_found'),
     re_path(r'^old/', views.home_old, name='home_old'),
-    re_path(r'.*', views.home_old, name='home'),
+    re_path(r'.*', views.home, name='home'),
 ]
 
 if settings.SILK:

@@ -6,11 +6,13 @@ from functools import wraps
 from itertools import takewhile
 
 from django.core.cache import cache
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.mail import send_mail
 from django.db.models import Prefetch, Count, Max, Min, Q
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -1080,6 +1082,24 @@ def home_old(request):
             "live_tournament_pk": _live_tournament_pk(),
         },
     )
+
+
+def _json_for_script(data):
+    """JSON safe to embed inside <script type="application/json">."""
+    dumped = json.dumps(data, cls=DjangoJSONEncoder)
+    return mark_safe(dumped.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026"))
+
+
+@ensure_csrf_cookie
+def home(request):
+    from ufobalapp.views_auth import get_user_data
+
+    initial = {
+        "user": get_user_data(request),
+        "liveTournamentPk": _live_tournament_pk(),
+        "test": settings.TEST,
+    }
+    return render(request, "spa.html", {"initial_json": _json_for_script(initial)})
 
 
 @user_passes_test_or_401(is_authorized)
