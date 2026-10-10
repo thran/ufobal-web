@@ -1,9 +1,12 @@
-import type { RouteObject } from 'react-router';
+import { Navigate, type RouteObject } from 'react-router';
 import RequireAuth from './auth/RequireAuth';
 import Layout from './components/Layout';
 import RouteError from './components/RouteError';
+import FaqPage from './pages/FaqPage';
+import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import { legacyRoutes } from './routes/legacyRedirects';
 
 type Level = 'login' | 'authorized' | 'staff';
@@ -24,10 +27,10 @@ export const routes: RouteObject[] = [
     element: <Layout />,
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <Placeholder title="Ufo-IS" /> },
-      page('privacy-policy', 'Privacy policy'),
-      page('faq', 'Co a jak?'),
-      page('intro', 'Úvod'),
+      { index: true, element: <HomePage /> },
+      { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
+      { path: 'faq', element: <FaqPage /> },
+      { path: 'intro', element: <Navigate replace to="/faq" /> },
       page('hall-of-records', 'Síň rekordů'),
       page('pair-account/:token?', 'Spárovat účet', 'login'),
       page('players', 'Hráči'),

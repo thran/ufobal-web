@@ -1,10 +1,13 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test } from 'vitest';
 import { AppConfigProvider } from './AppContext';
 import { createQueryClient } from './queryClient';
 import { routes } from './router';
+import { mockApi } from './test/utils';
+
+beforeEach(() => mockApi({}));
 
 function renderAt(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
@@ -62,11 +65,16 @@ test('unknown route shows 404', async () => {
 });
 
 test('new route renders placeholder', async () => {
-  renderAt('/players');
-  expect(await screen.findByRole('heading', { name: 'Hráči' })).toBeInTheDocument();
+  renderAt('/tournaments/5/live');
+  expect(await screen.findByRole('heading', { name: 'Turnaj živě' })).toBeInTheDocument();
 });
 
 test('protected route asks anonymous user to log in', async () => {
   renderAt('/tournaments/5/record');
   expect(await screen.findByRole('alert')).toHaveTextContent('přihlásit');
+});
+
+test('/intro redirects to /faq', async () => {
+  const router = renderAt('/intro');
+  await waitFor(() => expect(router.state.location.pathname).toBe('/faq'));
 });
