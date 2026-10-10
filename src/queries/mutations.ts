@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type QueryClient, type QueryKey } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import * as ep from '../api/endpoints';
 import { userQueryKey } from '../auth/user';
@@ -58,3 +58,23 @@ export function usePairUser() {
     },
   });
 }
+
+export function invalidateMatchData(qc: QueryClient, tournament: number) {
+  return Promise.all(
+    [
+      dataKeys.matches(tournament),
+      dataKeys.pairs(tournament),
+      dataKeys.groups(tournament),
+      dataKeys.goalieStats(tournament),
+      dataKeys.goalieStats('all'),
+      dataKeys.goals,
+    ].map((queryKey) => qc.invalidateQueries({ queryKey })),
+  );
+}
+export const useRemoveMatchEvent = (tournament: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { type: 'goal' | 'shot' | 'penalty'; pk: number }) => ep.removeMatchEvent(v.type, v.pk),
+    onSuccess: () => invalidateMatchData(qc, tournament),
+  });
+};

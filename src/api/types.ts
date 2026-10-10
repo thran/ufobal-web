@@ -126,6 +126,53 @@ export interface GoalDto {
   type: 'normal' | 'penalty' | 'shootout';
 }
 
+export interface ShotDto {
+  pk: number;
+  time: string;
+  match: number;
+  shooter: number | null;
+  team: number | null;
+}
+export interface GoalieInMatchDto {
+  pk: number;
+  goalie: number;
+  match: number;
+  start: string;
+  end: string | null;
+}
+export type GoalType = 'normal' | 'penalty' | 'shootout';
+export type CardType = 'yellow' | 'red';
+export interface GoalBody {
+  match: number;
+  shooter: number | null;
+  assistance?: number;
+  type?: GoalType;
+  time: string;
+  client_id?: string;
+}
+export interface ShotBody {
+  match: number;
+  team: number;
+  time: string;
+  shooter?: number;
+  client_id?: string;
+}
+export interface PenaltyBody {
+  match: number;
+  player: number;
+  card: CardType;
+  reason: string;
+  time: string;
+  client_id?: string;
+}
+export interface MatchPatch {
+  start?: string;
+  end?: string;
+  halftime_length?: string;
+  length?: string;
+  referee?: number;
+}
+
 export interface MatchDto {
   pk: number;
   tournament: number;
@@ -140,10 +187,9 @@ export interface MatchDto {
   fake: boolean;
   place: string | null;
   goals: GoalDto[];
-  /** Typed in the match-page plan; not used by results pages. */
-  shots: unknown[];
-  penalties: unknown[];
-  goalies: unknown[];
+  shots: ShotDto[];
+  penalties: PenaltyDto[];
+  goalies: GoalieInMatchDto[];
   /** Number of shootout goals (truthy = decided by shootout). */
   with_shootout: number;
   score_one: number | null;

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createQueryClient } from '../queryClient';
 import { dataKeys } from './data';
-import { useAddMatch, useRemoveAttendance, useRegisterTeam } from './mutations';
+import { useAddMatch, useRemoveAttendance, useRegisterTeam, useRemoveMatchEvent } from './mutations';
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 const fetchMock = vi.fn();
@@ -84,4 +84,16 @@ test('mutateAsync resolves only after active invalidated queries refetched', asy
   );
   expect(refetched).toBe(true);
   unsubscribe();
+});
+
+test('remove match event uses DELETE remove_<type>/<pk> and invalidates match data', async () => {
+  fetchMock.mockResolvedValueOnce(new Response('OK', { status: 200 }));
+  const { spy, wrapper } = setup();
+  const { result } = renderHook(() => useRemoveMatchEvent(5), { wrapper });
+  await act(() => result.current.mutateAsync({ type: 'goal', pk: 9 }));
+  const [url, init] = fetchMock.mock.calls[0];
+  expect(url).toBe('/api_frontend/remove_goal/9');
+  expect(init.method).toBe('DELETE');
+  expect(spy).toHaveBeenCalledWith({ queryKey: dataKeys.matches(5) });
+  expect(spy).toHaveBeenCalledWith({ queryKey: dataKeys.goals });
 });
