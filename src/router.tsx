@@ -11,6 +11,7 @@ import PlayerPage from './pages/PlayerPage';
 import PlayersPage from './pages/PlayersPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TeamPage from './pages/TeamPage';
+import TournamentsPage from './pages/TournamentsPage';
 import TeamsPage from './pages/TeamsPage';
 import { legacyRoutes } from './routes/legacyRedirects';
 
@@ -42,7 +43,7 @@ export const routes: RouteObject[] = [
       { path: 'players/:id/:slug?', element: <PlayerPage /> },
       { path: 'teams', element: <TeamsPage /> },
       { path: 'teams/:id/:slug?', element: <TeamPage /> },
-      page('tournaments', 'Turnaje'),
+      { path: 'tournaments', element: <TournamentsPage /> },
       page('tournaments/:id/results/:teamId?', 'Výsledky turnaje'),
       page('tournaments/:id/record', 'Správa turnaje', 'authorized'),
       page('tournaments/:id/live', 'Turnaj živě'),
