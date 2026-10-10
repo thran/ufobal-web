@@ -63,3 +63,17 @@ test('create new team selects it', async () => {
   await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
   expect(await screen.findByRole('option', { name: 'Nováčci', selected: true })).toBeInTheDocument();
 });
+
+test('creating a team from a filled form does not submit the registration', async () => {
+  const fetchMock = render();
+  await userEvent.selectOptions(await screen.findByLabelText('Tým'), '10');
+  await userEvent.type(screen.getByLabelText('Kontaktní email'), 'a@b.cz');
+  await userEvent.type(screen.getByLabelText('Kontaktní telefon'), '123');
+  await userEvent.type(screen.getByLabelText('Odhad síly (1 - 4)'), '2');
+  await userEvent.click(screen.getByRole('button', { name: 'vytvořit nový tým' }));
+  const dialog = await screen.findByRole('dialog');
+  await userEvent.type(within(dialog).getByLabelText('Jméno'), 'Nováčci');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
+  expect(await screen.findByRole('option', { name: 'Nováčci', selected: true })).toBeInTheDocument();
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_team_on_tournament'))).toBe(false);
+});

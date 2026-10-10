@@ -143,78 +143,79 @@ export default function RegistrationPage() {
   let body;
   if (tournament.registration_open) {
     body = (
-      <form onSubmit={submit}>
-        <h3 className="mb-3 text-xl font-bold">{tournament.full_name}</h3>
-        <div className="mb-3 flex items-end gap-3">
-          <label className="block flex-1">
-            Tým
-            <select className="input" value={teamPk} onChange={(e) => setTeamPk(e.target.value)}>
-              <option value="">----</option>
-              {teams.map((t) => (
-                <option key={t.pk} value={t.pk}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+      <>
+        <form onSubmit={submit}>
+          <h3 className="mb-3 text-xl font-bold">{tournament.full_name}</h3>
+          <div className="mb-3 flex items-end gap-3">
+            <label className="block flex-1">
+              Tým
+              <select className="input" value={teamPk} onChange={(e) => setTeamPk(e.target.value)}>
+                <option value="">----</option>
+                {teams.map((t) => (
+                  <option key={t.pk} value={t.pk}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="button" className="pb-2 text-primary underline" onClick={() => setDialog(true)}>
+              vytvořit nový tým
+            </button>
+          </div>
+          <label className="mb-3 block">
+            Jméno na tomto turnaji (pouze pokud se liší od běžného jména týmu)
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={team?.name ?? ''}
+            />
           </label>
-          <button type="button" className="pb-2 text-primary underline" onClick={() => setDialog(true)}>
-            vytvořit nový tým
+          <label className="mb-3 block">
+            Zkrácené jméno na tomto turnaji (pouze pokud se liší od běžného zkráceného jména týmu)
+            <input
+              className="input"
+              value={nameShort}
+              onChange={(e) => setNameShort(e.target.value)}
+              placeholder={team?.name_short ?? ''}
+            />
+          </label>
+          <label className="mb-3 block">
+            Kontaktní email
+            <input
+              className="input"
+              type="email"
+              value={mail}
+              onChange={(e) => setMail(e.target.value)}
+              required
+            />
+          </label>
+          <label className="mb-3 block">
+            Kontaktní telefon
+            <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+          </label>
+          <label className="mb-1 block">
+            Odhad síly (1 - 4)
+            <input
+              className="input"
+              type="number"
+              min={1}
+              max={4}
+              value={strength}
+              onChange={(e) => setStrength(e.target.value)}
+              required
+            />
+          </label>
+          <ol className="mb-3 list-decimal pl-6 text-[0.8em]">
+            <li>Budeme na bedně</li>
+            <li>Budeme ve finálové skupině (top 8)</li>
+            <li>Budeme kolem poloviny</li>
+            <li>Přišli jsme si jen zahrát, na nějaké umístění to nevidíme.</li>
+          </ol>
+          <button type="submit" className="btn btn-primary" disabled={!valid || register.isPending}>
+            Přihlásit
           </button>
-        </div>
-        <label className="mb-3 block">
-          Jméno na tomto turnaji (pouze pokud se liší od běžného jména týmu)
-          <input
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={team?.name ?? ''}
-          />
-        </label>
-        <label className="mb-3 block">
-          Zkrácené jméno na tomto turnaji (pouze pokud se liší od běžného zkráceného jména týmu)
-          <input
-            className="input"
-            value={nameShort}
-            onChange={(e) => setNameShort(e.target.value)}
-            placeholder={team?.name_short ?? ''}
-          />
-        </label>
-        <label className="mb-3 block">
-          Kontaktní email
-          <input
-            className="input"
-            type="email"
-            value={mail}
-            onChange={(e) => setMail(e.target.value)}
-            required
-          />
-        </label>
-        <label className="mb-3 block">
-          Kontaktní telefon
-          <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-        </label>
-        <label className="mb-1 block">
-          Odhad síly (1 - 4)
-          <input
-            className="input"
-            type="number"
-            min={1}
-            max={4}
-            value={strength}
-            onChange={(e) => setStrength(e.target.value)}
-            required
-          />
-        </label>
-        <ol className="mb-3 list-decimal pl-6 text-[0.8em]">
-          <li>Budeme na bedně</li>
-          <li>Budeme ve finálové skupině (top 8)</li>
-          <li>Budeme kolem poloviny</li>
-          <li>Přišli jsme si jen zahrát, na nějaké umístění to nevidíme.</li>
-        </ol>
-        {register.error && <p className="mb-3 text-red-600">{register.error.message}</p>}
-        <button type="submit" className="btn btn-primary" disabled={!valid || register.isPending}>
-          Přihlásit
-        </button>
+        </form>
         <NewTeamDialog
           open={dialog}
           onClose={() => setDialog(false)}
@@ -223,7 +224,7 @@ export default function RegistrationPage() {
             setTeamPk(String(t.pk));
           }}
         />
-      </form>
+      </>
     );
   } else if (tournament.registration_scheduled) {
     body = <p>Přihlašování na turnaj začne {formatDateTime(tournament.registration_from)}.</p>;
