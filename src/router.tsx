@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
 import PlayerPage from './pages/PlayerPage';
 import PlayersPage from './pages/PlayersPage';
+import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TeamPage from './pages/TeamPage';
 import TournamentsPage from './pages/TournamentsPage';
@@ -44,7 +45,7 @@ export const routes: RouteObject[] = [
       { path: 'teams', element: <TeamsPage /> },
       { path: 'teams/:id/:slug?', element: <TeamPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
-      page('tournaments/:id/results/:teamId?', 'Výsledky turnaje'),
+      { path: 'tournaments/:id/results/:teamId?', element: <TournamentResultsPage /> },
       page('tournaments/:id/record', 'Správa turnaje', 'authorized'),
       page('tournaments/:id/live', 'Turnaj živě'),
       page('tournaments/:id/groups', 'Skupiny'),
