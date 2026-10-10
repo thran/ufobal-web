@@ -47,3 +47,24 @@ test('pairing error is shown inline', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Spárovat' }));
   expect(await screen.findByText(/Spárování se nezdařilo/)).toBeInTheDocument();
 });
+
+test('already paired user: URL token is not stored and a stored one is cleared', () => {
+  localStorage.setItem('ufo:pairToken', 'OLD');
+  mockApi({});
+  render(
+    '/pair-account/ABCDE',
+    testUser({
+      player: {
+        pk: 100,
+        name: 'Josef',
+        lastname: 'Novák',
+        nickname: 'Pépa',
+        age: 30,
+        full_name: 'Pépa - Josef Novák',
+        gender: 'man',
+        is_paired: true,
+      },
+    }),
+  );
+  expect(localStorage.getItem('ufo:pairToken')).toBeNull();
+});

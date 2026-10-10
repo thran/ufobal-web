@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router';
 import { expect, test } from 'vitest';
@@ -76,4 +76,14 @@ test('creating a team from a filled form does not submit the registration', asyn
   await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
   expect(await screen.findByRole('option', { name: 'Nováčci', selected: true })).toBeInTheDocument();
   expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_team_on_tournament'))).toBe(false);
+});
+
+test('new team dialog draft is discarded on close', async () => {
+  render();
+  await userEvent.click(await screen.findByRole('button', { name: 'vytvořit nový tým' }));
+  await userEvent.type(within(await screen.findByRole('dialog')).getByLabelText('Jméno'), 'Rozepsaný');
+  await userEvent.keyboard('{Escape}');
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: 'vytvořit nový tým' }));
+  expect(within(await screen.findByRole('dialog')).getByLabelText('Jméno')).toHaveValue('');
 });

@@ -1,6 +1,8 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
+import { dataKeys } from '../queries/data';
+import { sampleRaw } from '../test/fixtures';
 import { mockGraphApi, renderWithProviders, testUser } from '../test/utils';
 import RosterPage from './RosterPage';
 
@@ -64,4 +66,27 @@ test('new player is created and added to roster', async () => {
   );
   expect(bodyOf(fetchMock, 'add_player')).toMatchObject({ nickname: 'Nováček' });
   expect(bodyOf(fetchMock, 'add_attendance')).toEqual({ player: 321, team: 1000 });
+});
+
+test('captain select resyncs when server data changes', async () => {
+  mockGraphApi({});
+  const { queryClient } = renderWithProviders(<RosterPage />, {
+    route: '/tournaments/1/teams/1000',
+    path: '/tournaments/:id/teams/:totId',
+    user: testUser({ is_authorized: true }),
+  });
+  expect(await screen.findByLabelText('Kapitán')).toHaveValue('100');
+  const updated = sampleRaw().tots.map((t) => (t.pk === 1000 ? { ...t, captain: 101 } : t));
+  act(() => queryClient.setQueryData(dataKeys.tots, updated));
+  await waitFor(() => expect(screen.getByLabelText('Kapitán')).toHaveValue('101'));
+});
+
+test('new player dialog draft is discarded on cancel', async () => {
+  render();
+  await userEvent.click(await screen.findByRole('button', { name: 'Nový hráč' }));
+  await userEvent.type(within(await screen.findByRole('dialog')).getByLabelText('Přezdívka'), 'Rozepsaný');
+  await userEvent.keyboard('{Escape}');
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: 'Nový hráč' }));
+  expect(within(await screen.findByRole('dialog')).getByLabelText('Přezdívka')).toHaveValue('');
 });

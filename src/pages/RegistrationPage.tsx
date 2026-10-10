@@ -98,7 +98,7 @@ export default function RegistrationPage() {
     [graph, created],
   );
 
-  const error = tournamentQuery.error ?? graphError;
+  const error = (tournamentQuery.data ? null : tournamentQuery.error) ?? graphError;
   if (error)
     return (
       <ErrorBox
@@ -216,14 +216,16 @@ export default function RegistrationPage() {
             Přihlásit
           </button>
         </form>
-        <NewTeamDialog
-          open={dialog}
-          onClose={() => setDialog(false)}
-          onCreated={(t) => {
-            setCreated((c) => [...c, t]);
-            setTeamPk(String(t.pk));
-          }}
-        />
+        {dialog && (
+          <NewTeamDialog
+            open
+            onClose={() => setDialog(false)}
+            onCreated={(t) => {
+              setCreated((c) => [...c, t]);
+              setTeamPk(String(t.pk));
+            }}
+          />
+        )}
       </>
     );
   } else if (tournament.registration_scheduled) {

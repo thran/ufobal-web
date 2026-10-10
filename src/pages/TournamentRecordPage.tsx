@@ -49,7 +49,7 @@ function MatchPanel({
             <span className="min-w-0 flex-1">
               <Link to={to}>{name(m.team_two)}</Link>
             </span>
-            <span className="shrink-0">({name(m.referee_team)})</span>
+            {m.referee_team != null && <span className="shrink-0">({name(m.referee_team)})</span>}
             <span className="shrink-0">
               {m.start && (
                 <>
@@ -246,7 +246,7 @@ function RecordHub({
           </Link>
         ))}
       </div>
-      <AddMatchDialog open={dialog} onClose={() => setDialog(false)} tournament={tournament} tots={tots} />
+      {dialog && <AddMatchDialog open onClose={() => setDialog(false)} tournament={tournament} tots={tots} />}
     </>
   );
 }
@@ -258,7 +258,12 @@ export default function TournamentRecordPage() {
   const matchesQuery = useMatches(id);
   const user = useUser().data ?? null;
 
-  const error = tournamentQuery.error ?? graphError ?? matchesQuery.error;
+  const tournament = tournamentQuery.data;
+  // A failed background refetch must not hide already loaded data.
+  const error =
+    (tournament ? null : tournamentQuery.error) ??
+    graphError ??
+    (matchesQuery.data ? null : matchesQuery.error);
   if (error)
     return (
       <ErrorBox
@@ -270,7 +275,6 @@ export default function TournamentRecordPage() {
         }}
       />
     );
-  const tournament = tournamentQuery.data;
   if (!tournament || !graph || !matchesQuery.data) return <Spinner />;
   const staff = isStaff(user);
   if (tournament.closed_edit && !staff) return <Navigate replace to={tournamentResultsPath(id)} />;

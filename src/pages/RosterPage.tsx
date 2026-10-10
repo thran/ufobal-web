@@ -217,6 +217,7 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
       </ul>
       <hr className="my-3 border-gray-300" />
       <PlayerSelectRow
+        key={`captain-${tot.pk}-${tot.captain}`}
         title="Kapitán"
         roster={roster}
         initial={tot.captain}
@@ -224,32 +225,36 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
         onSave={(player) => setCaptain.mutate({ player, team: tot.pk })}
       />
       <PlayerSelectRow
+        key={`goalie-${tot.pk}-${tot.default_goalie}`}
         title="Výchozí brankář"
         roster={roster}
         initial={tot.default_goalie}
         pending={setDefaultGoalie.isPending}
         onSave={(player) => setDefaultGoalie.mutate({ player, team: tot.pk })}
       />
-      <NewPlayerDialog
-        open={dialog}
-        onClose={() => setDialog(false)}
-        onCreated={(player) => addAttendance.mutate({ player, team: tot.pk })}
-      />
+      {dialog && (
+        <NewPlayerDialog
+          open
+          onClose={() => setDialog(false)}
+          onCreated={(player) => addAttendance.mutate({ player, team: tot.pk })}
+        />
+      )}
     </div>
   );
 }
 
 export default function RosterPage() {
   const { id: idParam, totId: totParam } = useParams();
-  const { graph, error, refetch } = useGraph();
+  const { graph, error, refetch, isFetching: fetching } = useGraph();
   if (error) return <ErrorBox error={error} onRetry={() => void refetch()} />;
   if (!graph) return <Spinner />;
   const tot = graph.totsById.get(Number(totParam));
+  if (!tot && fetching) return <Spinner />;
   if (!tot || tot.tournament.pk !== Number(idParam))
     return (
       <div role="alert" className="callout callout-alert my-4">
         Tým nenalezen.
       </div>
     );
-  return <Roster tot={tot} players={graph.players} />;
+  return <Roster key={tot.pk} tot={tot} players={graph.players} />;
 }

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import type { RefereeMatchDto } from '../api/types';
@@ -27,12 +27,12 @@ const render = (tournament = { ...t1, closed_edit: false }) => {
     'get_referee_feedbacks/1': feedbackMatches,
     save_referee_feedback: 9,
   });
-  renderWithProviders(<RefereeFeedbackPage />, {
+  const { queryClient } = renderWithProviders(<RefereeFeedbackPage />, {
     route: '/tournaments/1/referee-feedback',
     path: '/tournaments/:id/referee-feedback',
     user: testUser({ is_authorized: true }),
   });
-  return fetchMock;
+  return Object.assign(fetchMock, { queryClient });
 };
 
 test('rate a referee team', async () => {
@@ -123,4 +123,36 @@ test('editing existing feedback is prefilled and sends pk', async () => {
     String(u).endsWith('save_referee_feedback'),
   )!;
   expect(JSON.parse(call[1].body as string)).toMatchObject({ pk: 5, match: 500 });
+});
+
+test('empty match list shows a hint', async () => {
+  mockApi({ 'tournament/1': t1, 'get_referee_feedbacks/1': [] });
+  renderWithProviders(<RefereeFeedbackPage />, {
+    route: '/tournaments/1/referee-feedback',
+    path: '/tournaments/:id/referee-feedback',
+    user: testUser({ is_authorized: true }),
+  });
+  expect(await screen.findByText('Žádné odehrané zápasy k hodnocení.')).toBeInTheDocument();
+});
+
+test('list inputs have distinct numbered labels', async () => {
+  render();
+  await userEvent.click(await screen.findByRole('button', { name: 'hodnotit' }));
+  const dialog = await screen.findByRole('dialog');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Přidat pozitivum' }));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Přidat pozitivum' }));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Přidat negativum' }));
+  expect(within(dialog).getByRole('textbox', { name: 'Pozitivum 1' })).toBeInTheDocument();
+  expect(within(dialog).getByRole('textbox', { name: 'Pozitivum 2' })).toBeInTheDocument();
+  expect(within(dialog).getByRole('textbox', { name: 'Negativum 1' })).toBeInTheDocument();
+});
+
+test('failed background refetch of tournament keeps the page', async () => {
+  const fetchMock = render();
+  await screen.findByRole('button', { name: 'hodnotit' });
+  fetchMock.mockImplementation(async () => new Response('boom', { status: 404 }));
+  await act(() => fetchMock.queryClient.invalidateQueries({ queryKey: ['tournament', 1] }));
+  await act(() => new Promise((r) => setTimeout(r, 20)));
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'hodnotit' })).toBeInTheDocument();
 });

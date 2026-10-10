@@ -114,3 +114,17 @@ test('owner removes attendance after confirm and adds historical attendance', as
     team: 1001,
   });
 });
+
+test('pairing dialog draft is discarded on cancel', async () => {
+  mockGraphApi({});
+  renderWithProviders(<PlayerPage />, {
+    route: '/players/102/Karel',
+    path: '/players/:id/:slug?',
+    user: testUser(),
+  });
+  await userEvent.click(await screen.findByRole('button', { name: 'spárovat' }));
+  await userEvent.type(screen.getByLabelText(/dodatečné informace/), 'rozepsáno');
+  await userEvent.click(screen.getByRole('button', { name: 'Zrušit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'spárovat' }));
+  expect(await screen.findByLabelText(/dodatečné informace/)).toHaveValue('');
+});

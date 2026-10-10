@@ -30,3 +30,20 @@ test('matches split by state, links to view page, refresh on by default', async 
   await userEvent.click(screen.getByRole('checkbox', { name: 'živě' }));
   expect(screen.getByRole('checkbox', { name: 'živě' })).not.toBeChecked();
 });
+
+test('ended match without start is not future; referee part only when set', async () => {
+  mockGraphApi({
+    'tournament/1': { ...t1, closed_edit: true },
+    'matchs?tournament=1': [
+      ...matches,
+      matchDto({ pk: 503, place: '1', end: 'e' }),
+      matchDto({ pk: 504, place: '1', referee_team: 1001 }),
+    ],
+  });
+  render();
+  const future = (await screen.findByRole('heading', { name: 'Budoucí zápasy' })).closest('section')!;
+  expect(future.querySelectorAll('a[href$="/503"]')).toHaveLength(0);
+  expect(future.querySelectorAll('a[href$="/502"]')).toHaveLength(2);
+  expect(future).toHaveTextContent('(KOM)');
+  expect(future).not.toHaveTextContent('()');
+});

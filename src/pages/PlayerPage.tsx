@@ -17,6 +17,11 @@ const SIGNS: Record<string, string> = { man: '♂', woman: '♀' };
 
 export default function PlayerPage() {
   const { id } = useParams();
+  // Remount per player so edit/pairing/history state does not leak between players.
+  return <PlayerDetail key={id} id={id} />;
+}
+
+function PlayerDetail({ id }: { id: string | undefined }) {
   const { graph, error, isPending, refetch } = useGraph();
   const { data: user } = useUser();
   const removeAttendance = useRemoveAttendance();
@@ -232,7 +237,7 @@ export default function PlayerPage() {
           ))}
         </>
       )}
-      <PlayerPairingDialog open={pairing} onClose={() => setPairing(false)} playerPk={player.pk} />
+      {pairing && <PlayerPairingDialog open onClose={() => setPairing(false)} playerPk={player.pk} />}
     </>
   );
 }

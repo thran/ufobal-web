@@ -35,9 +35,11 @@ export default function PairAccountPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
+  const paired = !!user?.player;
   useEffect(() => {
-    if (token) storeToken(token);
-  }, [token]);
+    if (paired) storeToken(null);
+    else if (token) storeToken(token);
+  }, [token, paired]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

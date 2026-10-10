@@ -13,4 +13,5 @@ afterEach(() => {
   cleanup();
   localStorage.clear();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });

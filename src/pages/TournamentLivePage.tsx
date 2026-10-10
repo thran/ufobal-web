@@ -41,7 +41,7 @@ function Section({
               <span className="min-w-0 flex-1">
                 <Link to={to}>{name(m.team_two)}</Link>
               </span>
-              <span className="shrink-0">({name(m.referee_team)})</span>
+              {m.referee_team != null && <span className="shrink-0">({name(m.referee_team)})</span>}
               <span className="shrink-0">
                 {m.start && (
                   <>
@@ -110,7 +110,7 @@ export default function TournamentLivePage() {
         {...props}
       />
       <Section title="Ukončené zápasy" matches={matches.filter((m) => m.end)} {...props} />
-      <Section title="Budoucí zápasy" matches={matches.filter((m) => !m.start)} {...props} />
+      <Section title="Budoucí zápasy" matches={matches.filter((m) => !m.start && !m.end)} {...props} />
     </>
   );
 }

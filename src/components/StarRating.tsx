@@ -42,12 +42,13 @@ export default function StarRating({
       <div
         role="slider"
         aria-label="Celkové hodnocení"
-        aria-valuemin={0.5}
+        aria-valuemin={0}
+        aria-readonly={readOnly ? 'true' : undefined}
         aria-valuemax={5}
         aria-valuenow={value}
         aria-valuetext={`${value} z 5`}
-        tabIndex={0}
-        className="relative inline-block cursor-pointer text-3xl leading-none select-none"
+        tabIndex={readOnly ? -1 : 0}
+        className={`relative inline-block text-3xl leading-none select-none ${readOnly ? '' : 'cursor-pointer'}`}
         onKeyDown={onKeyDown}
         onClick={onClick}
       >

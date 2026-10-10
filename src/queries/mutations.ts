@@ -11,9 +11,10 @@ function useWrite<V, R>(
   const qc = useQueryClient();
   return useMutation({
     mutationFn: fn,
+    // Returned promise keeps the mutation pending until active queries are refetched.
     onSuccess: (r, v) => {
-      for (const key of opts.invalidate(v, r)) void qc.invalidateQueries({ queryKey: key });
       if (opts.success) toast.success(opts.success);
+      return Promise.all(opts.invalidate(v, r).map((queryKey) => qc.invalidateQueries({ queryKey })));
     },
   });
 }
@@ -52,8 +53,8 @@ export function usePairUser() {
   return useMutation({
     mutationFn: ep.pairUser,
     onSuccess: () => {
-      void qc.invalidateQueries();
       toast.success('Účet spárován.');
+      return qc.invalidateQueries();
     },
   });
 }

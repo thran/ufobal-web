@@ -12,12 +12,14 @@ import { useSaveRefereeFeedback } from '../queries/mutations';
 
 function StringList({
   title,
+  itemLabel,
   addLabel,
   removeLabel,
   items,
   onChange,
 }: {
   title: string;
+  itemLabel: string;
   addLabel: string;
   removeLabel: string;
   items: string[];
@@ -41,7 +43,7 @@ function StringList({
           <div key={i} className="mb-1 flex gap-2">
             <input
               className="input flex-1"
-              aria-label={title}
+              aria-label={`${itemLabel} ${i + 1}`}
               value={text}
               onChange={(e) => onChange(items.map((t, j) => (j === i ? e.target.value : t)))}
             />
@@ -110,6 +112,7 @@ function FeedbackDialog({
       )}
       <StringList
         title="Pozitiva"
+        itemLabel="Pozitivum"
         addLabel="Přidat pozitivum"
         removeLabel="Odebrat pozitivum"
         items={positives}
@@ -117,6 +120,7 @@ function FeedbackDialog({
       />
       <StringList
         title="Negativa"
+        itemLabel="Negativum"
         addLabel="Přidat negativum"
         removeLabel="Odebrat negativum"
         items={negatives}
@@ -148,9 +152,9 @@ export default function RefereeFeedbackPage() {
   const feedbacks = useRefereeFeedbacks(id);
   const [active, setActive] = useState<RefereeMatchDto | null>(null);
 
-  if (tournament.error)
-    return <ErrorBox error={tournament.error} onRetry={() => void tournament.refetch()} />;
   const t = tournament.data;
+  if (tournament.error && !t)
+    return <ErrorBox error={tournament.error} onRetry={() => void tournament.refetch()} />;
 
   return (
     <div>
@@ -170,6 +174,8 @@ export default function RefereeFeedbackPage() {
             <ErrorBox error={feedbacks.error} onRetry={() => void feedbacks.refetch()} />
           ) : !feedbacks.data ? (
             <Spinner />
+          ) : feedbacks.data.length === 0 ? (
+            <p className="text-gray-500">Žádné odehrané zápasy k hodnocení.</p>
           ) : (
             <ul>
               {[...feedbacks.data]

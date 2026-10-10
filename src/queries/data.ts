@@ -67,6 +67,7 @@ export function useGraph() {
     graph,
     error: graph ? null : (failed[0]?.error ?? null),
     isPending: !graph && failed.length === 0,
+    isFetching: [players, tots, goals, empty].some((q) => q.isFetching),
     refetch: () => failed.forEach((q) => void q.refetch()),
   };
 }

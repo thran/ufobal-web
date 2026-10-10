@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router';
 import { expect, test } from 'vitest';
@@ -52,8 +52,12 @@ const render = (tournament = openT1, user = testUser({ is_authorized: true })) =
     'matchs?tournament=1': matches,
     add_match: 999,
   });
-  renderWithProviders(<Shell />, { route: '/tournaments/1/record', path: '/tournaments/:id/*', user });
-  return fetchMock;
+  const { queryClient } = renderWithProviders(<Shell />, {
+    route: '/tournaments/1/record',
+    path: '/tournaments/:id/*',
+    user,
+  });
+  return Object.assign(fetchMock, { queryClient });
 };
 
 test('matches grouped by field with no-field panel, scores and running state', async () => {
@@ -113,4 +117,39 @@ test('add match success navigates to match edit', async () => {
   await userEvent.click(within(dialog).getByLabelText('2'));
   await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
   expect(await screen.findByText('/tournaments/1/matches/999/edit')).toBeInTheDocument();
+});
+
+test('no empty referee parentheses when referee team is unset', async () => {
+  render();
+  const field1 = (await screen.findByRole('heading', { name: 'Hřiště 1' })).closest('section')!;
+  expect(field1).not.toHaveTextContent('()');
+});
+
+test('add match dialog draft and clash flag reset on close', async () => {
+  render();
+  await userEvent.click(await screen.findByRole('button', { name: /Nový zápas/ }));
+  let dialog = await screen.findByRole('dialog');
+  await userEvent.selectOptions(within(dialog).getByLabelText('Tým 1'), '1000');
+  await userEvent.selectOptions(within(dialog).getByLabelText('Tým 2'), '1000');
+  await userEvent.selectOptions(within(dialog).getByLabelText('Rozhodčí tým'), '1001');
+  await userEvent.click(within(dialog).getByLabelText('1'));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
+  expect(within(dialog).getByText('Některý z vybraných týmů se shoduje.')).toBeInTheDocument();
+  await userEvent.keyboard('{Escape}');
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: /Nový zápas/ }));
+  dialog = await screen.findByRole('dialog');
+  expect(within(dialog).queryByText('Některý z vybraných týmů se shoduje.')).not.toBeInTheDocument();
+  expect(within(dialog).getByLabelText('Tým 1')).toHaveValue('');
+});
+
+test('failed background refetch keeps showing loaded data', async () => {
+  const fetchMock = render();
+  await screen.findByRole('heading', { name: 'Hřiště 1' });
+  fetchMock.mockImplementation(async () => new Response('boom', { status: 404 }));
+  await act(() => fetchMock.queryClient.invalidateQueries({ queryKey: ['matches', 1] }));
+  await act(() => new Promise((r) => setTimeout(r, 20)));
+  expect(fetchMock.queryClient.getQueryState(['matches', 1])?.status).toBe('error');
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Hřiště 1' })).toBeInTheDocument();
 });
