@@ -34,7 +34,12 @@ function parseBody(text: string): unknown {
 
 export async function api<T>(
   path: string,
-  init: { method?: 'GET' | 'POST' | 'DELETE'; body?: unknown } = {},
+  init: {
+    method?: 'GET' | 'POST' | 'DELETE';
+    body?: unknown;
+    params?: Record<string, string | number | undefined>;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<T> {
   const method = init.method ?? 'GET';
   const headers: Record<string, string> = { Accept: 'application/json' };
@@ -44,11 +49,19 @@ export async function api<T>(
   }
   if (init.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(API_BASE + path, {
+  const query = init.params
+    ? new URLSearchParams(
+        Object.entries(init.params)
+          .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
+          .map(([k, v]) => [k, String(v)]),
+      ).toString()
+    : '';
+  const res = await fetch(API_BASE + path + (query ? `?${query}` : ''), {
     method,
     headers,
     credentials: 'same-origin',
     body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+    signal: init.signal,
   });
   const body = parseBody(await res.text());
 

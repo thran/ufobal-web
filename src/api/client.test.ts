@@ -66,3 +66,12 @@ test('plain text error becomes ApiError with text message', async () => {
   expect(err.message).toBe('Nejsi v žádném týmu');
   expect(err.errorType).toBeNull();
 });
+
+test('params are encoded into the query string, undefined skipped; signal is passed', async () => {
+  respond(200, '[]');
+  const controller = new AbortController();
+  await api('matchs', { params: { tournament: 5, x: undefined, q: 'á b' }, signal: controller.signal });
+  const [url, init] = fetchMock.mock.calls[0];
+  expect(url).toBe('/api_frontend/matchs?tournament=5&q=%C3%A1+b');
+  expect(init.signal).toBe(controller.signal);
+});
