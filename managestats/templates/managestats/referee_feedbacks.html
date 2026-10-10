@@ -15,7 +15,7 @@
         <ul>
             {% for match in team.matches.values %}
                 <li>
-                    <a href="/old/turnaj/zapas/{{ tournament.pk }}/{{ match.pk }}"><b>{{ match.team_one.get_name }}</b> vs. <b>{{ match.team_two.get_name }}</b></a>
+                    <a href="/tournaments/{{ tournament.pk }}/matches/{{ match.pk }}"><b>{{ match.team_one.get_name }}</b> vs. <b>{{ match.team_two.get_name }}</b></a>
                     <ul>
                         <li>Hlavní rozdohčí: <b>{{ match.referee }}</b></li>
                         {% for feedback in match.feedbacks %}

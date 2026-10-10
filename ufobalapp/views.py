@@ -260,7 +260,8 @@ def hall_of_glory(request, max_instances=5):
     )
 
     instances = (
-        Goal.objects.values('assistance', 'match__tournament')
+        Goal.objects.filter(assistance__isnull=False)
+        .values('assistance', 'match__tournament')
         .annotate(Count('assistance'))
         .order_by('-assistance__count')
     )
@@ -306,76 +307,55 @@ def hall_of_glory(request, max_instances=5):
         data['goals_per_match'] = data['goals'] / data['matches'] if data['matches'] else 0
         teams.append(data)
 
-    m = max(t['matches'] for t in teams)
+    m = max((t['matches'] for t in teams), default=None)
     max_matches_per_team = [t for t in teams if t['matches'] == m]
 
-    m = max(t['goals'] for t in teams)
+    m = max((t['goals'] for t in teams), default=None)
     max_goals_per_team = [t for t in teams if t['goals'] == m]
 
-    m = max(t['goals_per_match'] for t in teams)
+    m = max((t['goals_per_match'] for t in teams), default=None)
     max_avg_goals_per_team = [t for t in teams if t['goals_per_match'] == m]
 
+    def record(items, value_key, instance):
+        """Record with its value and instances; empty when there is nothing to rank."""
+        if not items:
+            return {"value": None, "instances": []}
+        return {"value": value_key(items[0]), "instances": [instance(i) for i in items]}
+
+    def player_in_tournament(field):
+        return lambda i: [
+            Player.objects.get(pk=i[field]).to_json(simple=True),
+            Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
+        ]
+
     data = {
-        "max_teams_per_tournament": {
-            "value": max_teams_per_tournament[0].teams__count,
-            "instances": [i.to_json(teams=False) for i in max_teams_per_tournament],
-        },
-        "max_matches_per_tournament": {
-            "value": max_matches_per_tournament[0].matches__count,
-            "instances": [i.to_json(teams=False) for i in max_matches_per_tournament],
-        },
-        "max_matches_per_team": {
-            "value": max_matches_per_team[0]['matches'],
-            "instances": [i['team'].to_json(teams=False) for i in max_matches_per_team],
-        },
-        "max_goals_per_team": {
-            "value": max_goals_per_team[0]['goals'],
-            "instances": [i['team'].to_json(teams=False) for i in max_goals_per_team],
-        },
-        "max_avg_goals_per_team": {
-            "value": max_avg_goals_per_team[0]['goals_per_match'],
-            "instances": [i['team'].to_json(teams=False) for i in max_avg_goals_per_team],
-        },
-        "max_goal_per_tournament_player": {
-            "value": max_goal_per_tournament_player[0]['shooter__count'],
-            "instances": [
-                [
-                    Player.objects.get(pk=i['shooter']).to_json(simple=True),
-                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-                ]
-                for i in max_goal_per_tournament_player
-            ],
-        },
-        "max_assistance_per_tournament_player": {
-            "value": max_assists_per_tournament_player[0]['assistance__count'],
-            "instances": [
-                [
-                    Player.objects.get(pk=i['assistance']).to_json(simple=True),
-                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-                ]
-                for i in max_assists_per_tournament_player
-            ],
-        },
-        "max_goal_per_tournament_player_female": {
-            "value": max_goal_per_tournament_playerF[0]['shooter__count'],
-            "instances": [
-                [
-                    Player.objects.get(pk=i['shooter']).to_json(simple=True),
-                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-                ]
-                for i in max_goal_per_tournament_playerF
-            ],
-        },
-        "max_assistance_per_tournament_player_female": {
-            "value": max_assists_per_tournament_playerF[0]['assistance__count'],
-            "instances": [
-                [
-                    Player.objects.get(pk=i['assistance']).to_json(simple=True),
-                    Tournament.objects.get(pk=i['match__tournament']).to_json(teams=False),
-                ]
-                for i in max_assists_per_tournament_playerF
-            ],
-        },
+        "max_teams_per_tournament": record(
+            max_teams_per_tournament, lambda i: i.teams__count, lambda i: i.to_json(teams=False)
+        ),
+        "max_matches_per_tournament": record(
+            max_matches_per_tournament, lambda i: i.matches__count, lambda i: i.to_json(teams=False)
+        ),
+        "max_matches_per_team": record(
+            max_matches_per_team, lambda i: i['matches'], lambda i: i['team'].to_json(teams=False)
+        ),
+        "max_goals_per_team": record(
+            max_goals_per_team, lambda i: i['goals'], lambda i: i['team'].to_json(teams=False)
+        ),
+        "max_avg_goals_per_team": record(
+            max_avg_goals_per_team, lambda i: i['goals_per_match'], lambda i: i['team'].to_json(teams=False)
+        ),
+        "max_goal_per_tournament_player": record(
+            max_goal_per_tournament_player, lambda i: i['shooter__count'], player_in_tournament('shooter')
+        ),
+        "max_assistance_per_tournament_player": record(
+            max_assists_per_tournament_player, lambda i: i['assistance__count'], player_in_tournament('assistance')
+        ),
+        "max_goal_per_tournament_player_female": record(
+            max_goal_per_tournament_playerF, lambda i: i['shooter__count'], player_in_tournament('shooter')
+        ),
+        "max_assistance_per_tournament_player_female": record(
+            max_assists_per_tournament_playerF, lambda i: i['assistance__count'], player_in_tournament('assistance')
+        ),
     }
     return JsonResponse(data, safe=False)
 
