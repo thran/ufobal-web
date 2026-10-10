@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
 import PlayerPage from './pages/PlayerPage';
+import PlayerStatsPage from './pages/PlayerStatsPage';
 import PlayersPage from './pages/PlayersPage';
 import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -55,7 +56,7 @@ export const routes: RouteObject[] = [
       page('tournaments/:id/matches/:matchId', 'Zápas'),
       page('tournaments/:id/matches/:matchId/edit', 'Záznam zápasu', 'authorized'),
       page('tournaments/:id/referee-feedback', 'Hodnocení rozhodčích', 'authorized'),
-      page('stats/players', 'Statistiky'),
+      { path: 'stats/players', element: <PlayerStatsPage /> },
       page('stats/goalies', 'Brankáři'),
       ...legacyRoutes,
       { path: '*', element: <NotFound /> },
