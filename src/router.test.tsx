@@ -60,3 +60,8 @@ test('new route renders placeholder', async () => {
   renderAt('/players');
   expect(await screen.findByRole('heading', { name: 'Hráči' })).toBeInTheDocument();
 });
+
+test('protected route asks anonymous user to log in', async () => {
+  renderAt('/tournaments/5/record');
+  expect(await screen.findByRole('alert')).toHaveTextContent('přihlásit');
+});
