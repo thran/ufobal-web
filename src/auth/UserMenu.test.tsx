@@ -1,20 +1,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import { renderWithProviders } from '../test/utils';
 import UserMenu from './UserMenu';
-
-beforeEach(() => {
-  // Headless UI anchored menus need ResizeObserver, missing in jsdom.
-  vi.stubGlobal(
-    'ResizeObserver',
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
-});
 
 test('login dialog fields are empty after closing and reopening', async () => {
   renderWithProviders(<UserMenu />, { user: null });
