@@ -143,19 +143,25 @@ export function EventList({
       </button>
     );
 
+  const hasActions = editable || visible.some((e) => !e.saved);
+  const mobileColumns = editable
+    ? 'grid-cols-[minmax(9.5rem,max-content)_3rem_1fr]'
+    : hasActions
+      ? 'grid-cols-[2.75rem_3rem_1fr]'
+      : 'grid-cols-[3rem_1fr]';
+
   return (
     <div>
       <div data-testid="events-mobile" className="md:hidden">
         {visible.map((e) => (
-          <div
-            key={e.id}
-            className="grid grid-cols-[minmax(9.5rem,max-content)_3rem_1fr] items-center gap-2 py-1 even:bg-black/10"
-          >
-            <div className="flex gap-2">
-              {unlink(e)}
-              {remove(e)}
-              {edit(e)}
-            </div>
+          <div key={e.id} className={`grid ${mobileColumns} items-center gap-2 py-1 even:bg-black/10`}>
+            {hasActions && (
+              <div className="flex gap-2">
+                {unlink(e)}
+                {remove(e)}
+                {edit(e)}
+              </div>
+            )}
             <div>{shortTime(e.time)}</div>
             {text(e)}
           </div>

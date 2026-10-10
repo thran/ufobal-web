@@ -185,6 +185,7 @@ export function useMatchSync(
             work.kind === 'patch' ? { type: 'patchFail', message } : { type: 'syncFail', id, message },
           );
         if (isPermanent(err)) {
+          setOffline(false);
           fail((err as Error).message);
           return;
         }
@@ -195,6 +196,7 @@ export function useMatchSync(
         if (failures.current.count >= MAX_TRANSIENT_FAILURES) {
           failures.current = { id: '', count: 0 };
           attempt.current = 0;
+          setOffline(false);
           fail(`Uložení opakovaně selhává: ${(err as Error).message}`);
           return;
         }

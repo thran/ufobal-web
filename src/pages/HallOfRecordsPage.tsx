@@ -99,7 +99,7 @@ export default function HallOfRecordsPage() {
             return (
               <div key={key} className="mt-3">
                 <div>{label}</div>
-                <b>{text(record.value)}</b>
+                <b>{text(record.value ?? 0)}</b>
                 <ul className="ml-12 list-disc">
                   {(record.instances as unknown[]).map((item, i) => (
                     <li key={i}>

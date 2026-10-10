@@ -57,7 +57,7 @@ export default function MatchRecordPage() {
   const tournamentQuery = useTournament(id);
   const { graph, error: graphError, refetch: refetchGraph } = useGraph();
   // Recorder state is initialised once, so it must start from fresh server data, not a stale cache.
-  const matchesQuery = useMatches(id, { refetchOnMount: 'always' });
+  const matchesQuery = useMatches(id, { refetchOnMount: 'always', timeoutMs: 15_000 });
 
   const matches = matchesQuery.data;
   const match = matches?.find((m) => m.pk === matchId);
@@ -471,6 +471,7 @@ function Recorder({
         open={dialog?.kind === 'goalie'}
         teamName={totName(dialogTeam)}
         players={playersOf(dialogTeam)}
+        currentGoalie={dialogTeam == null ? null : state.goalies[dialogTeam]}
         onSave={(goalie) => {
           if (dialog?.kind !== 'goalie') return;
           add('goalieChange', dialog.team, dialog.time, { goalie });

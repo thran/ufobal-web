@@ -76,3 +76,17 @@ test('mergeLocal dedups stored unsaved event against server row with same client
   expect(shots).toHaveLength(1);
   expect(shots[0]).toMatchObject({ id: 'u-shot', pk: 2, saved: false });
 });
+
+test('active penalties with equal times keep their input order', () => {
+  const penalty = (id: string, player: number): MatchEvent => ({
+    id,
+    type: 'penalty',
+    time: '00:04:00',
+    team: 1000,
+    data: { player, card: 'yellow', reason: 'x' },
+    pk: null,
+    saved: false,
+  });
+  const active = activePenalties([penalty('a', 100), penalty('b', 101)], 1000, 240_000 + 10_000);
+  expect(active.map((p) => p.event.id)).toEqual(['a', 'b']);
+});

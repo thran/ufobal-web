@@ -102,7 +102,8 @@ export interface StatsDto {
 }
 
 export interface HallRecord<T> {
-  value: number;
+  /** Null (with no instances) when there is nothing to rank yet. */
+  value: number | null;
   instances: T[];
 }
 

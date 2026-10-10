@@ -28,3 +28,17 @@ test('renders records with links; missing records skipped', async () => {
   );
   expect(screen.queryByText(/Tým s nejvíce zápasy/)).not.toBeInTheDocument();
 });
+
+test('records with null value and no instances render nothing', async () => {
+  mockApi({
+    hall_of_glory: {
+      max_teams_per_tournament: { value: 24, instances: [t1] },
+      max_assistance_per_tournament_player: { value: null, instances: [] },
+      max_goal_per_tournament_player_female: { value: null, instances: [] },
+    },
+  });
+  renderWithProviders(<HallOfRecordsPage />);
+  expect(await screen.findByText('24 týmů na turnaji')).toBeInTheDocument();
+  expect(screen.queryByText(/asistencemi/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Hráčka/)).not.toBeInTheDocument();
+});

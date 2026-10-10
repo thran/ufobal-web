@@ -3,7 +3,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-BACKEND="$(cd "${1:-../ufobal-web}" && pwd)"
+BACKEND="$(cd "${1:-${UFOBAL_BACKEND:-../ufobal-web}}" && pwd)"
 
 [ -f "$BACKEND/manage.py" ] || { echo "Not a Django repo: $BACKEND" >&2; exit 1; }
 

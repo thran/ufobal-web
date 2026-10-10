@@ -324,3 +324,30 @@ test('discarding a failed edit of a saved event removes it locally and asks for 
   expect(list.queryByText('Pépa')).not.toBeInTheDocument();
   expect(info).toHaveBeenCalledWith('Úprava zahozena, načti stránku znovu pro aktuální stav.');
 });
+
+test('a matches request that never settles times out and shows the error box with retry', async () => {
+  const fetchMock = mockFetch();
+  const base = fetchMock.getMockImplementation()!;
+  let hang = true;
+  fetchMock.mockImplementation((input, init) => {
+    if (hang && String(input) === API_BASE + 'matchs?tournament=1')
+      return new Promise<Response>((_, reject) =>
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError'))),
+      );
+    return base(input, init);
+  });
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  try {
+    render();
+    // 15 s timeout, 1 s retry delay, 15 s timeout again
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_500);
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('Časový limit požadavku vypršel.');
+    hang = false;
+    await userEvent.click(screen.getByRole('button', { name: 'Zkusit znovu' }));
+    expect(await screen.findByRole('button', { name: 'Čas zápasu' })).toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+  }
+});

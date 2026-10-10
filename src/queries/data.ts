@@ -14,7 +14,7 @@ import {
   getTeamOnTournaments,
   getTournament,
 } from '../api/endpoints';
-import { buildGraph } from '../domain/graph';
+import { buildGraphCached } from '../domain/graph';
 
 const LIST_STALE = 10 * 60_000;
 
@@ -53,7 +53,7 @@ export function useGraph() {
   const graph = useMemo(
     () =>
       players.data && tots.data && goals.data && empty.data
-        ? buildGraph({
+        ? buildGraphCached({
             players: players.data,
             tots: tots.data,
             goals: goals.data,
@@ -85,13 +85,36 @@ export const useTournament = (pk: number | null) =>
     enabled: pk != null,
   });
 
+/** Aborts the request after `ms` and rejects with a readable error; the query's own signal still cancels it. */
+export async function getMatchesWithTimeout(pk: number, signal: AbortSignal, ms: number) {
+  const ctrl = new AbortController();
+  const abort = () => ctrl.abort();
+  if (signal.aborted) ctrl.abort();
+  else signal.addEventListener('abort', abort);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    ctrl.abort();
+  }, ms);
+  try {
+    return await getMatches(pk, ctrl.signal);
+  } catch (err) {
+    if (timedOut) throw new Error('Časový limit požadavku vypršel.');
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    signal.removeEventListener('abort', abort);
+  }
+}
+
 export const useMatches = (
   pk: number,
-  opts: { refetchInterval?: number | false; refetchOnMount?: boolean | 'always' } = {},
+  opts: { refetchInterval?: number | false; refetchOnMount?: boolean | 'always'; timeoutMs?: number } = {},
 ) =>
   useQuery({
     queryKey: dataKeys.matches(pk),
-    queryFn: ({ signal }) => getMatches(pk, signal),
+    queryFn: ({ signal }) =>
+      opts.timeoutMs ? getMatchesWithTimeout(pk, signal, opts.timeoutMs) : getMatches(pk, signal),
     refetchInterval: opts.refetchInterval,
     refetchOnMount: opts.refetchOnMount,
   });

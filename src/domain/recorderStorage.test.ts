@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { recordedMatch, t1 } from '../test/fixtures';
 import { startClock, stoppedClock } from './clock';
 import { recorderReducer } from './recorder';
@@ -161,4 +161,37 @@ test('removeStoredEvent drops one event from current storage and never creates d
   const stored = loadRecorder(500)!;
   expect(stored.events.map((e) => e.id)).toEqual(['u2']);
   expect(stored.referee).toBe(101);
+});
+
+describe('loadRecorder shape guard', () => {
+  const valid = () => {
+    const s = initRecorder({ match: recordedMatch(), tournament, rosterOf, stored: null, imported: null });
+    saveRecorder(s);
+    return JSON.parse(localStorage.getItem(storageKey(500))!) as Record<string, unknown>;
+  };
+  const put = (o: Record<string, unknown>) => localStorage.setItem(storageKey(500), JSON.stringify(o));
+
+  test('accepts a well-formed record', () => {
+    put(valid());
+    expect(loadRecorder(500)).not.toBeNull();
+  });
+
+  test.each([
+    ['missing events', (o: Record<string, unknown>) => delete o.events],
+    ['events not an array', (o: Record<string, unknown>) => (o.events = {})],
+    ['event without id', (o: Record<string, unknown>) => (o.events = [{ type: 'shot', time: '00:01:00' }])],
+    ['missing clock', (o: Record<string, unknown>) => delete o.clock],
+    ['clock without running flag', (o: Record<string, unknown>) => (o.clock = {})],
+    ['partial clock', (o: Record<string, unknown>) => (o.clock = { running: false })],
+    ['bad phase', (o: Record<string, unknown>) => (o.phase = 7)],
+    ['missing phase', (o: Record<string, unknown>) => delete o.phase],
+  ])('%s returns null and init falls back to server data', (_name, mutate) => {
+    const o = valid();
+    mutate(o);
+    put(o);
+    const stored = loadRecorder(500);
+    expect(stored).toBeNull();
+    const s = initRecorder({ match: recordedMatch(), tournament, rosterOf, stored, imported: null });
+    expect(s.phase).toBe(2);
+  });
 });

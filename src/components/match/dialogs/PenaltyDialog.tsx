@@ -17,6 +17,7 @@ function PenaltyDialogBody({ teamName, players, onSave, onClose }: Omit<Props, '
   const [card, setCard] = useState<CardType>('yellow');
   const [reason, setReason] = useState('');
   const [extra, setExtra] = useState('');
+  const extraTrimmed = extra.trim();
   const nickname = players.find((p) => p.pk === player)?.nickname;
 
   return (
@@ -61,7 +62,9 @@ function PenaltyDialogBody({ teamName, players, onSave, onClose }: Omit<Props, '
             type="button"
             className="pressbutton"
             disabled={!reason}
-            onClick={() => onSave({ player, card, reason: extra ? `${reason} - ${extra}` : reason })}
+            onClick={() =>
+              onSave({ player, card, reason: extraTrimmed ? `${reason} - ${extraTrimmed}` : reason })
+            }
           >
             Udělit
           </button>

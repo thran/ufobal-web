@@ -5,7 +5,7 @@ import { expect, test } from 'vitest';
 import { createQueryClient } from '../queryClient';
 import { sampleGoalieStats, sampleMatches } from '../test/fixtures';
 import { mockApi } from '../test/utils';
-import { useGoalieStats, useMatches } from './data';
+import { getMatchesWithTimeout, useGoalieStats, useMatches } from './data';
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={createQueryClient(null)}>{children}</QueryClientProvider>
@@ -27,4 +27,13 @@ test('useGoalieStats with and without tournament', async () => {
   const one = renderHook(() => useGoalieStats(1), { wrapper });
   await waitFor(() => expect(all.result.current.data).toHaveLength(3));
   await waitFor(() => expect(one.result.current.data).toHaveLength(2));
+});
+
+test('getMatchesWithTimeout aborts the request when the incoming signal is already aborted', async () => {
+  const fetchMock = mockApi({ 'matchs?tournament=1': sampleMatches() });
+  const ctrl = new AbortController();
+  ctrl.abort();
+  await getMatchesWithTimeout(1, ctrl.signal, 1000).catch(() => undefined);
+  const init = (fetchMock.mock.calls[0] as unknown[])[1] as RequestInit | undefined;
+  expect(init?.signal?.aborted).toBe(true);
 });

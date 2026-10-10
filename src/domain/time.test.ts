@@ -14,6 +14,9 @@ test('hms conversions incl. wrap-around like moment.utc', () => {
 test('formatClock matches old directive', () => {
   expect(formatClock(480_000)).toEqual({ text: '08:00.0', negative: false });
   expect(formatClock(61_234)).toEqual({ text: '01:01.2', negative: false });
+  expect(formatClock(0)).toEqual({ text: '00:00.0', negative: false });
+  expect(formatClock(59_999)).toEqual({ text: '01:00.0', negative: false });
+  expect(formatClock(-1)).toEqual({ text: '00:00.0', negative: false });
   expect(formatClock(-1500)).toEqual({ text: '-00:02.4', negative: true });
 });
 

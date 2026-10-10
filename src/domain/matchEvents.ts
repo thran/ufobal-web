@@ -175,5 +175,5 @@ export function activePenalties(events: MatchEvent[], team: number | null, gameM
       return { event: e, remainingMs: len - elapsed, active: elapsed >= 0 && elapsed <= len };
     })
     .filter((p) => p.active)
-    .sort((a, b) => (a.event.time < b.event.time ? 1 : -1));
+    .sort((a, b) => (a.event.time < b.event.time ? 1 : a.event.time > b.event.time ? -1 : 0));
 }

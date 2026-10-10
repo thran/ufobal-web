@@ -20,6 +20,7 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
   const [card, setCard] = useState<CardType>(initial.card);
   const [reason, setReason] = useState(initial.reason);
   const valid = isValidHms(time);
+  const reasonTrimmed = reason.trim();
 
   return (
     <Modal open onClose={onClose} title={`Karta - ${teamName}`}>
@@ -56,8 +57,8 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
         <button
           type="button"
           className="pressbutton"
-          disabled={!valid}
-          onClick={() => onSave(time, { player, card, reason })}
+          disabled={!valid || !reasonTrimmed}
+          onClick={() => onSave(time, { player, card, reason: reasonTrimmed })}
         >
           Upravit
         </button>

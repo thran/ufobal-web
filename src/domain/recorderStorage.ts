@@ -55,12 +55,35 @@ export function saveRecorder(s: RecorderState) {
   write(storageKey(s.matchPk), JSON.stringify(stored));
 }
 
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+
+function isStoredRecorder(v: unknown): v is StoredRecorder {
+  if (!isObject(v) || v.v !== 1) return false;
+  if (v.phase !== null && v.phase !== 0 && v.phase !== 1 && v.phase !== 2) return false;
+  const c = v.clock;
+  if (
+    !isObject(c) ||
+    typeof c.running !== 'boolean' ||
+    typeof c.remainingMs !== 'number' ||
+    typeof c.startedAt !== 'number' ||
+    typeof c.remainingAtStart !== 'number'
+  )
+    return false;
+  return (
+    Array.isArray(v.events) &&
+    v.events.every(
+      (e) =>
+        isObject(e) && typeof e.id === 'string' && typeof e.type === 'string' && typeof e.time === 'string',
+    )
+  );
+}
+
 export function loadRecorder(pk: number): StoredRecorder | null {
   const raw = read(storageKey(pk));
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as StoredRecorder;
-    return parsed?.v === 1 ? parsed : null;
+    const parsed: unknown = JSON.parse(raw);
+    return isStoredRecorder(parsed) ? parsed : null;
   } catch {
     return null;
   }

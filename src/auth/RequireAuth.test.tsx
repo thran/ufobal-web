@@ -1,5 +1,7 @@
-import { screen } from '@testing-library/react';
-import { expect, test } from 'vitest';
+import { act, screen } from '@testing-library/react';
+import { expect, test, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { API_BASE } from '../api/client';
 import { renderWithProviders, testUser } from '../test/utils';
 import RequireAuth from './RequireAuth';
 
@@ -30,4 +32,25 @@ test('staff level', () => {
   unmount();
   renderWithProviders(<RequireAuth level="staff">{secret}</RequireAuth>, { user: testUser({ is_staff: true }) });
   expect(screen.getByText('tajné')).toBeInTheDocument();
+});
+
+test('failed user query shows error with retry instead of the login prompt', async () => {
+  let failing = true;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (input: RequestInfo | URL) => {
+      expect(String(input)).toBe(`${API_BASE}user_profile`);
+      if (failing) return new Response('boom', { status: 500 });
+      return new Response(JSON.stringify(testUser({ is_authorized: true })), { status: 200 });
+    }),
+  );
+  const { queryClient } = renderWithProviders(<RequireAuth level="authorized">{secret}</RequireAuth>);
+  queryClient.setDefaultOptions({ queries: { retry: false } });
+  await act(() => queryClient.resetQueries({ queryKey: ['user'] }));
+
+  const alert = await screen.findByRole('alert');
+  expect(alert).not.toHaveTextContent('Pro tuto stránku se musíš přihlásit.');
+  failing = false;
+  await userEvent.click(screen.getByRole('button', { name: 'Zkusit znovu' }));
+  expect(await screen.findByText('tajné')).toBeInTheDocument();
 });

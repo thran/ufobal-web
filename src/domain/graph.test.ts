@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { sampleRaw } from '../test/fixtures';
-import { buildGraph, compareMedals, scoreWithoutTeam } from './graph';
+import { buildGraph, buildGraphCached, compareMedals, scoreWithoutTeam } from './graph';
 
 const g = () => buildGraph(sampleRaw());
 
@@ -63,6 +63,22 @@ test('compareMedals orders golds, then silvers, ...', () => {
 test('scoreWithoutTeam lists tournaments where player scored without a roster', () => {
   const graph = g();
   const karel = graph.playersById.get(102)!;
-  expect(scoreWithoutTeam(karel, graph)).toEqual([{ tournament: graph.tournamentsById.get(1), goals: 4, assists: 0 }]);
+  expect(scoreWithoutTeam(karel, graph)).toEqual([
+    { tournament: graph.tournamentsById.get(1), goals: 4, assists: 0 },
+  ]);
   expect(scoreWithoutTeam(graph.playersById.get(100)!, graph)).toEqual([]);
+});
+
+test('buildGraphCached returns the same graph for identical input refs and rebuilds when one changes', () => {
+  const raw = sampleRaw();
+  const first = buildGraphCached(raw);
+  expect(buildGraphCached({ ...raw })).toBe(first);
+  expect(buildGraphCached({ ...raw, goals: { ...raw.goals } })).not.toBe(first);
+});
+
+test('buildGraph does not mutate its inputs', () => {
+  const raw = sampleRaw();
+  const copy = structuredClone(raw);
+  buildGraph(raw);
+  expect(raw).toEqual(copy);
 });

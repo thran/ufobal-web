@@ -40,6 +40,16 @@ test('ClockControls: negative time is red, running shows pause, phase 0 highligh
   expect(container.querySelector('.pressbutton')).not.toBeNull();
 });
 
+test('ClockControls: DOM order puts the clock before the step buttons', () => {
+  const { container } = render(
+    <ClockControls remainingMs={1000} running={false} phase={1} onToggle={() => {}} onAdjust={() => {}} />,
+  );
+  const order = [...container.querySelectorAll('button, [aria-label="Čas zápasu"]')].map((el) =>
+    el.getAttribute('aria-label'),
+  );
+  expect(order.indexOf('Čas zápasu')).toBeLessThan(order.indexOf('Přidat 5 s'));
+});
+
 test('Scoreboard percentage and totals', () => {
   const side = { colorClass: 'team-one' };
   render(
@@ -283,4 +293,32 @@ test('GoalieRow, TeamNames, PenaltyCountdowns', async () => {
   expect(screen.getByText('Modří')).toHaveAttribute('title', 'Modří');
   expect(screen.getByRole('button', { name: 'Prohodit strany' }).parentElement).not.toHaveClass('hidden');
   expect(screen.getByText(/00:59/)).toHaveTextContent('⚠ 00:59 - Adam');
+});
+
+test('EventList mobile reserves the wide action column only when editable', () => {
+  const events: MatchEvent[] = [
+    {
+      id: 'g',
+      type: 'goal',
+      time: '00:01:00',
+      team: 1,
+      data: { shooter: 10, assistance: null, goalType: 'normal' },
+      pk: 1,
+      saved: true,
+    },
+  ];
+  const props = {
+    events,
+    sides: { left: 1, right: 2 },
+    teamColor: () => '',
+    playerName: (pk: number | null) => `P${pk}`,
+    showShots: false,
+  };
+  const { rerender } = render(<EventList {...props} editable={false} />);
+  const row = () => within(screen.getByTestId('events-mobile')).getByText(/gól:/).closest('.grid')!;
+  expect(row().className).not.toContain('9.5rem');
+  expect(row().children).toHaveLength(2);
+  rerender(<EventList {...props} editable />);
+  expect(row().className).toContain('9.5rem');
+  expect(row().children).toHaveLength(3);
 });

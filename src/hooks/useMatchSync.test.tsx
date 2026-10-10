@@ -281,3 +281,33 @@ test('failures while the browser is offline do not poison the item; online resum
     onLine.mockRestore();
   }
 });
+
+test('offline clears when the server answers with a permanent error while other items are pending', async () => {
+  vi.useFakeTimers();
+  fetchMock
+    .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    .mockResolvedValueOnce(new Response('bad', { status: 400 }))
+    .mockImplementation(() => new Promise<Response>(() => {}));
+  const { result } = renderHook(() => useHarness(base({ events: [ev('a'), ev('b', { time: '00:02:00' })] })));
+  await advance(0);
+  expect(result.current.sync.offline).toBe(true);
+  await advance(2050);
+  expect(result.current.state.events[0].error).toBe('bad');
+  expect(result.current.sync.pending).toBe(1);
+  expect(result.current.sync.offline).toBe(false);
+});
+
+test('offline clears when an item is given up after repeated transient failures', async () => {
+  vi.useFakeTimers();
+  fetchMock.mockImplementation(async (_url: string, init: RequestInit) =>
+    JSON.parse(String(init.body)).client_id === 'a'
+      ? new Response('boom', { status: 500 })
+      : new Promise<Response>(() => {}),
+  );
+  const { result } = renderHook(() => useHarness(base({ events: [ev('a'), ev('b', { time: '00:02:00' })] })));
+  await advance(0);
+  for (const delay of [2000, 5000, 10000, 30000]) await advance(delay + 50);
+  expect(result.current.state.events[0].error).toMatch(/opakovaně selhává/);
+  expect(result.current.sync.pending).toBe(1);
+  expect(result.current.sync.offline).toBe(false);
+});

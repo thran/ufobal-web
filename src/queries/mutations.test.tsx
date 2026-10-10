@@ -5,7 +5,13 @@ import { toast } from 'sonner';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createQueryClient } from '../queryClient';
 import { dataKeys } from './data';
-import { useAddMatch, useRemoveAttendance, useRegisterTeam, useRemoveMatchEvent } from './mutations';
+import {
+  invalidateMatchData,
+  useAddMatch,
+  useRemoveAttendance,
+  useRegisterTeam,
+  useRemoveMatchEvent,
+} from './mutations';
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 const fetchMock = vi.fn();
@@ -96,4 +102,18 @@ test('remove match event uses DELETE remove_<type>/<pk> and invalidates match da
   expect(init.method).toBe('DELETE');
   expect(spy).toHaveBeenCalledWith({ queryKey: dataKeys.matches(5) });
   expect(spy).toHaveBeenCalledWith({ queryKey: dataKeys.goals });
+});
+
+test('invalidateMatchData invalidates all six match-related keys', async () => {
+  const qc = createQueryClient(null);
+  const spy = vi.spyOn(qc, 'invalidateQueries');
+  await invalidateMatchData(qc, 7);
+  expect(spy.mock.calls.map(([f]) => f?.queryKey)).toEqual([
+    dataKeys.matches(7),
+    dataKeys.pairs(7),
+    dataKeys.groups(7),
+    dataKeys.goalieStats(7),
+    dataKeys.goalieStats('all'),
+    dataKeys.goals,
+  ]);
 });

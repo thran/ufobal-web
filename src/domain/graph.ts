@@ -189,6 +189,25 @@ export function scoreWithoutTeam(player: PlayerVM, graph: Graph) {
     .sort((a, b) => a - b)
     .flatMap((pk) => {
       const tournament = graph.tournamentsById.get(pk);
-      return tournament ? [{ tournament, goals: player.goals[pk] ?? 0, assists: player.assists[pk] ?? 0 }] : [];
+      return tournament
+        ? [{ tournament, goals: player.goals[pk] ?? 0, assists: player.assists[pk] ?? 0 }]
+        : [];
     });
+}
+
+let last: { raw: RawData; graph: Graph } | null = null;
+
+/** buildGraph memoized on the identity of the four inputs (TanStack keeps refs stable until data changes). */
+export function buildGraphCached(raw: RawData): Graph {
+  if (
+    last &&
+    last.raw.players === raw.players &&
+    last.raw.tots === raw.tots &&
+    last.raw.goals === raw.goals &&
+    last.raw.emptyTournaments === raw.emptyTournaments
+  )
+    return last.graph;
+  const graph = buildGraph(raw);
+  last = { raw, graph };
+  return graph;
 }
