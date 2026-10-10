@@ -444,8 +444,8 @@ class Match(models.Model):
         if extended:
             data['team_one'] = self.team_one.to_json(simple=True)
             data['team_two'] = self.team_two.to_json(simple=True)
-            data['referee_team'] = self.referee_team.to_json(simple=True)
-            data['referee'] = (self.referee.to_json(simple=True) if self.referee else None,)
+            data['referee_team'] = self.referee_team.to_json(simple=True) if self.referee_team else None
+            data['referee'] = self.referee.to_json(simple=True) if self.referee else None
 
         return data
 

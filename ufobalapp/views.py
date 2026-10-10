@@ -610,6 +610,17 @@ def add_match(request):
     if team_one == team_two or team_one == referee_team or team_two == referee_team:
         return HttpResponseBadRequest("Některý z vybraných týmů se shoduje.")
 
+    goalies = []
+    for key, team, label in (('goalie_one', team_one, 'První brankář se nenachází v prvním týmu.'),
+                             ('goalie_two', team_two, 'Druhý brankář se nenachází ve druhém týmu.')):
+        if data.get(key):
+            goalie = get_object_or_404(Player, pk=data.get(key))
+            if goalie not in team.players.all():
+                return HttpResponseBadRequest(label)
+        else:
+            goalie = team.default_goalie
+        goalies.append(goalie)
+
     match = Match(
         tournament=tournament,
         team_one=team_one,
@@ -622,25 +633,9 @@ def add_match(request):
     )
     match.save()
 
-    if data.get('goalie_one'):
-        goalie_one = Player.objects.get(pk=data.get('goalie_one'))
-        if goalie_one and goalie_one not in team_one.players.all():
-            return HttpResponseBadRequest("První brankář se nenachází v prvním týmu.")
-        goalie_one_in_match = GoalieInMatch(goalie=goalie_one, match=match, start=datetime.time(0))
-        goalie_one_in_match.save()
-    elif team_one.default_goalie:
-        goalie_one_in_match = GoalieInMatch(goalie=team_one.default_goalie, match=match, start=datetime.time(0))
-        goalie_one_in_match.save()
-
-    if data.get('goalie_two'):
-        goalie_two = Player.objects.get(pk=data.get('goalie_two'))
-        if goalie_two and goalie_two not in team_two.players.all():
-            return HttpResponseBadRequest("Druhý brankář se nenachází ve druhém týmu.")
-        goalie_two_in_match = GoalieInMatch(goalie=goalie_two, match=match, start=datetime.time(0))
-        goalie_two_in_match.save()
-    elif team_two.default_goalie:
-        goalie_two_in_match = GoalieInMatch(goalie=team_two.default_goalie, match=match, start=datetime.time(0))
-        goalie_two_in_match.save()
+    for goalie in goalies:
+        if goalie:
+            GoalieInMatch(goalie=goalie, match=match, start=datetime.time(0)).save()
 
     return HttpResponse(match.pk)
 
@@ -908,6 +903,7 @@ def end_match(request, match_id):
     return HttpResponse("OK")
 
 
+@user_passes_test_or_401(lambda u: u.is_authenticated)
 @require_http_methods(["POST"])
 def create_pairing_request(request, player_id):
     player = get_object_or_404(Player, pk=player_id)
@@ -1164,8 +1160,11 @@ def home(request):
 @user_passes_test_or_401(is_authorized)
 def get_referee_feedbacks(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    player = getattr(request.user, 'player', None)
+    if player is None:
+        return HttpResponseBadRequest('Nejsi v žádném týmu')
 
-    teams = request.user.player.tournaments.filter(tournament=tournament)
+    teams = player.tournaments.filter(tournament=tournament)
     if teams.count() == 0:
         return HttpResponseBadRequest('Nejsi v žádném týmu')
     team = teams.first()
@@ -1184,19 +1183,22 @@ def get_referee_feedbacks(request, tournament_id):
 @user_passes_test_or_401(is_authorized)
 @require_http_methods(["POST"])
 def save_referee_feedback(request):
+    player = getattr(request.user, 'player', None)
+    if player is None:
+        return HttpResponseBadRequest('Nejsi v žádném týmu')
     data = json.loads(str(request.body.decode('utf-8')))
     if 'pk' in data:
-        feedback = RefereeFeedback.objects.get(pk=data['pk'])
-        if feedback.author_team.players.filter(pk=request.user.player.pk).count() == 0:
+        feedback = get_object_or_404(RefereeFeedback, pk=data['pk'])
+        if feedback.author_team.players.filter(pk=player.pk).count() == 0:
             return HttpResponseBadRequest('Nejsi členem týmu, který provedl toto hodnocení')
         if feedback.author_team.tournament.closed_edit:
             return HttpResponseBadRequest('Turnaj je již uzavřený pro editaci')
-        feedback.author = request.user.player
+        feedback.author = player
         feedback.feedback = data['feedback']
         feedback.save()
     else:
         match = get_object_or_404(Match, pk=data['match'])
-        team_on_tournament = request.user.player.tournaments.filter(tournament=match.tournament)
+        team_on_tournament = player.tournaments.filter(tournament=match.tournament)
         if match.tournament.closed_edit:
             return HttpResponseBadRequest('Turnaj je již uzavřený pro editaci')
         if team_on_tournament.count() == 0:
@@ -1204,13 +1206,13 @@ def save_referee_feedback(request):
         author_team = team_on_tournament.first()
         if author_team != match.team_one and author_team != match.team_two:
             return HttpResponseBadRequest('Hodnocení může provádět jen tým, který hrál tento zápas')
-        if author_team.players.filter(pk=request.user.player.pk).count() == 0:
+        if author_team.players.filter(pk=player.pk).count() == 0:
             # probably redundant
             return HttpResponseBadRequest('Nejsi členem týmu, který provádí toto hodnocení')
 
         feedback = RefereeFeedback.objects.create(
             match=match,
-            author=request.user.player,
+            author=player,
             author_team=author_team,
             feedback=data['feedback'],
         )
