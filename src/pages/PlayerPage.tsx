@@ -40,15 +40,15 @@ export default function PlayerPage() {
       </h2>
       <hr className="my-3 border-gray-300" />
       <h3 className="text-xl font-bold">Turnaje</h3>
-      <table className="w-full">
+      <table className="table-basic">
         <thead>
           <tr>
             <th>Turnaj</th>
             <th>Tým</th>
-            <th>Góly</th>
-            <th>Asistence</th>
-            <th>Kanada</th>
-            <th>Umístění</th>
+            <th className="text-right">Góly</th>
+            <th className="text-right">Asistence</th>
+            <th className="text-right">Kanada</th>
+            <th className="text-right">Umístění</th>
           </tr>
         </thead>
         <tbody>
@@ -64,17 +64,19 @@ export default function PlayerPage() {
                 <td>
                   <Link to={teamPath({ pk: tot.team.pk, name: tot.name })}>{tot.name}</Link>
                 </td>
-                <td>{goals}</td>
-                <td>{assists}</td>
-                <td>{goals == null && assists == null ? '' : (goals ?? 0) + (assists ?? 0)}</td>
-                <td>{formatRank(tot.rank)}</td>
+                <td className="text-right">{goals}</td>
+                <td className="text-right">{assists}</td>
+                <td className="text-right">
+                  {goals == null && assists == null ? '' : (goals ?? 0) + (assists ?? 0)}
+                </td>
+                <td className="text-right">{formatRank(tot.rank)}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
       <h3 className="mt-4 text-xl font-bold">Karty</h3>
-      <table className="w-full">
+      <table className="table-basic">
         <thead>
           <tr>
             <th></th>

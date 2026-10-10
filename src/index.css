@@ -47,4 +47,19 @@
   .callout-alert {
     @apply border-[#de2d0f] bg-alert text-white;
   }
+  .table-basic {
+    @apply w-full border-collapse text-sm;
+  }
+  .table-basic thead {
+    background: #f5f5f5;
+  }
+  .table-basic th {
+    @apply px-2 py-2 text-left font-bold;
+  }
+  .table-basic td {
+    @apply px-2 py-2;
+  }
+  .table-basic tbody tr:nth-child(even) {
+    background: #f9f9f9;
+  }
 }

@@ -10,6 +10,8 @@ import Placeholder from './pages/Placeholder';
 import PlayerPage from './pages/PlayerPage';
 import PlayersPage from './pages/PlayersPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TeamPage from './pages/TeamPage';
+import TeamsPage from './pages/TeamsPage';
 import { legacyRoutes } from './routes/legacyRedirects';
 
 type Level = 'login' | 'authorized' | 'staff';
@@ -38,8 +40,8 @@ export const routes: RouteObject[] = [
       page('pair-account/:token?', 'Spárovat účet', 'login'),
       { path: 'players', element: <PlayersPage /> },
       { path: 'players/:id/:slug?', element: <PlayerPage /> },
-      page('teams', 'Týmy'),
-      page('teams/:id/:slug?', 'Tým'),
+      { path: 'teams', element: <TeamsPage /> },
+      { path: 'teams/:id/:slug?', element: <TeamPage /> },
       page('tournaments', 'Turnaje'),
       page('tournaments/:id/results/:teamId?', 'Výsledky turnaje'),
       page('tournaments/:id/record', 'Správa turnaje', 'authorized'),
