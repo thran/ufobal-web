@@ -3,6 +3,7 @@ import RequireAuth from './auth/RequireAuth';
 import Layout from './components/Layout';
 import RouteError from './components/RouteError';
 import FaqPage from './pages/FaqPage';
+import GroupsPage from './pages/GroupsPage';
 import HallOfRecordsPage from './pages/HallOfRecordsPage';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
@@ -48,7 +49,7 @@ export const routes: RouteObject[] = [
       { path: 'tournaments/:id/results/:teamId?', element: <TournamentResultsPage /> },
       page('tournaments/:id/record', 'Správa turnaje', 'authorized'),
       page('tournaments/:id/live', 'Turnaj živě'),
-      page('tournaments/:id/groups', 'Skupiny'),
+      { path: 'tournaments/:id/groups', element: <GroupsPage /> },
       page('tournaments/:id/register', 'Přihlášení na turnaj', 'authorized'),
       page('tournaments/:id/teams/:totId', 'Soupiska týmu', 'authorized'),
       page('tournaments/:id/matches/:matchId', 'Zápas'),
