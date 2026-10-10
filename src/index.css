@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+  --color-primary: #008cba;
+  --color-primary-dark: #007095;
+  --color-secondary: #e7e7e7;
+  --color-alert: #f04124;
+  --color-success: #43ac6a;
+  --color-warning: #f08a24;
+  --color-topbar: #333333;
+  --color-topbar-hover: #272727;
+  --color-medal-gold: gold;
+  --color-medal-silver: silver;
+  --color-medal-bronze: #e79335;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-[#222];
+  }
+  a {
+    @apply text-primary hover:text-primary-dark;
+  }
+  h2,
+  h4 {
+    @apply text-2xl font-bold text-gray-500;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-block cursor-pointer bg-primary px-4 py-3 text-white transition-colors hover:bg-primary-dark disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-[#333] hover:bg-[#b9b9b9];
+  }
+  .btn-alert {
+    @apply bg-alert hover:bg-[#cf2a0e];
+  }
+  .input {
+    @apply block w-full border border-[#ccc] bg-white px-2 py-2 shadow-inner focus:border-[#999] focus:outline-none;
+  }
+  .callout {
+    @apply border border-[#d8d8d8] bg-[#f2f2f2] p-4;
+  }
+  .callout-alert {
+    @apply border-[#de2d0f] bg-alert text-white;
+  }
+}
