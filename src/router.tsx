@@ -7,6 +7,8 @@ import HallOfRecordsPage from './pages/HallOfRecordsPage';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import Placeholder from './pages/Placeholder';
+import PlayerPage from './pages/PlayerPage';
+import PlayersPage from './pages/PlayersPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import { legacyRoutes } from './routes/legacyRedirects';
 
@@ -34,8 +36,8 @@ export const routes: RouteObject[] = [
       { path: 'intro', element: <Navigate replace to="/faq" /> },
       { path: 'hall-of-records', element: <HallOfRecordsPage /> },
       page('pair-account/:token?', 'Spárovat účet', 'login'),
-      page('players', 'Hráči'),
-      page('players/:id/:slug?', 'Hráč'),
+      { path: 'players', element: <PlayersPage /> },
+      { path: 'players/:id/:slug?', element: <PlayerPage /> },
       page('teams', 'Týmy'),
       page('teams/:id/:slug?', 'Tým'),
       page('tournaments', 'Turnaje'),
