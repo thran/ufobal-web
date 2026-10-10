@@ -27,7 +27,11 @@ export function useGraph() {
   const [players, tots, goals, empty] = useQueries({
     queries: [
       { queryKey: dataKeys.players, queryFn: ({ signal }) => getPlayers(signal), staleTime: LIST_STALE },
-      { queryKey: dataKeys.tots, queryFn: ({ signal }) => getTeamOnTournaments(signal), staleTime: LIST_STALE },
+      {
+        queryKey: dataKeys.tots,
+        queryFn: ({ signal }) => getTeamOnTournaments(signal),
+        staleTime: LIST_STALE,
+      },
       { queryKey: dataKeys.goals, queryFn: ({ signal }) => getGoals(signal), staleTime: LIST_STALE },
       {
         queryKey: dataKeys.emptyTournaments,
@@ -39,20 +43,26 @@ export function useGraph() {
   const graph = useMemo(
     () =>
       players.data && tots.data && goals.data && empty.data
-        ? buildGraph({ players: players.data, tots: tots.data, goals: goals.data, emptyTournaments: empty.data })
+        ? buildGraph({
+            players: players.data,
+            tots: tots.data,
+            goals: goals.data,
+            emptyTournaments: empty.data,
+          })
         : undefined,
     [players.data, tots.data, goals.data, empty.data],
   );
   const failed = [players, tots, goals, empty].filter((q) => q.error);
   return {
     graph,
-    error: failed[0]?.error ?? null,
+    error: graph ? null : (failed[0]?.error ?? null),
     isPending: !graph && failed.length === 0,
     refetch: () => failed.forEach((q) => void q.refetch()),
   };
 }
 
-export const useStats = () => useQuery({ queryKey: dataKeys.stats, queryFn: ({ signal }) => getStats(signal) });
+export const useStats = () =>
+  useQuery({ queryKey: dataKeys.stats, queryFn: ({ signal }) => getStats(signal) });
 
 export const useHallOfGlory = () =>
   useQuery({ queryKey: dataKeys.hallOfGlory, queryFn: ({ signal }) => getHallOfGlory(signal) });

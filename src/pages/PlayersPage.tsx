@@ -9,6 +9,8 @@ import { useGraph } from '../queries/data';
 
 const h = createColumnHelper<PlayerVM>();
 
+const searchText = (p: PlayerVM) => p.search;
+
 const columns = [
   h.accessor('nickname', {
     id: 'nickname',
@@ -37,7 +39,7 @@ export default function PlayersPage() {
   return (
     <>
       <h1 className="text-3xl">Hráči</h1>
-      <DataTable data={rows} columns={columns} getRowId={(p) => String(p.pk)} searchText={(p) => p.search} />
+      <DataTable data={rows} columns={columns} getRowId={(p) => String(p.pk)} searchText={searchText} />
     </>
   );
 }

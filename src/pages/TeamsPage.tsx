@@ -11,6 +11,8 @@ import { useGraph } from '../queries/data';
 
 const h = createColumnHelper<TeamVM>();
 
+const searchText = (t: TeamVM) => t.search;
+
 const columns = [
   h.accessor('name', {
     id: 'name',
@@ -25,11 +27,12 @@ const columns = [
     enableSorting: false,
     meta: { width: '40%' },
   }),
-  h.display({
+  h.accessor((t) => t.medals, {
     id: 'medals',
     header: 'Umístění',
     sortingFn: (a, b) => compareMedals(a.original.medals, b.original.medals),
-    cell: (c) => <Medals medals={c.row.original.medals} />,
+    sortDescFirst: false,
+    cell: ({ row }) => <Medals medals={row.original.medals} />,
     meta: { width: '30%' },
   }),
   h.accessor((t) => t.tots.length, {
@@ -51,7 +54,7 @@ export default function TeamsPage() {
   return (
     <>
       <h1 className="text-3xl">Týmy</h1>
-      <DataTable data={rows} columns={columns} getRowId={(t) => String(t.pk)} searchText={(t) => t.search} />
+      <DataTable data={rows} columns={columns} getRowId={(t) => String(t.pk)} searchText={searchText} />
     </>
   );
 }

@@ -30,14 +30,19 @@ export default function PlayerPage() {
   const noTeam = scoreWithoutTeam(player, graph);
   const fullName = [player.name, player.lastname].filter(Boolean).join(' ');
   const sign = SIGNS[player.gender] ?? '';
+  const ageText = player.age != null ? `(${player.age})` : '';
+  const subtitle = [fullName, ageText].filter(Boolean).join(' ');
 
   return (
     <>
       <BackLink fallback="/players" />
       <h1 className="text-3xl">{player.nickname}</h1>
-      <h2>
-        {sign} {fullName} {player.age != null && `(${player.age})`}
-      </h2>
+      {subtitle && (
+        <h2>
+          {sign && <span aria-hidden="true">{sign} </span>}
+          {subtitle}
+        </h2>
+      )}
       <hr className="my-3 border-gray-300" />
       <h3 className="text-xl font-bold">Turnaje</h3>
       <table className="table-basic">

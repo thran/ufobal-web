@@ -12,25 +12,25 @@ const RECORDS: { key: keyof HallOfGloryDto; label: string; text: (v: number) => 
   {
     key: 'max_teams_per_tournament',
     label: 'Maximální počet týmů na turnaji:',
-    text: (v) => `${v} týmů na turnaji`,
+    text: (v) => `${formatNumber(v)} týmů na turnaji`,
     kind: 'tournament',
   },
   {
     key: 'max_matches_per_tournament',
     label: 'Maximální počet zápasů na turnaji:',
-    text: (v) => `${v} zápasů na turnaji`,
+    text: (v) => `${formatNumber(v)} zápasů na turnaji`,
     kind: 'tournament',
   },
   {
     key: 'max_matches_per_team',
     label: 'Tým s nejvíce zápasy:',
-    text: (v) => `${v} zápasů týmu`,
+    text: (v) => `${formatNumber(v)} zápasů týmu`,
     kind: 'team',
   },
   {
     key: 'max_goals_per_team',
     label: 'Tým s nejvíce góly:',
-    text: (v) => `${v} gólů týmu`,
+    text: (v) => `${formatNumber(v)} gólů týmu`,
     kind: 'team',
   },
   {
@@ -42,25 +42,25 @@ const RECORDS: { key: keyof HallOfGloryDto; label: string; text: (v: number) => 
   {
     key: 'max_goal_per_tournament_player',
     label: 'Hráč s nejvíce góly na turnaji:',
-    text: (v) => `${v} gólů`,
+    text: (v) => `${formatNumber(v)} gólů`,
     kind: 'playerTournament',
   },
   {
     key: 'max_assistance_per_tournament_player',
     label: 'Hráč s nejvíce asistencemi na turnaji:',
-    text: (v) => `${v} asistencí`,
+    text: (v) => `${formatNumber(v)} asistencí`,
     kind: 'playerTournament',
   },
   {
     key: 'max_goal_per_tournament_player_female',
     label: 'Hráčka s nejvíce góly na turnaji:',
-    text: (v) => `${v} gólů`,
+    text: (v) => `${formatNumber(v)} gólů`,
     kind: 'playerTournament',
   },
   {
     key: 'max_assistance_per_tournament_player_female',
     label: 'Hráčka s nejvíce asistencemi na turnaji:',
-    text: (v) => `${v} asistencí`,
+    text: (v) => `${formatNumber(v)} asistencí`,
     kind: 'playerTournament',
   },
 ];

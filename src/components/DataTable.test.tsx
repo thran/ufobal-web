@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router';
 import { expect, test } from 'vitest';
@@ -83,10 +83,19 @@ test('defaultSort applies when no sort param; empty param means natural order', 
 test('search ignores diacritics, resets page, can be cleared', async () => {
   setup('/?page=2');
   await userEvent.type(screen.getByPlaceholderText('hledat...'), 'pepa');
-  expect(bodyRows()).toHaveLength(1);
+  await waitFor(() => expect(bodyRows()).toHaveLength(1));
   expect(screen.getByTestId('loc')).not.toHaveTextContent('page=');
   await userEvent.click(screen.getByRole('button', { name: 'Zrušit hledání' }));
   expect(bodyRows()).toHaveLength(15);
+});
+
+test('fast typing keeps the full value and debounces the URL update', async () => {
+  setup();
+  const input = screen.getByPlaceholderText('hledat...');
+  await userEvent.type(input, 'Hráč 1');
+  expect(input).toHaveValue('Hráč 1');
+  await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('q=Hr%C3%A1%C4%8D+1'));
+  expect(input).toHaveValue('Hráč 1');
 });
 
 test('url prefix isolates params', async () => {

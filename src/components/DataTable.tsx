@@ -9,7 +9,7 @@ import {
   type SortingFn,
   type SortingState,
 } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { searchKey } from '../domain/text';
 
@@ -33,6 +33,7 @@ export interface DataTableProps<T> {
   searchPlaceholder?: string;
   defaultSort?: { id: string; desc: boolean };
   rank?: boolean;
+  searchLabel?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,6 +53,7 @@ export default function DataTable<T>({
   searchPlaceholder = 'hledat...',
   defaultSort,
   rank = false,
+  searchLabel = 'Hledat',
 }: DataTableProps<T>) {
   const [params, setParams] = useSearchParams();
   const key = (name: string) => urlPrefix + name;
@@ -69,22 +71,27 @@ export default function DataTable<T>({
     );
 
   const query = params.get(key('q')) ?? '';
+  const [draft, setDraft] = useState(query);
+  useEffect(() => setDraft(query), [query]);
+  useEffect(() => {
+    if (draft === query) return;
+    const timer = setTimeout(() => update({ q: draft || null, page: null }), 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
   const rows = useMemo(() => {
     if (!searchText || !query) return data;
     const needle = searchKey(query);
     return data.filter((row) => searchText(row).includes(needle));
   }, [data, searchText, query]);
 
-  const columnIds = new Set(columns.map((c) => c.id ?? ('accessorKey' in c ? String(c.accessorKey) : '')));
   const sortParam = params.get(key('sort'));
-  const sorting: SortingState =
-    sortParam === null
-      ? defaultSort
-        ? [defaultSort]
-        : []
-      : sortParam && columnIds.has(sortParam.replace(/^-/, ''))
-        ? [{ id: sortParam.replace(/^-/, ''), desc: sortParam.startsWith('-') }]
-        : [];
+  const sorting = useMemo<SortingState>(() => {
+    if (sortParam === null) return defaultSort ? [defaultSort] : [];
+    const id = sortParam.replace(/^-/, '');
+    const columnIds = new Set(columns.map((c) => c.id ?? ('accessorKey' in c ? String(c.accessorKey) : '')));
+    return sortParam && columnIds.has(id) ? [{ id, desc: sortParam.startsWith('-') }] : [];
+  }, [sortParam, defaultSort, columns]);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const requestedPage = Number.parseInt(params.get(key('page')) ?? '1', 10);
@@ -145,16 +152,19 @@ export default function DataTable<T>({
           <input
             className="input pr-8"
             placeholder={searchPlaceholder}
-            value={query}
-            aria-label="Hledat"
-            onChange={(e) => update({ q: e.target.value || null, page: null })}
+            value={draft}
+            aria-label={searchLabel}
+            onChange={(e) => setDraft(e.target.value)}
           />
-          {query && (
+          {draft && (
             <button
               type="button"
               aria-label="Zrušit hledání"
               className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-500"
-              onClick={() => update({ q: null, page: null })}
+              onClick={() => {
+                setDraft('');
+                update({ q: null, page: null });
+              }}
             >
               ×
             </button>
@@ -162,8 +172,8 @@ export default function DataTable<T>({
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-[#f5f5f5]">
+        <table className="table-basic">
+          <thead>
             {table.getHeaderGroups().map((group) => (
               <tr key={group.id}>
                 {group.headers.map((header) => {
@@ -177,7 +187,7 @@ export default function DataTable<T>({
                       aria-sort={
                         sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
                       }
-                      className={`px-2 py-2 font-bold ${alignClass[meta?.align ?? 'left']}`}
+                      className={alignClass[meta?.align ?? 'left']}
                     >
                       {header.column.getCanSort() ? (
                         <button
@@ -199,12 +209,9 @@ export default function DataTable<T>({
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="even:bg-[#f9f9f9]">
+              <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className={`px-2 py-2 ${alignClass[cell.column.columnDef.meta?.align ?? 'left']}`}
-                  >
+                  <td key={cell.id} className={alignClass[cell.column.columnDef.meta?.align ?? 'left']}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
