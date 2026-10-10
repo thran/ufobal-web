@@ -6,8 +6,8 @@ const enc = (v: string | undefined) => encodeURIComponent(v ?? '');
 
 function LegacyRedirect({ to }: { to: Target }) {
   const params = useParams();
-  const { search } = useLocation();
-  return <Navigate replace to={to(params) + search} />;
+  const { search, hash } = useLocation();
+  return <Navigate replace to={to(params) + search + hash} />;
 }
 
 const LEGACY: [string, Target][] = [

@@ -62,8 +62,8 @@ export default function UserMenu() {
           )}
         </MenuItems>
       </Menu>
-      <LoginDialog open={dialog === 'login'} onClose={() => setDialog(null)} />
-      <SignupDialog open={dialog === 'signup'} onClose={() => setDialog(null)} />
+      {dialog === 'login' && <LoginDialog open onClose={() => setDialog(null)} />}
+      {dialog === 'signup' && <SignupDialog open onClose={() => setDialog(null)} />}
     </>
   );
 }

@@ -44,3 +44,10 @@ test('401 with error_type (wrong password) shows server message', async () => {
     .catch(() => {});
   expect(toast.error).toHaveBeenCalledWith('Špatné jméno nebo heslo.');
 });
+
+test('4xx errors are not retried', async () => {
+  const qc = createQueryClient(null);
+  const queryFn = vi.fn(() => Promise.reject(new ApiError(404, 'Not found')));
+  await qc.fetchQuery({ queryKey: ['y'], queryFn }).catch(() => {});
+  expect(queryFn).toHaveBeenCalledTimes(1);
+});

@@ -51,6 +51,11 @@ test('query string is preserved on redirect', async () => {
   await waitFor(() => expect(router.state.location.search).toBe('?x=1'));
 });
 
+test('hash is preserved on redirect', async () => {
+  const router = renderAt('/hraci#top');
+  await waitFor(() => expect(router.state.location.hash).toBe('#top'));
+});
+
 test('unknown route shows 404', async () => {
   renderAt('/nonsense/path');
   expect(await screen.findByText('Stránka nenalezena')).toBeInTheDocument();

@@ -23,7 +23,12 @@ export function createQueryClient(initial: InitialData | null): QueryClient {
       },
     }),
     defaultOptions: {
-      queries: { staleTime: 5 * 60_000, refetchOnWindowFocus: false, retry: 1 },
+      queries: {
+        staleTime: 5 * 60_000,
+        refetchOnWindowFocus: false,
+        retry: (failureCount, error) =>
+          !(error instanceof ApiError && error.status < 500) && failureCount < 1,
+      },
     },
   });
 
