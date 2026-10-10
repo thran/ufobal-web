@@ -1,7 +1,6 @@
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -9,9 +8,10 @@ import {
   type SortingFn,
   type SortingState,
 } from '@tanstack/react-table';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { searchKey } from '../domain/text';
+import { useDebouncedInput } from '../hooks/useDebouncedInput';
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,7 +32,8 @@ export interface DataTableProps<T> {
   searchText?: (row: T) => string;
   searchPlaceholder?: string;
   defaultSort?: { id: string; desc: boolean };
-  rank?: boolean;
+  rank?: boolean | 'beforeSearch';
+  extraFilter?: (row: T) => boolean;
   searchLabel?: string;
 }
 
@@ -53,6 +54,7 @@ export default function DataTable<T>({
   searchPlaceholder = 'hledat...',
   defaultSort,
   rank = false,
+  extraFilter,
   searchLabel = 'Hledat',
 }: DataTableProps<T>) {
   const [params, setParams] = useSearchParams();
@@ -71,19 +73,7 @@ export default function DataTable<T>({
     );
 
   const query = params.get(key('q')) ?? '';
-  const [draft, setDraft] = useState(query);
-  useEffect(() => setDraft(query), [query]);
-  useEffect(() => {
-    if (draft === query) return;
-    const timer = setTimeout(() => update({ q: draft || null, page: null }), 300);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft]);
-  const rows = useMemo(() => {
-    if (!searchText || !query) return data;
-    const needle = searchKey(query);
-    return data.filter((row) => searchText(row).includes(needle));
-  }, [data, searchText, query]);
+  const [draft, setDraft] = useDebouncedInput(query, (v) => update({ q: v || null, page: null }));
 
   const sortParam = params.get(key('sort'));
   const sorting = useMemo<SortingState>(() => {
@@ -93,50 +83,42 @@ export default function DataTable<T>({
     return sortParam && columnIds.has(id) ? [{ id, desc: sortParam.startsWith('-') }] : [];
   }, [sortParam, defaultSort, columns]);
 
-  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
-  const requestedPage = Number.parseInt(params.get(key('page')) ?? '1', 10);
-  const pageIndex = Math.min(Math.max(Number.isFinite(requestedPage) ? requestedPage : 1, 1), pageCount) - 1;
-
-  const allColumns = useMemo<ColumnDef<T, unknown>[]>(
-    () =>
-      rank
-        ? [
-            {
-              id: '__rank',
-              header: '#',
-              enableSorting: false,
-              meta: { align: 'right' },
-              cell: ({ row, table }) =>
-                `${table.getPrePaginationRowModel().rows.findIndex((r) => r.id === row.id) + 1}.`,
-            },
-            ...columns,
-          ]
-        : columns,
-    [columns, rank],
-  );
-
   // TanStack Table returns non-memoizable functions; the React Compiler lint rule does not apply here.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: rows,
-    columns: allColumns,
+    data,
+    columns,
     getRowId,
-    state: { sorting, pagination: { pageIndex, pageSize } },
+    state: { sorting },
     onSortingChange: (updater) => {
       const next = typeof updater === 'function' ? updater(sorting) : updater;
       const s = next[0];
       update({ sort: s ? `${s.desc ? '-' : ''}${s.id}` : '', page: null });
     },
-    onPaginationChange: (updater) => {
-      const next = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater;
-      update({ page: next.pageIndex > 0 ? String(next.pageIndex + 1) : null });
-    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    autoResetPageIndex: false,
     enableMultiSort: false,
   });
+
+  const sortedRows = table.getSortedRowModel().rows;
+  const rankById = useMemo(() => new Map(sortedRows.map((r, i) => [r.id, i + 1])), [sortedRows]);
+  const needle = searchKey(query);
+  const visibleRows = useMemo(
+    () =>
+      sortedRows.filter(
+        (r) =>
+          (!searchText || !needle || searchText(r.original).includes(needle)) &&
+          (!extraFilter || extraFilter(r.original)),
+      ),
+    [sortedRows, searchText, needle, extraFilter],
+  );
+  const pageCount = Math.max(1, Math.ceil(visibleRows.length / pageSize));
+  const requestedPage = Number.parseInt(params.get(key('page')) ?? '1', 10);
+  const pageIndex = Math.min(Math.max(Number.isFinite(requestedPage) ? requestedPage : 1, 1), pageCount) - 1;
+  const pageRows = visibleRows.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+  const setPage = (index: number) => update({ page: index > 0 ? String(index + 1) : null });
+  const rankOf = (rowId: string, i: number) =>
+    rank === 'beforeSearch' ? rankById.get(rowId) : pageIndex * pageSize + i + 1;
 
   const windowStart = Math.max(
     0,
@@ -176,6 +158,7 @@ export default function DataTable<T>({
           <thead>
             {table.getHeaderGroups().map((group) => (
               <tr key={group.id}>
+                {rank && <th className="px-2 py-2 text-right">#</th>}
                 {group.headers.map((header) => {
                   const meta = header.column.columnDef.meta;
                   const sorted = header.column.getIsSorted();
@@ -208,8 +191,9 @@ export default function DataTable<T>({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {pageRows.map((row, i) => (
               <tr key={row.id}>
+                {rank && <td className="text-right">{rankOf(row.id, i)}.</td>}
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className={alignClass[cell.column.columnDef.meta?.align ?? 'left']}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -227,7 +211,7 @@ export default function DataTable<T>({
             className={pageButton}
             aria-label="První stránka"
             disabled={pageIndex === 0}
-            onClick={() => table.setPageIndex(0)}
+            onClick={() => setPage(0)}
           >
             «
           </button>
@@ -236,7 +220,7 @@ export default function DataTable<T>({
             className={pageButton}
             aria-label="Předchozí stránka"
             disabled={pageIndex === 0}
-            onClick={() => table.previousPage()}
+            onClick={() => setPage(pageIndex - 1)}
           >
             ‹
           </button>
@@ -246,7 +230,7 @@ export default function DataTable<T>({
               type="button"
               className={`${pageButton} ${p === pageIndex ? 'bg-primary text-white hover:bg-primary' : ''}`}
               aria-current={p === pageIndex ? 'page' : undefined}
-              onClick={() => table.setPageIndex(p)}
+              onClick={() => setPage(p)}
             >
               {p + 1}
             </button>
@@ -256,7 +240,7 @@ export default function DataTable<T>({
             className={pageButton}
             aria-label="Další stránka"
             disabled={pageIndex >= pageCount - 1}
-            onClick={() => table.nextPage()}
+            onClick={() => setPage(pageIndex + 1)}
           >
             ›
           </button>
@@ -265,7 +249,7 @@ export default function DataTable<T>({
             className={pageButton}
             aria-label="Poslední stránka"
             disabled={pageIndex >= pageCount - 1}
-            onClick={() => table.setPageIndex(pageCount - 1)}
+            onClick={() => setPage(pageCount - 1)}
           >
             »
           </button>

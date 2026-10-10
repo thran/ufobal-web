@@ -116,3 +116,18 @@ test('no pagination when one page; no search box without searchText', () => {
   expect(screen.queryByRole('navigation', { name: 'Stránkování' })).not.toBeInTheDocument();
   expect(screen.queryByPlaceholderText('hledat...')).not.toBeInTheDocument();
 });
+
+test("rank 'beforeSearch' keeps overall rank while searching", async () => {
+  setup('/?sort=-score', { rank: 'beforeSearch' });
+  await userEvent.type(screen.getByPlaceholderText('hledat...'), 'pepa');
+  await waitFor(() => expect(bodyRows()).toHaveLength(1));
+  // Pépa has score 0 → last of 20 when sorted desc
+  expect(within(bodyRows()[0]).getAllByRole('cell')[0]).toHaveTextContent('20.');
+});
+
+test('extraFilter hides rows after ranking', () => {
+  setup('/?sort=-score', { rank: 'beforeSearch', extraFilter: (r: Row) => r.score >= 18 });
+  expect(bodyRows()).toHaveLength(2);
+  expect(within(bodyRows()[0]).getAllByRole('cell')[0]).toHaveTextContent('1.');
+  expect(within(bodyRows()[1]).getAllByRole('cell')[0]).toHaveTextContent('2.');
+});
