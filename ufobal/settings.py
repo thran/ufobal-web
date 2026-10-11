@@ -54,7 +54,7 @@ MIDDLEWARE = (
     'ufobal.middleware.api_logging_middleware.ApiLoggingMiddleware',
 )
 
-if DEBUG and not ON_SERVER and not TEST:
+if DEBUG and not ON_SERVER and not TEST and not TESTING:
     INSTALLED_APPS += ('silk',)
     MIDDLEWARE += ('silk.middleware.SilkyMiddleware',)
     SILK = True

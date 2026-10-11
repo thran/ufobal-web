@@ -89,7 +89,8 @@ def test_get_players(django_assert_num_queries, client):
 
 
 @pytest.mark.django_db
-def test_get_tournaments(django_assert_num_queries, client, tournament):
+def test_get_tournaments(django_assert_num_queries, client, tournament, settings):
+    settings.TEST = True
     expected_response = {
         'category': 'Brno',
         'category_slugname': 'brno',
@@ -171,7 +172,8 @@ def test_scheduled_registration_release(client, tournament, team):
 
 
 @pytest.mark.django_db
-def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament, team):
+def test_get_teams_on_tournaments(django_assert_num_queries, client, tournament, team, settings):
+    settings.TEST = True
     tot = TeamOnTournament.objects.create(
         tournament=tournament,
         team=team,

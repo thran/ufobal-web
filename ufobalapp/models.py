@@ -12,7 +12,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from ufobal import settings
+from django.conf import settings
 
 
 def generate_pair():

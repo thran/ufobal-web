@@ -52,7 +52,8 @@ def _initial(response):
 
 
 @pytest.mark.django_db
-def test_spa_served_at_root_without_tournaments(client, spa_template):
+def test_spa_served_at_root_without_tournaments(client, spa_template, settings):
+    settings.TEST = False
     response = client.get('/players')
     assert response.status_code == 200
     assert _initial(response) == {'user': None, 'liveTournamentPk': None, 'test': False}
