@@ -34,8 +34,6 @@ export function defaultStatsFilter(thisYear: number): StatsFilter {
   };
 }
 
-export const STATS_PARAM_KEYS = ['from', 'to', 'cat', 'g', 'min', 'team'] as const;
-
 const int = (s: string | null) => (s !== null && /^-?\d+$/.test(s) ? Number(s) : undefined);
 
 export function parseStatsFilter(params: URLSearchParams, thisYear: number): StatsFilter {

@@ -27,7 +27,7 @@ test('name search keeps overall rank; team filter and gender filter apply', asyn
   mockGraphApi();
   renderWithProviders(<PlayerStatsPage />, { route: '/stats/players' });
   await screen.findByRole('link', { name: 'Brno 2023' });
-  await userEvent.type(screen.getByRole('textbox', { name: 'Jméno hráče' }), 'jana');
+  await userEvent.type(screen.getByRole('searchbox', { name: 'Jméno hráče' }), 'jana');
   await waitFor(() => expect(bodyRows()).toHaveLength(1));
   expect(bodyRows()[0]).toHaveTextContent('3.');
 });

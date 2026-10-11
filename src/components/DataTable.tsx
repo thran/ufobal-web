@@ -35,6 +35,8 @@ export interface DataTableProps<T> {
   rank?: boolean | 'beforeSearch';
   extraFilter?: (row: T) => boolean;
   searchLabel?: string;
+  /** Filter by `searchText` but leave the input to the page (it writes the same `q` param). */
+  hideSearchInput?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,6 +58,7 @@ export default function DataTable<T>({
   rank = false,
   extraFilter,
   searchLabel = 'Hledat',
+  hideSearchInput = false,
 }: DataTableProps<T>) {
   const [params, setParams] = useSearchParams();
   const key = (name: string) => urlPrefix + name;
@@ -129,7 +132,7 @@ export default function DataTable<T>({
 
   return (
     <div>
-      {searchText && (
+      {searchText && !hideSearchInput && (
         <div className="relative mb-2 max-w-[300px]">
           <input
             className="input pr-8"

@@ -3,15 +3,24 @@ import { useSearchParams } from 'react-router';
 import {
   CATEGORY_LABELS,
   parseStatsFilter,
-  STATS_PARAM_KEYS,
   statsFilterParams,
   type CategoryKey,
   type StatsFilter,
 } from '../domain/stats';
 import { useDebouncedInput } from '../hooks/useDebouncedInput';
 
+const RESET_KEYS = {
+  players: ['g', 'min', 'team', 'q'],
+  tournaments: ['from', 'to', 'cat'],
+} as const satisfies Record<string, readonly string[]>;
+export type StatsFilterGroup = keyof typeof RESET_KEYS;
+
 /** Stats filter stored in the URL; writes replace the history entry and reset pagination. */
-export function useStatsFilter(): [StatsFilter, (patch: Partial<StatsFilter>) => void, () => void] {
+export function useStatsFilter(): [
+  StatsFilter,
+  (patch: Partial<StatsFilter>) => void,
+  (group: StatsFilterGroup) => void,
+] {
   const [params, setParams] = useSearchParams();
   const paramsKey = params.toString();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -31,19 +40,38 @@ export function useStatsFilter(): [StatsFilter, (patch: Partial<StatsFilter>) =>
     },
     [setParams],
   );
-  const reset = useCallback(() => {
+  const reset = useCallback(
+    (group: StatsFilterGroup) => {
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const k of RESET_KEYS[group]) next.delete(k);
+          next.delete('page');
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setParams],
+  );
+  return [filter, set, reset];
+}
+
+/** Player name search shared with DataTable through the `q` URL param. */
+function useNameSearch() {
+  const [params, setParams] = useSearchParams();
+  return useDebouncedInput(params.get('q') ?? '', (v) =>
     setParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        for (const k of STATS_PARAM_KEYS) next.delete(k);
-        next.delete('q');
+        if (v) next.set('q', v);
+        else next.delete('q');
         next.delete('page');
         return next;
       },
       { replace: true },
-    );
-  }, [setParams]);
-  return [filter, set, reset];
+    ),
+  );
 }
 
 /** Empty clears the bound; non-numeric input leaves the filter unchanged. */
@@ -55,6 +83,19 @@ function yearPatch(v: string): number | null | undefined {
 
 const CATEGORY_ORDER: CategoryKey[] = ['nizkov', 'brno', 'hala', 'liga', 'other'];
 
+function CrossIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="size-3.5" stroke="currentColor" strokeWidth={3.5} aria-hidden>
+      <path d="M2 2l12 12M14 2L2 14" />
+    </svg>
+  );
+}
+
+const fieldsetClass = 'relative mb-4 border border-[#ddd] px-5 pt-2 pb-5';
+const legendClass = 'bg-white px-1 font-bold';
+const labelClass = 'block text-sm text-[#4d4d4d]';
+const resetClass = 'absolute top-0 right-3 cursor-pointer p-1 text-gray-500 hover:text-black';
+
 export default function StatsFilterForm({
   filter,
   onChange,
@@ -64,10 +105,11 @@ export default function StatsFilterForm({
 }: {
   filter: StatsFilter;
   onChange: (patch: Partial<StatsFilter>) => void;
-  onReset: () => void;
+  onReset: (group: StatsFilterGroup) => void;
   showLiga: boolean;
   showMinMatches: boolean;
 }) {
+  const [name, setName] = useNameSearch();
   const [team, setTeam] = useDebouncedInput(filter.team, (v) => onChange({ team: v }));
   const [minMatches, setMinMatches] = useDebouncedInput(String(filter.minMatches), (v) =>
     onChange({ minMatches: Math.max(0, Number(v) || 0) }),
@@ -83,48 +125,69 @@ export default function StatsFilterForm({
     const year = yearPatch(v);
     if (year !== undefined) onChange({ yearTo: year });
   });
+  const categories = CATEGORY_ORDER.filter((k) => k !== 'liga' || showLiga);
 
   return (
-    <div className="mb-4 gap-4 md:grid md:grid-cols-2">
-      <fieldset className="border p-3">
-        <legend className="px-1">Filtrování hráčů</legend>
-        <div className="flex flex-wrap items-center gap-3">
-          <label>
-            <input
-              type="checkbox"
-              checked={filter.man}
-              onChange={() => onChange({ man: !filter.man })}
-              aria-label="Muži"
-            />
-            ♂
-          </label>
-          <label>
+    <div className="gap-8 md:grid md:grid-cols-2">
+      <fieldset className={fieldsetClass}>
+        <legend className={legendClass}>Filtrování hráčů</legend>
+        <button
+          type="button"
+          className={resetClass}
+          aria-label="Zrušit filtrování hráčů"
+          title="Zrušit filtrování hráčů"
+          onClick={() => onReset('players')}
+        >
+          <CrossIcon />
+        </button>
+        <div className="absolute top-0.5 right-11 flex gap-3 text-sm">
+          <label className="flex items-center gap-1">
+            ♀
             <input
               type="checkbox"
               checked={filter.woman}
               onChange={() => onChange({ woman: !filter.woman })}
               aria-label="Ženy"
             />
-            ♀
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-1">
+            ♂
+            <input
+              type="checkbox"
+              checked={filter.man}
+              onChange={() => onChange({ man: !filter.man })}
+              aria-label="Muži"
+            />
+          </label>
+        </div>
+        <div className={`mt-5 grid gap-4 ${showMinMatches ? 'grid-cols-[3fr_3fr_2fr]' : 'grid-cols-2'}`}>
+          <label className={labelClass}>
+            Jméno hráče
+            <input
+              type="search"
+              className="input"
+              placeholder="jméno"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+          <label className={labelClass}>
             Jméno týmu
             <input
+              type="search"
               className="input"
               placeholder="tým"
-              aria-label="Jméno týmu"
               value={team}
               onChange={(e) => setTeam(e.target.value)}
             />
           </label>
           {showMinMatches && (
-            <label className="flex items-center gap-2">
+            <label className={labelClass}>
               Zápasů
               <input
                 type="number"
                 min={0}
-                className="input w-24"
-                aria-label="Zápasů"
+                className="input"
                 value={minMatches}
                 onChange={(e) => setMinMatches(e.target.value)}
               />
@@ -132,51 +195,52 @@ export default function StatsFilterForm({
           )}
         </div>
       </fieldset>
-      <fieldset className="border p-3">
-        <legend className="px-1">Filtrování turnajů</legend>
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2">
+      <fieldset className={fieldsetClass}>
+        <legend className={legendClass}>Filtrování turnajů</legend>
+        <button
+          type="button"
+          className={resetClass}
+          aria-label="Obnovit výchozí filtr turnajů"
+          title="Obnovit výchozí filtr turnajů"
+          onClick={() => onReset('tournaments')}
+        >
+          <CrossIcon />
+        </button>
+        <div className="mt-5 grid grid-cols-[1fr_1fr_2fr] items-start gap-4">
+          <label className={labelClass}>
             od roku
             <input
               type="number"
-              className="input w-24"
+              className="input"
               placeholder="rok"
-              aria-label="od roku"
               value={yearFrom}
               onChange={(e) => setYearFrom(e.target.value)}
             />
           </label>
-          <label className="flex items-center gap-2">
+          <label className={labelClass}>
             do roku
             <input
               type="number"
-              className="input w-24"
+              className="input"
               placeholder="rok"
-              aria-label="do roku"
               value={yearTo}
               onChange={(e) => setYearTo(e.target.value)}
             />
           </label>
-          {CATEGORY_ORDER.filter((k) => k !== 'liga' || showLiga).map((k) => (
-            <label key={k}>
-              <input
-                type="checkbox"
-                checked={filter.categories[k]}
-                onChange={() =>
-                  onChange({ categories: { ...filter.categories, [k]: !filter.categories[k] } })
-                }
-              />{' '}
-              {CATEGORY_LABELS[k]}
-            </label>
-          ))}
-          <button
-            type="button"
-            className="btn btn-secondary"
-            aria-label="Obnovit výchozí filtr"
-            onClick={onReset}
-          >
-            ×
-          </button>
+          <div className="flex flex-wrap gap-x-2 gap-y-1">
+            {categories.map((k) => (
+              <label key={k} className={`${labelClass} flex flex-col items-center`}>
+                {CATEGORY_LABELS[k]}
+                <input
+                  type="checkbox"
+                  checked={filter.categories[k]}
+                  onChange={() =>
+                    onChange({ categories: { ...filter.categories, [k]: !filter.categories[k] } })
+                  }
+                />
+              </label>
+            ))}
+          </div>
         </div>
       </fieldset>
     </div>

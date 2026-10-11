@@ -16,10 +16,22 @@ function Probe() {
   );
 }
 
-test('reset clears stats params, name search and page', async () => {
+test('player reset clears player params, name search and page', async () => {
   renderWithProviders(<Probe />, { route: '/?from=2020&g=w&team=ufo&q=jana&page=2&keep=1' });
-  await userEvent.click(screen.getByRole('button', { name: 'Obnovit výchozí filtr' }));
-  expect(screen.getByTestId('search')).toHaveTextContent(/^\?keep=1$/);
+  await userEvent.click(screen.getByRole('button', { name: 'Zrušit filtrování hráčů' }));
+  expect(screen.getByTestId('search')).toHaveTextContent(/^\?from=2020&keep=1$/);
+});
+
+test('tournament reset clears only tournament params', async () => {
+  renderWithProviders(<Probe />, { route: '/?from=2020&cat=brno&g=w&page=2' });
+  await userEvent.click(screen.getByRole('button', { name: 'Obnovit výchozí filtr turnajů' }));
+  expect(screen.getByTestId('search')).toHaveTextContent(/^\?g=w$/);
+});
+
+test('name search writes q and resets page', async () => {
+  renderWithProviders(<Probe />, { route: '/?page=3' });
+  await userEvent.type(screen.getByRole('searchbox', { name: 'Jméno hráče' }), 'jana');
+  await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent(/^\?q=jana$/));
 });
 
 test('decimal year is truncated, not dropped', async () => {

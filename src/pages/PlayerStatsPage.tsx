@@ -90,8 +90,7 @@ export default function PlayerStatsPage() {
           getRowId={getRowId}
           rank="beforeSearch"
           searchText={searchText}
-          searchPlaceholder="jméno"
-          searchLabel="Jméno hráče"
+          hideSearchInput
           extraFilter={extraFilter}
           defaultSort={defaultSort}
         />
