@@ -21,12 +21,17 @@ export default function UserMenu() {
   return (
     <>
       <Menu as="div" className="relative">
-        <MenuButton className="px-4 py-3 text-white hover:bg-topbar-hover">{label}</MenuButton>
+        <MenuButton className="w-full px-[15px] py-3 text-left whitespace-nowrap text-white hover:bg-topbar-hover lg:py-0 lg:leading-[45px]">
+          {label}
+        </MenuButton>
         <MenuItems anchor="bottom end" className="z-40 min-w-48 bg-topbar shadow-lg focus:outline-none">
           {user ? (
             <>
               <MenuItem>
-                <button className={itemClass} onClick={() => navigate(user.player ? playerPath(user.player) : '/pair-account')}>
+                <button
+                  className={itemClass}
+                  onClick={() => navigate(user.player ? playerPath(user.player) : '/pair-account')}
+                >
                   Profil hráče
                 </button>
               </MenuItem>
