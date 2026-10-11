@@ -21,6 +21,7 @@ import { ICONS } from '../components/match/icons';
 import { MatchStatus } from '../components/match/MatchStatus';
 import { PenaltyCountdowns } from '../components/match/PenaltyCountdowns';
 import { Scoreboard } from '../components/match/Scoreboard';
+import { SwitchToggle } from '../components/match/SwitchToggle';
 import { SyncStatus } from '../components/match/SyncStatus';
 import { TeamNames } from '../components/match/TeamNames';
 import Spinner from '../components/Spinner';
@@ -385,8 +386,9 @@ function Recorder({
         left={{ name: totName(leftTeam), colorClass: teamColor(leftTeam) }}
         right={{ name: totName(rightTeam), colorClass: teamColor(rightTeam) }}
         onSwap={() => dispatch({ type: 'swapSides' })}
+        aside={<SwitchToggle label="úpravy" checked={editMode} onChange={setEditMode} />}
       />
-      <div className="my-1 flex justify-center gap-4 text-sm">
+      <div data-testid="toggles-mobile" className="my-1 flex justify-center gap-4 text-sm md:hidden">
         <label>
           <input type="checkbox" checked={editMode} onChange={(e) => setEditMode(e.target.checked)} /> úpravy
         </label>
@@ -404,6 +406,7 @@ function Recorder({
       <Scoreboard
         left={{ ...eventCounts(state.events, leftTeam), colorClass: teamColor(leftTeam) }}
         right={{ ...eventCounts(state.events, rightTeam), colorClass: teamColor(rightTeam) }}
+        aside={<SwitchToggle label="střely" checked={showShots} onChange={setShowShots} />}
       />
       {canAct && (
         <div className="my-2 grid grid-cols-2 gap-2 md:grid-cols-[5fr_2fr_5fr]">

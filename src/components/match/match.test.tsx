@@ -9,6 +9,7 @@ import { MatchStatus } from './MatchStatus';
 import { PenaltyCountdowns } from './PenaltyCountdowns';
 import { PlayerTiles } from './PlayerTiles';
 import { Scoreboard } from './Scoreboard';
+import { SwitchToggle } from './SwitchToggle';
 import { SyncStatus } from './SyncStatus';
 import { TeamNames } from './TeamNames';
 
@@ -182,7 +183,8 @@ test('EventList shows sync state, error actions, and disables in-flight remove',
   const mobile = within(screen.getByTestId('events-mobile'));
   expect(mobile.getAllByTitle('Neuloženo')).toHaveLength(2);
   expect(mobile.getAllByLabelText('Neuloženo')).toHaveLength(2);
-  expect(mobile.getAllByRole('button', { name: 'Smazat' })[0]).toHaveClass('min-h-11', 'min-w-11');
+  // Visually small, but the ::after overlay keeps a 44px tap area.
+  expect(mobile.getAllByRole('button', { name: 'Smazat' })[0]).toHaveClass('after:-inset-3');
   expect(mobile.getByText(/Chyba serveru/)).toHaveClass('text-alert');
   expect(mobile.getAllByRole('button', { name: 'Zkusit znovu' })).toHaveLength(2);
   // Errored events with a pk (failed edits) can be discarded too.
@@ -295,7 +297,7 @@ test('GoalieRow, TeamNames, PenaltyCountdowns', async () => {
   expect(screen.getByText(/00:59/)).toHaveTextContent('⚠ 00:59 - Adam');
 });
 
-test('EventList mobile reserves the wide action column only when editable', () => {
+test('EventList columns do not change with edit mode', () => {
   const events: MatchEvent[] = [
     {
       id: 'g',
@@ -316,9 +318,24 @@ test('EventList mobile reserves the wide action column only when editable', () =
   };
   const { rerender } = render(<EventList {...props} editable={false} />);
   const row = () => within(screen.getByTestId('events-mobile')).getByText(/gól:/).closest('.grid')!;
-  expect(row().className).not.toContain('9.5rem');
-  expect(row().children).toHaveLength(2);
-  rerender(<EventList {...props} editable />);
-  expect(row().className).toContain('9.5rem');
+  const before = row().className;
   expect(row().children).toHaveLength(3);
+  rerender(<EventList {...props} editable />);
+  expect(row().className).toBe(before);
+  expect(row().children).toHaveLength(3);
+  expect(screen.getAllByRole('button', { name: 'Smazat' })).toHaveLength(2);
+});
+
+test('SwitchToggle in the Scoreboard aside toggles', async () => {
+  const onChange = vi.fn();
+  const side = { goals: 0, shots: 0, colorClass: '' };
+  render(
+    <Scoreboard
+      left={side}
+      right={side}
+      aside={<SwitchToggle label="střely" checked={false} onChange={onChange} />}
+    />,
+  );
+  await userEvent.click(screen.getByRole('checkbox', { name: 'střely' }));
+  expect(onChange).toHaveBeenCalledWith(true);
 });

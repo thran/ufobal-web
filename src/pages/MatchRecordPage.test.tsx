@@ -110,7 +110,9 @@ test('shot is sent immediately and listed', async () => {
   const body = bodiesOf(fetchMock, 'add_shot')[0];
   expect(body).toMatchObject({ match: 600, team: 1000 });
   expect(body.client_id).toEqual(expect.any(String));
-  await userEvent.click(screen.getByRole('checkbox', { name: 'střely' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'střely' }),
+  );
   expect(within(screen.getByTestId('events-mobile')).getByText('střela')).toBeInTheDocument();
 });
 
@@ -158,7 +160,9 @@ test('running clock and unsaved shot survive a reload', async () => {
   first.unmount();
 
   render();
-  await userEvent.click(await screen.findByRole('checkbox', { name: 'střely' }));
+  await userEvent.click(
+    within(await screen.findByTestId('toggles-mobile')).getByRole('checkbox', { name: 'střely' }),
+  );
   const list = within(screen.getByTestId('events-mobile'));
   expect(list.getByText('střela')).toBeInTheDocument();
   expect(list.getByLabelText('Neuloženo')).toHaveTextContent('⛓');
@@ -174,7 +178,9 @@ test('ended match hides action buttons until edit mode', async () => {
   expect(await screen.findByText('zápas ukončen')).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Gól Ufo' })).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Čas zápasu' })).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('checkbox', { name: 'úpravy' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'úpravy' }),
+  );
   expect(screen.getByRole('button', { name: 'Gól Ufo' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Karta KOM' })).toBeInTheDocument();
 });
@@ -204,8 +210,12 @@ test('remove uses the current pk when the event synced while confirming', async 
   await kickoff();
   // The kickoff patch is still in flight, so the shot waits unsent (and is not in flight itself).
   await userEvent.click(screen.getByRole('button', { name: 'Střela Ufo' }));
-  await userEvent.click(screen.getByRole('checkbox', { name: 'úpravy' }));
-  await userEvent.click(screen.getByRole('checkbox', { name: 'střely' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'úpravy' }),
+  );
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'střely' }),
+  );
   const list = within(screen.getByTestId('events-mobile'));
   await userEvent.click(list.getByRole('button', { name: 'Smazat' }));
   expect(await screen.findByText('Opravdu smazat?')).toBeInTheDocument();
@@ -271,7 +281,9 @@ test('removing an event the server no longer has (404) succeeds silently', async
   });
   render();
   const list = within(await screen.findByTestId('events-mobile'));
-  await userEvent.click(screen.getByRole('checkbox', { name: 'úpravy' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'úpravy' }),
+  );
   await userEvent.click(list.getByRole('button', { name: 'Smazat' }));
   await userEvent.click(await screen.findByRole('button', { name: 'Ano' }));
   await waitFor(() => expect(list.queryByText('Pépa')).not.toBeInTheDocument());
@@ -298,7 +310,9 @@ test('remove and edit buttons appear only in edit mode', async () => {
   expect(list.getByText('Pépa')).toBeInTheDocument();
   expect(list.queryByRole('button', { name: 'Smazat' })).not.toBeInTheDocument();
   expect(list.queryByRole('button', { name: 'Upravit' })).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('checkbox', { name: 'úpravy' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'úpravy' }),
+  );
   expect(list.getByRole('button', { name: 'Smazat' })).toBeInTheDocument();
   expect(list.getByRole('button', { name: 'Upravit' })).toBeInTheDocument();
 });
@@ -313,7 +327,9 @@ test('discarding a failed edit of a saved event removes it locally and asks for 
   });
   render();
   const list = within(await screen.findByTestId('events-mobile'));
-  await userEvent.click(screen.getByRole('checkbox', { name: 'úpravy' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'úpravy' }),
+  );
   await userEvent.click(list.getByRole('button', { name: 'Upravit' }));
   const dialog = within(await screen.findByRole('dialog'));
   await userEvent.clear(dialog.getByLabelText('Čas'));

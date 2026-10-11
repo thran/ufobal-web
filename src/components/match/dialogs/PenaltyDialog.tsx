@@ -34,7 +34,7 @@ function PenaltyDialogBody({ teamName, players, onSave, onClose }: Omit<Props, '
         <div className="flex flex-col gap-3">
           <label className="flex flex-col">
             Karta
-            <select value={card} onChange={(e) => setCard(e.target.value as CardType)}>
+            <select className="input" value={card} onChange={(e) => setCard(e.target.value as CardType)}>
               {CARDS.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.text}
@@ -45,6 +45,7 @@ function PenaltyDialogBody({ teamName, players, onSave, onClose }: Omit<Props, '
           <label className="flex flex-col">
             Odůvodnění
             <select
+              className="input"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               onBlur={v.touch('reason')}
@@ -61,6 +62,7 @@ function PenaltyDialogBody({ teamName, players, onSave, onClose }: Omit<Props, '
           <FieldError error={v.error('reason')} />
           <input
             type="text"
+            className="input"
             aria-label="dodatečné info"
             placeholder="dodatečné info"
             value={extra}

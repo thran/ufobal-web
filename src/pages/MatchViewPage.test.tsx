@@ -29,7 +29,9 @@ test('renders events, score, referee, live toggle; shots hidden until ticked', a
   expect(screen.getByRole('checkbox', { name: 'živě' })).toBeChecked();
   expect(screen.queryByRole('link', { name: 'Zaznamenávat' })).not.toBeInTheDocument();
   expect(list.queryByText(/střela/)).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('checkbox', { name: 'střely' }));
+  await userEvent.click(
+    within(screen.getByTestId('toggles-mobile')).getByRole('checkbox', { name: 'střely' }),
+  );
   expect(list.getByText(/střela/)).toBeInTheDocument();
 });
 

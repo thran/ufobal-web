@@ -14,7 +14,7 @@ export function RefereeDialog({ open, players, value, onSave, onClose }: Props) 
     <Modal open onClose={onClose} title="Volba hlavního rozhodčího">
       <select
         aria-label="Hlavní rozhodčí"
-        className="w-full"
+        className="input"
         value={value ?? ''}
         onChange={(e) => e.target.value && onSave(Number(e.target.value))}
       >

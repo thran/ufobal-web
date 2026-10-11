@@ -10,6 +10,7 @@ import {
 } from '../../domain/matchEvents';
 import { shortTime } from '../../domain/time';
 import { ICONS } from './icons';
+import { PencilIcon, TrashIcon } from './svgIcons';
 
 interface Props {
   events: MatchEvent[];
@@ -103,12 +104,16 @@ export function EventList({
     </div>
   );
 
+  // Small icon with a 44px tap area that does not take layout space, so rows stay compact.
+  const iconClass =
+    "relative flex size-5 cursor-pointer items-center justify-center text-gray-500 after:absolute after:-inset-3 after:content-[''] hover:text-[#222] disabled:cursor-default disabled:opacity-40";
+
   const unlink = (e: MatchEvent) =>
     !e.saved && (
       <span
         title="Neuloženo"
         aria-label="Neuloženo"
-        className="flex min-h-11 min-w-11 items-center justify-center text-warning"
+        className="flex size-5 items-center justify-center text-warning"
       >
         {ICONS.unlink}
       </span>
@@ -122,11 +127,11 @@ export function EventList({
       <button
         type="button"
         aria-label="Smazat"
-        className="min-h-11 min-w-11 cursor-pointer disabled:opacity-40"
+        className={`${iconClass} hover:text-alert`}
         disabled={e.id === inFlightId}
         onClick={() => onRemove?.(e)}
       >
-        {ICONS.remove}
+        <TrashIcon />
       </button>
     );
   const edit = (e: MatchEvent) =>
@@ -135,35 +140,33 @@ export function EventList({
       <button
         type="button"
         aria-label="Upravit"
-        className="min-h-11 min-w-11 cursor-pointer disabled:opacity-40"
+        className={iconClass}
         disabled={e.id === inFlightId}
         onClick={() => onEdit?.(e)}
       >
-        {ICONS.edit}
+        <PencilIcon />
       </button>
     );
-
-  const hasActions = editable || visible.some((e) => !e.saved);
-  const mobileColumns = editable
-    ? 'grid-cols-[minmax(9.5rem,max-content)_3rem_1fr]'
-    : hasActions
-      ? 'grid-cols-[2.75rem_3rem_1fr]'
-      : 'grid-cols-[3rem_1fr]';
+  // Fixed-size slots keep columns in place whether or not edit mode is on.
+  const slot = (content: ReactNode) => (
+    <span className="flex size-5 items-center justify-center">{content}</span>
+  );
 
   return (
     <div>
       <div data-testid="events-mobile" className="md:hidden">
         {visible.map((e) => (
-          <div key={e.id} className={`grid ${mobileColumns} items-center gap-2 py-1 even:bg-black/10`}>
-            {hasActions && (
-              <div className="flex gap-2">
-                {unlink(e)}
-                {remove(e)}
-                {edit(e)}
-              </div>
-            )}
-            <div>{shortTime(e.time)}</div>
-            {text(e)}
+          <div
+            key={e.id}
+            className="grid grid-cols-[4.25rem_2.75rem_1fr] items-start gap-x-2 even:bg-black/10"
+          >
+            <div className="flex h-6 items-center justify-end gap-1">
+              {slot(unlink(e))}
+              {slot(remove(e))}
+              {slot(edit(e))}
+            </div>
+            <div className="text-right leading-6">{shortTime(e.time)}</div>
+            <div className="leading-6">{text(e)}</div>
           </div>
         ))}
       </div>
@@ -171,7 +174,7 @@ export function EventList({
         {visible.map((e) => {
           if (e.team == null)
             return (
-              <div key={e.id} className="py-1 text-center even:bg-black/10">
+              <div key={e.id} className="text-center leading-6">
                 <span>{shortTime(e.time)}</span>
                 {text(e)}
               </div>
@@ -179,14 +182,14 @@ export function EventList({
           return (
             <div
               key={e.id}
-              className="grid grid-cols-[1fr_minmax(13rem,max-content)_1fr] gap-2 py-1 even:bg-black/10 hover:bg-yellow-200/25"
+              className="grid grid-cols-[1fr_8rem_1fr] gap-x-2 leading-6 hover:bg-yellow-200/25"
             >
               <div className="text-right">{e.team === sides.left && text(e)}</div>
-              <div className="flex items-center justify-center gap-2">
-                {unlink(e)}
-                {edit(e)}
-                <span>{shortTime(e.time)}</span>
-                {remove(e)}
+              <div className="flex h-6 items-center justify-center gap-1">
+                {slot(unlink(e))}
+                {slot(edit(e))}
+                <span className="w-11 text-center">{shortTime(e.time)}</span>
+                {slot(remove(e))}
               </div>
               <div className="text-left">{e.team !== sides.left && text(e)}</div>
             </div>

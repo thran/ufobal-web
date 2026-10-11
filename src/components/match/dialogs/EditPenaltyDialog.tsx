@@ -29,12 +29,12 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
       <div className="flex flex-col gap-3">
         <label className="flex flex-col">
           Čas
-          <input type="text" value={time} onChange={(e) => setTime(e.target.value)} />
+          <input type="text" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
         </label>
         {!valid && <p className="text-alert">Neplatný čas (HH:MM:SS).</p>}
         <label className="flex flex-col">
           Hráč
-          <select value={player} onChange={(e) => setPlayer(Number(e.target.value))}>
+          <select className="input" value={player} onChange={(e) => setPlayer(Number(e.target.value))}>
             {players.map((p) => (
               <option key={p.pk} value={p.pk}>
                 {p.nickname}
@@ -44,7 +44,7 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
         </label>
         <label className="flex flex-col">
           Karta
-          <select value={card} onChange={(e) => setCard(e.target.value as CardType)}>
+          <select className="input" value={card} onChange={(e) => setCard(e.target.value as CardType)}>
             {CARDS.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.text}
@@ -55,6 +55,7 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
         <label className="flex flex-col">
           Odůvodnění
           <textarea
+            className="input"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             onBlur={v.touch('reason')}

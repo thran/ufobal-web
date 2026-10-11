@@ -42,12 +42,13 @@ function EditGoalBody({ teamName, players, event, onSave, onClose }: Omit<Props,
       <div className="flex flex-col gap-3">
         <label className="flex flex-col">
           Čas
-          <input type="text" value={time} onChange={(e) => setTime(e.target.value)} />
+          <input type="text" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
         </label>
         {!valid && <p className="text-alert">Neplatný čas (HH:MM:SS).</p>}
         <label className="flex flex-col">
           Střelec
           <select
+            className="input"
             value={shooter ?? ''}
             onChange={(e) => setShooter(toPk(e.target.value))}
             onBlur={v.touch('shooter')}
@@ -60,14 +61,22 @@ function EditGoalBody({ teamName, players, event, onSave, onClose }: Omit<Props,
         <FieldError error={v.error('shooter')} />
         <label className="flex flex-col">
           Asistence
-          <select value={assistance ?? ''} onChange={(e) => setAssistance(toPk(e.target.value))}>
+          <select
+            className="input"
+            value={assistance ?? ''}
+            onChange={(e) => setAssistance(toPk(e.target.value))}
+          >
             <option value="">----</option>
             {playerOptions}
           </select>
         </label>
         <label className="flex flex-col">
           Typ gólu
-          <select value={goalType} onChange={(e) => setGoalType(e.target.value as GoalType)}>
+          <select
+            className="input"
+            value={goalType}
+            onChange={(e) => setGoalType(e.target.value as GoalType)}
+          >
             {GOAL_TYPES.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.text}

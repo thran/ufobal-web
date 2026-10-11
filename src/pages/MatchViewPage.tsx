@@ -8,6 +8,7 @@ import { EventList } from '../components/match/EventList';
 import { GoalieRow } from '../components/match/GoalieRow';
 import { MatchStatus } from '../components/match/MatchStatus';
 import { Scoreboard } from '../components/match/Scoreboard';
+import { SwitchToggle } from '../components/match/SwitchToggle';
 import { TeamNames } from '../components/match/TeamNames';
 import Spinner from '../components/Spinner';
 import { computeGoalies, eventCounts, serverEvents } from '../domain/matchEvents';
@@ -110,8 +111,9 @@ export default function MatchViewPage() {
       <Scoreboard
         left={{ ...leftCounts, colorClass: left.colorClass }}
         right={{ ...rightCounts, colorClass: right.colorClass }}
+        aside={<SwitchToggle label="střely" checked={showShots} onChange={setShowShots} />}
       />
-      <label className="my-2 block text-center">
+      <label data-testid="toggles-mobile" className="my-2 block text-center md:hidden">
         <input
           type="checkbox"
           aria-label="střely"
