@@ -5,8 +5,8 @@ import os
 import qrcode
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import models, transaction
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.utils import timezone
@@ -26,7 +26,39 @@ def generate_pair():
             return token
 
 
-class Player(models.Model):
+class MergeableModel(models.Model):
+    """A record that admins occasionally need to deduplicate by hand."""
+
+    class Meta:
+        abstract = True
+
+    @transaction.atomic
+    def merge_duplicates(self, duplicates):
+        """Repoint everything referencing ``duplicates`` at this object, then delete them."""
+        # for every model pointing at us: {related model: [names of the fields pointing here]}
+        foreign_key_fields = dict()
+        many_to_many_fields = dict()
+
+        for relation in self._meta.related_objects:
+            by_model = many_to_many_fields if relation.many_to_many else foreign_key_fields
+            by_model.setdefault(relation.related_model, []).append(relation.field.name)
+
+        for duplicate in duplicates:
+            for related_model, field_names in foreign_key_fields.items():
+                for field_name in field_names:
+                    related_model.objects.filter(**{field_name: duplicate}).update(**{field_name: self})
+
+            for related_model, field_names in many_to_many_fields.items():
+                for field_name in field_names:
+                    for related_object in related_model.objects.filter(**{field_name: duplicate}):
+                        related_set = getattr(related_object, field_name)  # gets attribute from string
+                        related_set.remove(duplicate)
+                        related_set.add(self)
+
+            duplicate.delete()
+
+
+class Player(MergeableModel):
     class Meta:
         verbose_name = "hráč"
         verbose_name_plural = "hráči"
@@ -127,7 +159,7 @@ class Player(models.Model):
         return request.get_host() + "/sparovat_ucet/" + self.pairing_token
 
 
-class Team(models.Model):
+class Team(MergeableModel):
     class Meta:
         verbose_name = "tým"
         verbose_name_plural = "týmy"
@@ -147,6 +179,24 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name_short if self.name_short else self.name
+
+    def merge_duplicates(self, duplicates):
+        self.check_never_met(duplicates)
+        super().merge_duplicates(duplicates)
+
+    def check_never_met(self, duplicates):
+        """Two teams that played the same tournament are rivals, not one team entered twice."""
+        shared = (
+            Tournament.objects.filter(teams__team__in=[self, *duplicates])
+            .annotate(team_count=models.Count('teams__team', distinct=True))
+            .filter(team_count__gt=1)
+        )
+
+        if shared:
+            raise ValidationError(
+                'Nelze sloučit týmy, které spolu byly na turnaji: %s'
+                % ', '.join(str(tournament) for tournament in shared)
+            )
 
 
 class TeamOnTournamentManager(models.Manager):
