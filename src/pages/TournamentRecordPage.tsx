@@ -5,6 +5,7 @@ import { isStaff } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
+import { FieldError, useValidation } from '../components/forms/validation';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
 import type { Graph, TotVM } from '../domain/graph';
@@ -83,25 +84,27 @@ function AddMatchDialog({
   const [two, setTwo] = useState('');
   const [ref, setRef] = useState('');
   const [place, setPlace] = useState('');
-  const [clash, setClash] = useState(false);
   const fields = Array.from({ length: tournament.field_count }, (_, i) => String(i + 1));
-  const complete = !!(one && two && ref && place);
+  const v = useValidation({
+    one: !one && 'Vyber tým.',
+    two: (!two && 'Vyber tým.') || (two === one && 'Tým hraje sám se sebou.'),
+    ref:
+      (!ref && 'Vyber rozhodčí tým.') ||
+      ((ref === one || ref === two) && 'Rozhodčí tým nesmí hrát tento zápas.'),
+    place: !place && 'Vyber hřiště.',
+  });
 
   const reset = () => {
     setOne('');
     setTwo('');
     setRef('');
     setPlace('');
-    setClash(false);
+    v.reset();
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (new Set([one, two, ref]).size < 3) {
-      setClash(true);
-      return;
-    }
-    setClash(false);
+    if (!v.attempt()) return;
     addMatch.mutate(
       {
         tournament: tournament.pk,
@@ -120,26 +123,35 @@ function AddMatchDialog({
     );
   };
 
-  const select = (label: string, value: string, set: (v: string) => void) => (
-    <label className="mb-3 block">
-      {label}
-      <select className="input" value={value} onChange={(e) => set(e.target.value)}>
-        <option value="">----</option>
-        {tots.map((t) => (
-          <option key={t.pk} value={t.pk}>
-            {t.name}
-          </option>
-        ))}
-      </select>
-    </label>
+  const select = (key: 'one' | 'two' | 'ref', label: string, value: string, set: (v: string) => void) => (
+    <div className="mb-3">
+      <label className="block">
+        {label}
+        <select
+          className="input"
+          value={value}
+          onChange={(e) => set(e.target.value)}
+          onBlur={v.touch(key)}
+          aria-invalid={!!v.error(key)}
+        >
+          <option value="">----</option>
+          {tots.map((t) => (
+            <option key={t.pk} value={t.pk}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <FieldError error={v.error(key)} />
+    </div>
   );
 
   return (
     <Modal open={open} onClose={onClose} title="Nový zápas">
       <form onSubmit={submit}>
-        {select('Tým 1', one, setOne)}
-        {select('Tým 2', two, setTwo)}
-        {select('Rozhodčí tým', ref, setRef)}
+        {select('one', 'Tým 1', one, setOne)}
+        {select('two', 'Tým 2', two, setTwo)}
+        {select('ref', 'Rozhodčí tým', ref, setRef)}
         <fieldset className="mb-3">
           <legend>Hřiště</legend>
           <div className="flex gap-4">
@@ -156,9 +168,9 @@ function AddMatchDialog({
               </label>
             ))}
           </div>
+          <FieldError error={v.error('place')} />
         </fieldset>
-        {clash && <p className="mb-3 text-red-600">Některý z vybraných týmů se shoduje.</p>}
-        <button type="submit" className="btn btn-primary" disabled={!complete || addMatch.isPending}>
+        <button type="submit" className="btn btn-primary" disabled={addMatch.isPending}>
           Vytvořit
         </button>
       </form>

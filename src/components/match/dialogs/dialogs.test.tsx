@@ -87,9 +87,11 @@ test('PenaltyDialog requires a reason and appends extra info', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Beta' }));
   expect(screen.getByText('Karta - Tým A - Beta')).toBeInTheDocument();
   const give = screen.getByRole('button', { name: 'Udělit' });
-  expect(give).toBeDisabled();
+  await userEvent.click(give);
+  expect(screen.getByText(/Vyber odůvodnění/)).toBeInTheDocument();
+  expect(onSave).not.toHaveBeenCalled();
   await userEvent.selectOptions(screen.getByLabelText('Odůvodnění'), 'Držení');
-  expect(give).toBeEnabled();
+  expect(screen.queryByText(/Vyber odůvodnění/)).toBeNull();
   await userEvent.selectOptions(screen.getByLabelText('Karta'), 'červená');
   await userEvent.type(screen.getByPlaceholderText('dodatečné info'), 'opakovaně');
   await userEvent.click(give);
@@ -193,7 +195,7 @@ test('EditGoalDialog rejects an invalid time and saves a valid one', async () =>
   expect(onSave).toHaveBeenCalledWith('00:12:34', { shooter: 1, assistance: null, goalType: 'penalty' });
 });
 
-test('EditGoalDialog disables saving without a shooter', async () => {
+test('EditGoalDialog explains a missing shooter', async () => {
   const onSave = vi.fn();
   render(
     <EditGoalDialog
@@ -206,9 +208,12 @@ test('EditGoalDialog disables saving without a shooter', async () => {
     />,
   );
   await userEvent.selectOptions(screen.getByLabelText('Střelec'), '----');
-  expect(screen.getByRole('button', { name: 'Upravit' })).toBeDisabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Upravit' }));
+  expect(screen.getByText(/Vyber střelce/)).toBeInTheDocument();
+  expect(onSave).not.toHaveBeenCalled();
   await userEvent.selectOptions(screen.getByLabelText('Střelec'), 'Beta');
-  expect(screen.getByRole('button', { name: 'Upravit' })).toBeEnabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Upravit' }));
+  expect(onSave).toHaveBeenCalled();
 });
 
 test('EditPenaltyDialog saves edited fields', async () => {
@@ -238,7 +243,7 @@ test('EditPenaltyDialog saves edited fields', async () => {
   expect(onSave).toHaveBeenCalledWith('00:10:00', { player: 3, card: 'red', reason: 'Jiné' });
 });
 
-test('EditPenaltyDialog trims the reason and disables saving when it is empty', async () => {
+test('EditPenaltyDialog trims the reason and explains when it is empty', async () => {
   const onSave = vi.fn();
   const event: MatchEvent = {
     ...goalEvent,
@@ -259,7 +264,9 @@ test('EditPenaltyDialog trims the reason and disables saving when it is empty', 
   const reason = screen.getByLabelText('Odůvodnění');
   await userEvent.clear(reason);
   await userEvent.type(reason, '   ');
-  expect(screen.getByRole('button', { name: 'Upravit' })).toBeDisabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Upravit' }));
+  expect(screen.getByText(/Vyplň odůvodnění/)).toBeInTheDocument();
+  expect(onSave).not.toHaveBeenCalled();
   await userEvent.type(reason, ' Jiné ');
   await userEvent.click(screen.getByRole('button', { name: 'Upravit' }));
   expect(onSave).toHaveBeenCalledWith('00:10:00', { player: 1, card: 'yellow', reason: 'Jiné' });

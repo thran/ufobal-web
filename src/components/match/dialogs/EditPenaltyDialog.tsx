@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { CardType } from '../../../api/types';
 import { CARDS, type MatchEvent, type PenaltyData } from '../../../domain/matchEvents';
 import { isValidHms } from '../../../domain/time';
+import { FieldError, useValidation } from '../../forms/validation';
 import Modal from '../../Modal';
 
 interface Props {
@@ -21,6 +22,7 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
   const [reason, setReason] = useState(initial.reason);
   const valid = isValidHms(time);
   const reasonTrimmed = reason.trim();
+  const v = useValidation({ reason: !reasonTrimmed && 'Vyplň odůvodnění.' });
 
   return (
     <Modal open onClose={onClose} title={`Karta - ${teamName}`}>
@@ -52,13 +54,19 @@ function EditPenaltyBody({ teamName, players, event, onSave, onClose }: Omit<Pro
         </label>
         <label className="flex flex-col">
           Odůvodnění
-          <textarea value={reason} onChange={(e) => setReason(e.target.value)} />
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            onBlur={v.touch('reason')}
+            aria-invalid={!!v.error('reason')}
+          />
         </label>
+        <FieldError error={v.error('reason')} />
         <button
           type="button"
           className="pressbutton"
-          disabled={!valid || !reasonTrimmed}
-          onClick={() => onSave(time, { player, card, reason: reasonTrimmed })}
+          disabled={!valid}
+          onClick={() => v.attempt() && onSave(time, { player, card, reason: reasonTrimmed })}
         >
           Upravit
         </button>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import type { TeamDto } from '../api/types';
 import ErrorBox from '../components/ErrorBox';
+import { EMAIL_RE, FieldError, useValidation } from '../components/forms/validation';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
 import { formatDateTime } from '../format';
@@ -24,9 +25,11 @@ function NewTeamDialog({
   const [name, setName] = useState('');
   const [nameShort, setNameShort] = useState('');
   const [description, setDescription] = useState('');
+  const v = useValidation({ name: !name.trim() && 'Vyplň jméno týmu.' });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!v.attempt()) return;
     addTeam.mutate(
       {
         name: name.trim(),
@@ -39,6 +42,7 @@ function NewTeamDialog({
           setName('');
           setNameShort('');
           setDescription('');
+          v.reset();
           onClose();
         },
       },
@@ -47,11 +51,20 @@ function NewTeamDialog({
 
   return (
     <Modal open={open} onClose={onClose} title="Nový tým">
-      <form onSubmit={submit}>
-        <label className="mb-3 block">
-          Jméno
-          <input className="input" value={name} onChange={(e) => setName(e.target.value)} required />
-        </label>
+      <form onSubmit={submit} noValidate>
+        <div className="mb-3">
+          <label className="block">
+            Jméno
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={v.touch('name')}
+              aria-invalid={!!v.error('name')}
+            />
+          </label>
+          <FieldError error={v.error('name')} />
+        </div>
         <label className="mb-3 block">
           Zkrácené jméno
           <input
@@ -70,7 +83,7 @@ function NewTeamDialog({
             onChange={(e) => setDescription(e.target.value)}
           />
         </label>
-        <button type="submit" className="btn btn-primary" disabled={!name.trim() || addTeam.isPending}>
+        <button type="submit" className="btn btn-primary" disabled={addTeam.isPending}>
           Vytvořit
         </button>
       </form>
@@ -97,6 +110,16 @@ export default function RegistrationPage() {
     () => [...(graph?.teams ?? []), ...created].sort((a, b) => a.name.localeCompare(b.name, 'cs')),
     [graph, created],
   );
+  const team = teams.find((t) => String(t.pk) === teamPk);
+  const strengthNum = Number(strength);
+  const v = useValidation({
+    team: !team && 'Vyber tým.',
+    mail: (!mail.trim() && 'Vyplň kontaktní email.') || (!EMAIL_RE.test(mail.trim()) && 'Neplatný email.'),
+    phone: !phone.trim() && 'Vyplň kontaktní telefon.',
+    strength:
+      !(strength && Number.isInteger(strengthNum) && strengthNum >= 1 && strengthNum <= 4) &&
+      'Zadej číslo 1 až 4.',
+  });
 
   const error = (tournamentQuery.data ? null : tournamentQuery.error) ?? graphError;
   if (error)
@@ -112,27 +135,16 @@ export default function RegistrationPage() {
   const tournament = tournamentQuery.data;
   if (!tournament || !graph) return <Spinner />;
 
-  const team = teams.find((t) => String(t.pk) === teamPk);
-  const strengthNum = Number(strength);
-  const mailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
-  const valid =
-    !!team &&
-    mailOk &&
-    !!phone.trim() &&
-    Number.isInteger(strengthNum) &&
-    strengthNum >= 1 &&
-    strengthNum <= 4;
-
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!team || !valid) return;
+    if (!v.attempt() || !team) return;
     register.mutate(
       {
         tournament: id,
         team: team.pk,
         ...(name.trim() && { name: name.trim() }),
         ...(nameShort.trim() && { name_short: nameShort.trim() }),
-        contact_mail: mail,
+        contact_mail: mail.trim(),
         contact_phone: phone.trim(),
         strength: strengthNum,
       },
@@ -144,12 +156,18 @@ export default function RegistrationPage() {
   if (tournament.registration_open) {
     body = (
       <>
-        <form onSubmit={submit}>
+        <form onSubmit={submit} noValidate>
           <h3 className="mb-3 text-xl font-bold">{tournament.full_name}</h3>
-          <div className="mb-3 flex items-end gap-3">
+          <div className="flex items-end gap-3">
             <label className="block flex-1">
               Tým
-              <select className="input" value={teamPk} onChange={(e) => setTeamPk(e.target.value)}>
+              <select
+                className="input"
+                value={teamPk}
+                onChange={(e) => setTeamPk(e.target.value)}
+                onBlur={v.touch('team')}
+                aria-invalid={!!v.error('team')}
+              >
                 <option value="">----</option>
                 {teams.map((t) => (
                   <option key={t.pk} value={t.pk}>
@@ -162,7 +180,8 @@ export default function RegistrationPage() {
               vytvořit nový tým
             </button>
           </div>
-          <label className="mb-3 block">
+          <FieldError error={v.error('team')} />
+          <label className="mt-3 mb-3 block">
             Jméno na tomto turnaji (pouze pokud se liší od běžného jména týmu)
             <input
               className="input"
@@ -180,20 +199,33 @@ export default function RegistrationPage() {
               placeholder={team?.name_short ?? ''}
             />
           </label>
-          <label className="mb-3 block">
-            Kontaktní email
-            <input
-              className="input"
-              type="email"
-              value={mail}
-              onChange={(e) => setMail(e.target.value)}
-              required
-            />
-          </label>
-          <label className="mb-3 block">
-            Kontaktní telefon
-            <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-          </label>
+          <div className="mb-3">
+            <label className="block">
+              Kontaktní email
+              <input
+                className="input"
+                type="email"
+                value={mail}
+                onChange={(e) => setMail(e.target.value)}
+                onBlur={v.touch('mail')}
+                aria-invalid={!!v.error('mail')}
+              />
+            </label>
+            <FieldError error={v.error('mail')} />
+          </div>
+          <div className="mb-3">
+            <label className="block">
+              Kontaktní telefon
+              <input
+                className="input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={v.touch('phone')}
+                aria-invalid={!!v.error('phone')}
+              />
+            </label>
+            <FieldError error={v.error('phone')} />
+          </div>
           <label className="mb-1 block">
             Odhad síly (1 - 4)
             <input
@@ -203,16 +235,18 @@ export default function RegistrationPage() {
               max={4}
               value={strength}
               onChange={(e) => setStrength(e.target.value)}
-              required
+              onBlur={v.touch('strength')}
+              aria-invalid={!!v.error('strength')}
             />
           </label>
+          <FieldError error={v.error('strength')} />
           <ol className="mb-3 list-decimal pl-6 text-[0.8em]">
             <li>Budeme na bedně</li>
             <li>Budeme ve finálové skupině (top 8)</li>
             <li>Budeme kolem poloviny</li>
             <li>Přišli jsme si jen zahrát, na nějaké umístění to nevidíme.</li>
           </ol>
-          <button type="submit" className="btn btn-primary" disabled={!valid || register.isPending}>
+          <button type="submit" className="btn btn-primary" disabled={register.isPending}>
             Přihlásit
           </button>
         </form>

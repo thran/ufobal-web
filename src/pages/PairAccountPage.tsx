@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import LoginDialog from '../auth/LoginDialog';
 import SignupDialog from '../auth/SignupDialog';
 import { openSocialLogin, useUser } from '../auth/user';
+import { FieldError, useValidation } from '../components/forms/validation';
 import PlayerLink from '../components/PlayerLink';
 import { playerPath } from '../paths';
 import { usePairUser } from '../queries/mutations';
@@ -34,6 +35,7 @@ export default function PairAccountPage() {
   const [code, setCode] = useState(() => token ?? readStoredToken());
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
+  const v = useValidation({ code: !code.trim() && 'Vyplň kód.' });
 
   const paired = !!user?.player;
   useEffect(() => {
@@ -43,7 +45,8 @@ export default function PairAccountPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    pair.mutate(code, {
+    if (!v.attempt()) return;
+    pair.mutate(code.trim(), {
       onSuccess: (player) => {
         storeToken(null);
         void navigate(playerPath(player));
@@ -95,11 +98,13 @@ export default function PairAccountPage() {
             placeholder="kód"
             value={code}
             onChange={(e) => setCode(e.target.value)}
+            aria-invalid={!!v.error('code')}
           />
-          <button type="submit" className="btn btn-primary" disabled={!code || pair.isPending}>
+          <button type="submit" className="btn btn-primary" disabled={pair.isPending}>
             Spárovat
           </button>
         </form>
+        <FieldError error={v.error('code')} />
         {pair.error && <p className="text-red-600">Spárování se nezdařilo - {pair.error.message}</p>}
       </>
     );

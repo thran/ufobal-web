@@ -37,7 +37,6 @@ test('register existing team and go to roster', async () => {
   const fetchMock = render();
   await userEvent.selectOptions(await screen.findByLabelText('Tým'), '10');
   const submit = screen.getByRole('button', { name: 'Přihlásit' });
-  expect(submit).toBeDisabled();
   await userEvent.type(screen.getByLabelText('Kontaktní email'), 'a@b.cz');
   await userEvent.type(screen.getByLabelText('Kontaktní telefon'), '123');
   await userEvent.type(screen.getByLabelText('Odhad síly (1 - 4)'), '2');
@@ -86,4 +85,31 @@ test('new team dialog draft is discarded on close', async () => {
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   await userEvent.click(screen.getByRole('button', { name: 'vytvořit nový tým' }));
   expect(within(await screen.findByRole('dialog')).getByLabelText('Jméno')).toHaveValue('');
+});
+
+test('invalid fields are explained and nothing is sent', async () => {
+  const fetchMock = render();
+  await userEvent.type(await screen.findByLabelText('Kontaktní email'), 'foo@bar');
+  await userEvent.tab();
+  expect(screen.getByText(/Neplatný email/)).toBeInTheDocument();
+  expect(screen.queryByText(/Vyplň kontaktní telefon/)).toBeNull();
+  await userEvent.type(screen.getByLabelText('Odhad síly (1 - 4)'), '7');
+  await userEvent.click(screen.getByRole('button', { name: 'Přihlásit' }));
+  expect(screen.getByText(/Vyber tým/)).toBeInTheDocument();
+  expect(screen.getByText(/Vyplň kontaktní telefon/)).toBeInTheDocument();
+  expect(screen.getByText(/Zadej číslo 1 až 4/)).toBeInTheDocument();
+  expect(screen.getByLabelText('Kontaktní email')).toHaveAttribute('aria-invalid', 'true');
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_team_on_tournament'))).toBe(false);
+  await userEvent.clear(screen.getByLabelText('Kontaktní email'));
+  await userEvent.type(screen.getByLabelText('Kontaktní email'), 'foo@bar.cz');
+  expect(screen.queryByText(/Neplatný email/)).toBeNull();
+});
+
+test('new team dialog requires a name', async () => {
+  const fetchMock = render();
+  await userEvent.click(await screen.findByRole('button', { name: 'vytvořit nový tým' }));
+  const dialog = await screen.findByRole('dialog');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
+  expect(within(dialog).getByText(/Vyplň jméno týmu/)).toBeInTheDocument();
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_team'))).toBe(false);
 });

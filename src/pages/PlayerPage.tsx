@@ -4,6 +4,7 @@ import { isOwnPlayer, isStaff } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
+import { FieldError, useValidation } from '../components/forms/validation';
 import Spinner from '../components/Spinner';
 import { scoreWithoutTeam } from '../domain/graph';
 import { formatRank } from '../format';
@@ -30,6 +31,10 @@ function PlayerDetail({ id }: { id: string | undefined }) {
   const [pairing, setPairing] = useState(false);
   const [histTournament, setHistTournament] = useState('');
   const [histTeam, setHistTeam] = useState('');
+  const hist = useValidation({
+    tournament: !histTournament && 'Vyber turnaj.',
+    team: !histTeam && 'Vyber tým.',
+  });
   if (error) return <ErrorBox error={error} onRetry={refetch} />;
   if (isPending || !graph) return <Spinner />;
 
@@ -53,12 +58,14 @@ function PlayerDetail({ id }: { id: string | undefined }) {
       removeAttendance.mutate({ player: player.pk, team: totPk });
   };
   const addHistorical = () =>
+    hist.attempt() &&
     addAttendance.mutate(
       { player: player.pk, team: Number(histTeam) },
       {
         onSuccess: () => {
           setHistTournament('');
           setHistTeam('');
+          hist.reset();
         },
       },
     );
@@ -162,6 +169,7 @@ function PlayerDetail({ id }: { id: string | undefined }) {
                   setHistTournament(e.target.value);
                   setHistTeam('');
                 }}
+                aria-invalid={!!hist.error('tournament')}
               >
                 <option value="">----</option>
                 {allTournaments.map((t) => (
@@ -178,6 +186,7 @@ function PlayerDetail({ id }: { id: string | undefined }) {
                 className="input"
                 value={histTeam}
                 onChange={(e) => setHistTeam(e.target.value)}
+                aria-invalid={!!hist.error('team')}
               >
                 <option value="">----</option>
                 {histTots.map((t) => (
@@ -190,12 +199,13 @@ function PlayerDetail({ id }: { id: string | undefined }) {
             <button
               type="button"
               className="btn btn-primary"
-              disabled={!histTournament || !histTeam || addAttendance.isPending}
+              disabled={addAttendance.isPending}
               onClick={addHistorical}
             >
               přidat
             </button>
           </div>
+          <FieldError error={hist.error('tournament') || hist.error('team')} />
         </>
       )}
       <h3 className="mt-4 text-xl font-bold">Karty</h3>

@@ -4,6 +4,7 @@ import ErrorBox from '../components/ErrorBox';
 import BirthdateAgeInput from '../components/forms/BirthdateAgeInput';
 import GenderSelect from '../components/forms/GenderSelect';
 import PlayerCombobox from '../components/forms/PlayerCombobox';
+import { FieldError, useValidation } from '../components/forms/validation';
 import Modal from '../components/Modal';
 import PlayerLink from '../components/PlayerLink';
 import Spinner from '../components/Spinner';
@@ -33,9 +34,11 @@ function NewPlayerDialog({
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [birthdate, setBirthdate] = useState('');
+  const v = useValidation({ nickname: !nickname.trim() && 'Vyplň přezdívku.' });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!v.attempt()) return;
     addPlayer.mutate(
       {
         nickname: nickname.trim(),
@@ -52,6 +55,7 @@ function NewPlayerDialog({
           setName('');
           setLastname('');
           setBirthdate('');
+          v.reset();
           onClose();
         },
       },
@@ -60,18 +64,23 @@ function NewPlayerDialog({
 
   return (
     <Modal open={open} onClose={onClose} title="Nový hráč">
-      <form onSubmit={submit}>
+      <form onSubmit={submit} noValidate>
         <p className="mb-3">Ujisti se prosím, že hráč určitě není v systému.</p>
         <div className="mb-3 flex gap-3">
-          <label className="block flex-1">
-            Přezdívka
-            <input
-              className="input"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="povinné"
-            />
-          </label>
+          <div className="flex-1">
+            <label className="block">
+              Přezdívka
+              <input
+                className="input"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                onBlur={v.touch('nickname')}
+                aria-invalid={!!v.error('nickname')}
+                placeholder="povinné"
+              />
+            </label>
+            <FieldError error={v.error('nickname')} />
+          </div>
           <div className="flex-1">
             <label htmlFor="np-gender">Pohlaví</label>
             <GenderSelect id="np-gender" value={gender} onChange={setGender} />
@@ -91,7 +100,7 @@ function NewPlayerDialog({
           <BirthdateAgeInput value={birthdate} onChange={setBirthdate} idPrefix="np" />
         </div>
         <p className="mb-3 italic">Datum narození nebude zveřejňováno (pouze jako věk).</p>
-        <button type="submit" className="btn btn-primary" disabled={!nickname.trim() || addPlayer.isPending}>
+        <button type="submit" className="btn btn-primary" disabled={addPlayer.isPending}>
           Vytvořit
         </button>
       </form>
@@ -113,6 +122,7 @@ function PlayerSelectRow({
   pending: boolean;
 }) {
   const [value, setValue] = useState(initial == null ? '' : String(initial));
+  const v = useValidation({ value: !value && 'Vyber hráče.' });
   return (
     <>
       <h3 className="mt-4 mb-2 text-xl font-bold">{title}</h3>
@@ -133,12 +143,13 @@ function PlayerSelectRow({
         <button
           type="button"
           className="btn btn-secondary"
-          disabled={!value || pending}
-          onClick={() => onSave(Number(value))}
+          disabled={pending}
+          onClick={() => v.attempt() && onSave(Number(value))}
         >
           Nastavit
         </button>
       </div>
+      <FieldError error={v.error('value')} />
     </>
   );
 }
@@ -150,6 +161,7 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
   const setDefaultGoalie = useSetDefaultGoalie();
   const [selected, setSelected] = useState<PlayerVM | null>(null);
   const [dialog, setDialog] = useState(false);
+  const v = useValidation({ selected: !selected && 'Vyber hráče.' });
 
   const roster = useMemo(
     () => [...tot.players].sort((a, b) => a.full_name.localeCompare(b.full_name, 'cs')),
@@ -158,8 +170,16 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
   const exclude = useMemo(() => new Set(tot.playerPks), [tot.playerPks]);
 
   const add = () => {
-    if (!selected) return;
-    addAttendance.mutate({ player: selected.pk, team: tot.pk }, { onSuccess: () => setSelected(null) });
+    if (!v.attempt() || !selected) return;
+    addAttendance.mutate(
+      { player: selected.pk, team: tot.pk },
+      {
+        onSuccess: () => {
+          setSelected(null);
+          v.reset();
+        },
+      },
+    );
   };
   const remove = (p: PlayerVM) => {
     if (window.confirm(`Opravdu odebrat hráče ${p.nickname} z týmu?`))
@@ -186,15 +206,11 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
             exclude={exclude}
           />
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          disabled={!selected || addAttendance.isPending}
-          onClick={add}
-        >
+        <button type="button" className="btn btn-primary" disabled={addAttendance.isPending} onClick={add}>
           Přidat
         </button>
       </div>
+      <FieldError error={v.error('selected')} />
       <div className="my-2 text-right">
         <button type="button" className="text-primary underline" onClick={() => setDialog(true)}>
           Nový hráč

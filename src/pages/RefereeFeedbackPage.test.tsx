@@ -41,7 +41,8 @@ test('rate a referee team', async () => {
   const dialog = await screen.findByRole('dialog');
   expect(dialog).toHaveTextContent('hlavní rozhodčí: Karel K');
   const save = within(dialog).getByRole('button', { name: 'Uložit' });
-  expect(save).toBeDisabled();
+  await userEvent.click(save);
+  expect(within(dialog).getByText(/Vyber celkové hodnocení/)).toBeInTheDocument();
   await userEvent.click(within(dialog).getByRole('button', { name: 'Přidat pozitivum' }));
   await userEvent.keyboard('Férový');
   await userEvent.click(within(dialog).getByRole('button', { name: 'Přidat negativum' }));

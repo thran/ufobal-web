@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PlayerUpdate } from '../api/types';
 import BirthdateAgeInput from '../components/forms/BirthdateAgeInput';
 import GenderSelect from '../components/forms/GenderSelect';
+import { FieldError, useValidation } from '../components/forms/validation';
 import type { PlayerVM } from '../domain/graph';
 import { useSavePlayer } from '../queries/mutations';
 
@@ -24,9 +25,11 @@ export default function PlayerEditForm({
     player.gender === 'man' || player.gender === 'woman' ? player.gender : null,
   );
   const [birthdate, setBirthdate] = useState(initialBirthdate);
+  const v = useValidation({ nickname: !nickname.trim() && 'Vyplň přezdívku.' });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!v.attempt()) return;
     const body: PlayerUpdate = { pk: player.pk, nickname, name, lastname, gender };
     if (birthdate !== initialBirthdate) body.birthdate = birthdate || null;
     save.mutate(body, { onSuccess: onDone });
@@ -40,7 +43,10 @@ export default function PlayerEditForm({
         className="input"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
+        onBlur={v.touch('nickname')}
+        aria-invalid={!!v.error('nickname')}
       />
+      <FieldError error={v.error('nickname')} />
       <label htmlFor="pe-name">Jméno</label>
       <input id="pe-name" className="input" value={name} onChange={(e) => setName(e.target.value)} />
       <label htmlFor="pe-lastname">Příjmení</label>

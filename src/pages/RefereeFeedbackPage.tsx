@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import type { RefereeMatchDto } from '../api/types';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
+import { FieldError, useValidation } from '../components/forms/validation';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
 import StarRating from '../components/StarRating';
@@ -87,8 +88,10 @@ function FeedbackDialog({
   const [positives, setPositives] = useState(existing?.feedback.positives ?? []);
   const [negatives, setNegatives] = useState(existing?.feedback.negatives ?? []);
   const [comment, setComment] = useState(existing?.feedback.comment ?? '');
+  const v = useValidation({ stars: stars === 0 && 'Vyber celkové hodnocení.' });
 
   const submit = () =>
+    v.attempt() &&
     save.mutate(
       {
         pk: existing?.pk,
@@ -133,13 +136,9 @@ function FeedbackDialog({
       <div className="mb-3">
         <h3 className="mb-1 font-bold">Celkové hodnocení</h3>
         <StarRating value={stars} onChange={setStars} />
+        <FieldError error={v.error('stars')} />
       </div>
-      <button
-        type="button"
-        className="btn btn-primary"
-        disabled={stars === 0 || save.isPending}
-        onClick={submit}
-      >
+      <button type="button" className="btn btn-primary" disabled={save.isPending} onClick={submit}>
         Uložit
       </button>
     </Modal>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { GoalType } from '../../../api/types';
 import type { GoalData, MatchEvent } from '../../../domain/matchEvents';
 import { isValidHms } from '../../../domain/time';
+import { FieldError, useValidation } from '../../forms/validation';
 import Modal from '../../Modal';
 
 interface Props {
@@ -28,6 +29,7 @@ function EditGoalBody({ teamName, players, event, onSave, onClose }: Omit<Props,
   const [assistance, setAssistance] = useState(initial.assistance);
   const [goalType, setGoalType] = useState<GoalType>(initial.goalType);
   const valid = isValidHms(time);
+  const v = useValidation({ shooter: shooter == null && 'Vyber střelce.' });
 
   const playerOptions = players.map((p) => (
     <option key={p.pk} value={p.pk}>
@@ -45,11 +47,17 @@ function EditGoalBody({ teamName, players, event, onSave, onClose }: Omit<Props,
         {!valid && <p className="text-alert">Neplatný čas (HH:MM:SS).</p>}
         <label className="flex flex-col">
           Střelec
-          <select value={shooter ?? ''} onChange={(e) => setShooter(toPk(e.target.value))}>
+          <select
+            value={shooter ?? ''}
+            onChange={(e) => setShooter(toPk(e.target.value))}
+            onBlur={v.touch('shooter')}
+            aria-invalid={!!v.error('shooter')}
+          >
             <option value="">----</option>
             {playerOptions}
           </select>
         </label>
+        <FieldError error={v.error('shooter')} />
         <label className="flex flex-col">
           Asistence
           <select value={assistance ?? ''} onChange={(e) => setAssistance(toPk(e.target.value))}>
@@ -70,8 +78,8 @@ function EditGoalBody({ teamName, players, event, onSave, onClose }: Omit<Props,
         <button
           type="button"
           className="pressbutton"
-          disabled={!valid || shooter == null}
-          onClick={() => onSave(time, { shooter, assistance, goalType })}
+          disabled={!valid}
+          onClick={() => v.attempt() && onSave(time, { shooter, assistance, goalType })}
         >
           Upravit
         </button>

@@ -91,7 +91,7 @@ test('add match dialog rejects duplicate teams without a request', async () => {
   await userEvent.selectOptions(within(dialog).getByLabelText('Rozhodčí tým'), '1001');
   await userEvent.click(within(dialog).getByLabelText('1'));
   await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
-  expect(within(dialog).getByText('Některý z vybraných týmů se shoduje.')).toBeInTheDocument();
+  expect(within(dialog).getByText(/Tým hraje sám se sebou/)).toBeInTheDocument();
   expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_match'))).toBe(false);
 });
 
@@ -125,6 +125,18 @@ test('no empty referee parentheses when referee team is unset', async () => {
   expect(field1).not.toHaveTextContent('()');
 });
 
+test('add match dialog explains missing fields without a request', async () => {
+  const fetchMock = render();
+  await userEvent.click(await screen.findByRole('button', { name: /Nový zápas/ }));
+  const dialog = await screen.findByRole('dialog');
+  await userEvent.selectOptions(within(dialog).getByLabelText('Tým 1'), '1000');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
+  expect(within(dialog).getByText(/Vyber tým\./)).toBeInTheDocument();
+  expect(within(dialog).getByText(/Vyber rozhodčí tým/)).toBeInTheDocument();
+  expect(within(dialog).getByText(/Vyber hřiště/)).toBeInTheDocument();
+  expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('add_match'))).toBe(false);
+});
+
 test('add match dialog draft and clash flag reset on close', async () => {
   render();
   await userEvent.click(await screen.findByRole('button', { name: /Nový zápas/ }));
@@ -134,12 +146,12 @@ test('add match dialog draft and clash flag reset on close', async () => {
   await userEvent.selectOptions(within(dialog).getByLabelText('Rozhodčí tým'), '1001');
   await userEvent.click(within(dialog).getByLabelText('1'));
   await userEvent.click(within(dialog).getByRole('button', { name: 'Vytvořit' }));
-  expect(within(dialog).getByText('Některý z vybraných týmů se shoduje.')).toBeInTheDocument();
+  expect(within(dialog).getByText(/Tým hraje sám se sebou/)).toBeInTheDocument();
   await userEvent.keyboard('{Escape}');
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   await userEvent.click(screen.getByRole('button', { name: /Nový zápas/ }));
   dialog = await screen.findByRole('dialog');
-  expect(within(dialog).queryByText('Některý z vybraných týmů se shoduje.')).not.toBeInTheDocument();
+  expect(within(dialog).queryByText(/Tým hraje sám se sebou/)).not.toBeInTheDocument();
   expect(within(dialog).getByLabelText('Tým 1')).toHaveValue('');
 });
 
