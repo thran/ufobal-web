@@ -6,6 +6,8 @@ export default function Footer() {
       Vytvořil <a href="mailto:thran@centrum.cz">Thran</a> &amp; Wizy
       <span className="inline-block w-8" />
       <Link to="/privacy-policy">Privacy policy</Link>
+      <span className="inline-block w-8" />
+      <a href="/old/">stará verze</a>
     </footer>
   );
 }
