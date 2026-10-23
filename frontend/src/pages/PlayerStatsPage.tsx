@@ -6,6 +6,7 @@ import ErrorBox from '../components/ErrorBox';
 import PlayerLink from '../components/PlayerLink';
 import Spinner from '../components/Spinner';
 import StatsFilterForm, { useStatsFilter } from '../components/StatsFilterForm';
+import WideBox from '../components/WideBox';
 import { filterTournaments, genderMatches, playerStatsRows, type PlayerStatsRow } from '../domain/stats';
 import { searchKey } from '../domain/text';
 import { tournamentResultsPath } from '../paths';
@@ -87,7 +88,7 @@ export default function PlayerStatsPage() {
         showLiga
         showMinMatches={false}
       />
-      <div className="overflow-x-auto">
+      <WideBox>
         <DataTable
           data={rows}
           columns={columns}
@@ -98,7 +99,7 @@ export default function PlayerStatsPage() {
           extraFilter={extraFilter}
           defaultSort={defaultSort}
         />
-      </div>
+      </WideBox>
     </>
   );
 }

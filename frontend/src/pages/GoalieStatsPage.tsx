@@ -6,6 +6,7 @@ import ErrorBox from '../components/ErrorBox';
 import PlayerLink from '../components/PlayerLink';
 import Spinner from '../components/Spinner';
 import StatsFilterForm, { useStatsFilter } from '../components/StatsFilterForm';
+import WideBox from '../components/WideBox';
 import {
   filterTournaments,
   genderMatches,
@@ -115,7 +116,7 @@ export default function GoalieStatsPage() {
         showLiga={false}
         showMinMatches
       />
-      <div className="overflow-x-auto">
+      <WideBox>
         <DataTable
           data={rows}
           columns={columns}
@@ -126,7 +127,7 @@ export default function GoalieStatsPage() {
           extraFilter={extraFilter}
           defaultSort={defaultSort}
         />
-      </div>
+      </WideBox>
     </>
   );
 }

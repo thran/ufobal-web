@@ -8,8 +8,9 @@ import TopBar from './TopBar';
 export default function Layout() {
   const { test } = useAppConfig();
   useSocialLoginListener();
+  // overflow-x-clip hides the scrollbar-width overflow of full-viewport WideBox content.
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen overflow-x-clip">
       <TopBar />
       <main className="mx-auto max-w-[62.5rem] px-1 pt-5 pb-30">
         {test && (
