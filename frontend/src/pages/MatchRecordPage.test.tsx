@@ -170,6 +170,13 @@ test('running clock and unsaved shot survive a reload', async () => {
   expect(screen.getByText('1. poločas')).toBeInTheDocument();
 });
 
+test('action buttons are available before kickoff', async () => {
+  mockFetch();
+  render();
+  expect(await screen.findByRole('button', { name: 'Gól Ufo' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Karta KOM' })).toBeInTheDocument();
+});
+
 test('ended match hides action buttons until edit mode', async () => {
   mockFetch({
     match: freshMatch({ start: '2023-06-10 09:00:00', halftime_length: '00:10:00', length: '00:20:00' }),

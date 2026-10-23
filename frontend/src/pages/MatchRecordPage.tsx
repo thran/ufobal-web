@@ -173,7 +173,7 @@ function Recorder({
   );
   const close = () => setDialog(null);
 
-  const canAct = editMode || state.phase === 1 || state.phase === 2;
+  const canAct = editMode || state.phase !== null;
   const canChangeGoalieOrReferee = canChangeGoalieOrRefereeIn(state, editMode);
 
   const playerName = (pk: number | null) => (pk == null ? '' : (graph.playersById.get(pk)?.nickname ?? ''));
