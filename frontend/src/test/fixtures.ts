@@ -171,7 +171,7 @@ export function sampleRaw(): RawData {
         rank: 3,
         player_pks: [100],
         name: 'Béčko (Ufo)',
-        name_pure: 'Béčko (Ufo)',
+        name_pure: 'Béčko',
       }),
       totDto({ pk: 1003, team: kometa, tournament: t2, rank: null }),
     ],

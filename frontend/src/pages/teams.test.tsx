@@ -17,7 +17,8 @@ test('teams sorted by medals with alt names and tournament count', async () => {
   renderWithProviders(<TeamsPage />);
   const rows = await bodyRows();
   expect(rows[0]).toHaveTextContent('Ufo');
-  expect(rows[0]).toHaveTextContent('Béčko (Ufo)');
+  expect(rows[0]).toHaveTextContent('Béčko');
+  expect(rows[0]).not.toHaveTextContent('Béčko (Ufo)');
   expect(within(rows[0]).getAllByRole('cell')[3]).toHaveTextContent('2');
   expect(rows[1]).toHaveTextContent('Kométa');
 });
@@ -55,7 +56,7 @@ test('team detail lists tournaments newest first with players', async () => {
   expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Ufo');
   const rows = await bodyRows();
   expect(rows[0]).toHaveTextContent('Nížkov 2024');
-  expect(rows[0]).toHaveTextContent('Béčko (Ufo)');
+  expect(rows[0]).toHaveTextContent('Béčko');
   expect(rows[1]).toHaveTextContent('Brno 2023');
   expect(within(rows[1]).getByRole('link', { name: /Jana/ })).toHaveAttribute('href', '/players/101/Jana');
   expect(rows[1]).toHaveTextContent('1.');

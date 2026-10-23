@@ -45,7 +45,7 @@ test('player teams, tots and penalties are linked', () => {
 test('team alt names and search keys', () => {
   const graph = g();
   const ufoTeam = graph.teamsById.get(10)!;
-  expect(ufoTeam.altNames).toEqual([{ name: 'Béčko (Ufo)', count: 1 }]);
+  expect(ufoTeam.altNames).toEqual([{ name: 'Béčko', count: 1 }]);
   expect(ufoTeam.search).toContain('becko');
   const kom = graph.teamsById.get(11)!;
   expect(kom.search).toContain('kometa');

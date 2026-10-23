@@ -160,8 +160,8 @@ export function buildGraph(raw: RawData): Graph {
 
   for (const team of teams) {
     team.altNames = countBy(
-      team.tots.filter((tot) => tot.name !== team.name),
-      (tot) => tot.name,
+      team.tots.filter((tot) => tot.name_pure !== team.name),
+      (tot) => tot.name_pure,
     ).map(({ key, count }) => ({ name: key, count }));
     team.search = [team.name, team.name_short ?? '', ...team.altNames.map((n) => n.name)]
       .filter(Boolean)
