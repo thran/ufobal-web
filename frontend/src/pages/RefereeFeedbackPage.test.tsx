@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import type { RefereeMatchDto } from '../api/types';
@@ -56,6 +56,22 @@ test('rate a referee team', async () => {
     match: 500,
     feedback: { stars: 4, positives: ['Férový'], negatives: [], comment: '' },
   });
+});
+
+test('closing a rated dialog saves it, closing an unrated one does not', async () => {
+  const fetchMock = render();
+  const saves = () =>
+    fetchMock.mock.calls.filter(([u]) => String(u).endsWith('save_referee_feedback')).length;
+  await userEvent.click(await screen.findByRole('button', { name: 'hodnotit' }));
+  await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Zavřít' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(saves()).toBe(0);
+  await userEvent.click(screen.getByRole('button', { name: 'hodnotit' }));
+  const dialog = await screen.findByRole('dialog');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Zvýšit hodnocení' }));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Zavřít' }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  expect(saves()).toBe(1);
 });
 
 test('closed tournament is read-only', async () => {

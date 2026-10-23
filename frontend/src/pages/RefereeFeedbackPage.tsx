@@ -90,24 +90,25 @@ function FeedbackDialog({
   const [comment, setComment] = useState(existing?.feedback.comment ?? '');
   const v = useValidation({ stars: stars === 0 && 'Vyber celkové hodnocení.' });
 
-  const submit = () =>
-    v.attempt() &&
-    save.mutate(
-      {
-        pk: existing?.pk,
-        match: match.pk,
-        feedback: {
-          stars,
-          positives: positives.map((t) => t.trim()).filter(Boolean),
-          negatives: negatives.map((t) => t.trim()).filter(Boolean),
-          comment,
-        },
-      },
-      { onSuccess: onClose },
-    );
+  const feedback = {
+    stars,
+    positives: positives.map((t) => t.trim()).filter(Boolean),
+    negatives: negatives.map((t) => t.trim()).filter(Boolean),
+    comment,
+  };
+  const send = () => save.mutate({ pk: existing?.pk, match: match.pk, feedback }, { onSuccess: onClose });
+  const submit = () => v.attempt() && send();
+
+  // Like the old app, closing a rated dialog saves it; it stays open if the save fails.
+  const dirty = JSON.stringify(feedback) !== JSON.stringify(existing?.feedback ?? null);
+  const close = () => {
+    if (save.isPending) return;
+    if (stars > 0 && dirty) send();
+    else onClose();
+  };
 
   return (
-    <Modal open onClose={onClose} title={match.referee_team?.name_pure ?? 'Rozhodčí'}>
+    <Modal open onClose={close} title={match.referee_team?.name_pure ?? 'Rozhodčí'}>
       {match.referee && (
         <p className="mb-3">
           hlavní rozhodčí: <b>{match.referee.full_name}</b>
