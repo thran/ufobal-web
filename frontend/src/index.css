@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+  --color-primary: #008cba;
+  --color-primary-dark: #007095;
+  --color-secondary: #e7e7e7;
+  --color-alert: #f04124;
+  --color-success: #43ac6a;
+  --color-warning: #f08a24;
+  --color-topbar: #333333;
+  --color-topbar-hover: #272727;
+  --color-medal-gold: gold;
+  --color-medal-silver: silver;
+  --color-medal-bronze: #e79335;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-[#222];
+  }
+  a {
+    @apply text-primary hover:text-primary-dark;
+  }
+  h2,
+  h4 {
+    @apply text-2xl font-bold text-gray-500;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-block cursor-pointer bg-primary px-4 py-3 text-white transition-colors hover:bg-primary-dark disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-[#333] hover:bg-[#b9b9b9];
+  }
+  .btn-alert {
+    @apply bg-alert hover:bg-[#cf2a0e];
+  }
+  .input {
+    @apply block w-full border border-[#ccc] bg-white px-2 py-2 shadow-inner focus:border-[#999] focus:outline-none;
+  }
+  .callout {
+    @apply border border-[#d8d8d8] bg-[#f2f2f2] p-4;
+  }
+  .callout-alert {
+    @apply border-[#de2d0f] bg-alert text-white;
+  }
+  .table-basic {
+    @apply w-full border-collapse text-sm;
+  }
+  .table-basic thead {
+    background: #f5f5f5;
+  }
+  .table-basic th {
+    @apply px-2 py-2 text-left font-bold;
+  }
+  .table-basic td {
+    @apply px-2 py-2;
+  }
+  .table-basic tbody tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+  /* Foundation-style small switch on a native checkbox. */
+  .switch {
+    @apply relative inline-block h-7 w-12 cursor-pointer appearance-none bg-[#ddd] transition-colors checked:bg-success;
+  }
+  .switch::after {
+    @apply absolute top-1 left-1 size-5 bg-white transition-all content-[''];
+  }
+  .switch:checked::after {
+    left: calc(100% - 1.5rem);
+  }
+  .pressbutton {
+    @apply cursor-pointer border border-primary px-5 py-2.5 whitespace-nowrap shadow-[3px_3px_5px_rgba(0,0,0,0.19)] select-none;
+    margin: 5px;
+    background: rgba(0, 140, 186, 0.3);
+    color: rgb(0, 39, 58);
+  }
+  .pressbutton:hover {
+    background: rgba(0, 140, 186, 0.4);
+  }
+  .pressbutton-red {
+    border-color: #7b080c;
+    background: rgba(123, 8, 12, 0.3);
+  }
+  .pressbutton-red:hover {
+    background: rgba(123, 8, 12, 0.4);
+  }
+  .team-one {
+    color: darkblue;
+  }
+  .team-two {
+    color: darkred;
+  }
+}

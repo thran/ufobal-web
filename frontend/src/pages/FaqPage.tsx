@@ -1,0 +1,99 @@
+import { Link } from 'react-router';
+
+export default function FaqPage() {
+  return (
+    <div className="mx-auto max-w-3xl">
+      <h3 className="mt-4 text-xl font-bold">Co a jak?</h3>
+
+      <h5 className="mt-3 font-bold">Co tento web vlastně je</h5>
+      <p>
+        Jde o informační systém ufobalu (talířové taky). Naším cílem je shromáždit historické údaje do jedno
+        systému, kde k nim bude snadný a rychlý přístup. Do budoucna (když se najde dobré technické řešení)
+        chceme, aby se zápisy na turnaji dělali přímo do systému. Což nám umožní mít podrobnější, přesnější a
+        rychlejší statistiky z turnajů.
+      </p>
+
+      <h5 className="mt-3 font-bold">Co od vás potřebujeme</h5>
+      <p>
+        Rádi bychom udělali historická data co nejvíce kompletní. Z tabulek výsledků se bohužel nedá vyčíst
+        všechno a obsahují spoustu chyb a nejasností. Udělali jsme co šlo, abychom správně spojili výsledky z
+        Nížkova, Brna a halových turnajů, ale nevíme všechno a neznáme všechny, takže bychom vás rádi
+        poprosili o následující:
+      </p>
+      <ul className="ml-6 list-disc">
+        <li>
+          <b>Šiřte tento web</b> mezi další hráče ufobalu, aby nám taky pomohli. Použijte prosím odkaz{' '}
+          <b>
+            <Link to="/faq">is.ufobal.cz/intro</Link>
+          </b>
+          .
+        </li>
+        <li>
+          Najděte sebe a <b>doplňte osobní údaje</b> o sobě - hlavně jméno a pohlaví.
+        </li>
+        <li>
+          <b>Vyplňte za jaké týmy jste hráli</b> - víme, kde jste dali góly, ale bohužel ne vždy za jaký tým.
+        </li>
+        <li>
+          <b>Zkontrolujte sebe a svůj tým</b> (týmy). Zejména očekáváme tyto problémy
+          <ul className="ml-6 list-disc">
+            <li>Hráč je mezi hráči vícekrát.</li>
+            <li>To stejné s týmy.</li>
+            <li>Hráči chybějí nějaké góly.</li>
+            <li>
+              Špatné pořadí na turnaji. (Chybějící pořadí nehlašte, leda že byste znali celkové výsledky
+              turnaje.)
+            </li>
+          </ul>
+        </li>
+        <li>
+          <b>
+            Nahlašte nalezené problémy{' '}
+            <a
+              href="https://docs.google.com/forms/d/1AcEV9XoB__lzwH9sN71xINuW0r6bsnyIMRUMyLJByHM/viewform"
+              target="_blank"
+              rel="noreferrer"
+            >
+              sem
+            </a>
+          </b>
+          .
+        </li>
+        <li>
+          Pro<b>hledejte</b> svoje disky a emaily (nevěřili byste, co se tam dá najít) jestli nemáte nějaké{' '}
+          <b>historické tabulky s výsledky</b> (hlavně ty turnaje, které nemají pořadí týmů) a pošlete{' '}
+          <a href="mailto:thran@centrum.cz">nám</a> je.
+        </li>
+      </ul>
+
+      <h3 className="mt-4 text-xl font-bold">Často kladené dotazy</h3>
+
+      <h5 className="mt-3 font-bold">Můžu něco pokazit?</h5>
+      <p>Krom znehodnocení dat o hráčích asi ne. Ale prosím, nezkoušejte to.</p>
+
+      <h5 className="mt-3 font-bold">Musím si vyplňovat jméno, příjmení a datum narození?</h5>
+      <p>
+        Rozhodně ne, ale budeme rádi. Díky jménu bude jasné o koho se přesně jedná. Datum budeme vždy
+        zobrazovat jen jako věk a do budoucna bude použito pro nějaké statistiky. Slibujeme, že ho nikomu
+        neřekneme.
+      </p>
+
+      <h5 className="mt-3 font-bold">Nemůžu najít svůj tým na nějakém turnaji.</h5>
+      <p>
+        Bohužel u všech turnajů nevíme přesně, které týmy tam hráli. Pokud máte seznam týmů (nejlépe s
+        pořadím) na nějakém turnaji, pošlete <a href="mailto:thran@centrum.cz">nám</a> ho.
+      </p>
+
+      <h5 className="mt-3 font-bold">Proč někteří hráči mají ve jméně jména týmů?</h5>
+      <p>
+        Ve výsledcích jsou často hráči stejného jména a někdy není jasné jaký hráč z Nížkova patří ke kterému
+        z Brna. Aby bylo jasné o koho jde, pro jistotu jsme připojili jméno týmů, ve kterém hráč hrál. Pokud
+        je hráč nějak identifikovatelný (doplněné jméno nebo účasti na turnajích), týmy se ze jména může
+        smazat.
+      </p>
+
+      <h5 className="mt-3 font-bold">Můžu vyplnit údaje za někoho jiného?</h5>
+      <p>Ano, ale vyplňujte jen to čím jste si jisti.</p>
+    </div>
+  );
+}

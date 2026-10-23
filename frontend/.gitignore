@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+*.local
+.vite
+.idea
+/test-results/
+/playwright-report/
+/e2e/.seed.json
