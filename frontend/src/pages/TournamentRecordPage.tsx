@@ -39,30 +39,27 @@ function MatchPanel({
   return (
     <section className="border border-gray-300 p-2">
       <h4 className="mb-2 font-bold">{title}</h4>
-      {matches.map((m, i) => {
-        const to = matchPath(tournamentPk, m.pk, true);
-        return (
-          <div key={m.pk} className="flex gap-2 py-1 odd:bg-gray-50">
-            <span className="w-6 shrink-0">{i + 1}.</span>
-            <span className="min-w-0 flex-1 text-right">
-              <Link to={to}>{name(m.team_one)}</Link>
-            </span>
-            <span className="min-w-0 flex-1">
-              <Link to={to}>{name(m.team_two)}</Link>
-            </span>
-            {m.referee_team != null && <span className="shrink-0">({name(m.referee_team)})</span>}
-            <span className="shrink-0">
-              {m.start && (
-                <>
-                  {m.score_one}:{m.score_two}
-                  {m.with_shootout ? 'P' : ''}
-                  {!m.end && ' hraje se'}
-                </>
-              )}
-            </span>
-          </div>
-        );
-      })}
+      {matches.map((m, i) => (
+        <Link
+          key={m.pk}
+          to={matchPath(tournamentPk, m.pk, true)}
+          className="flex gap-2 py-1 text-inherit odd:bg-gray-50 hover:bg-gray-100 hover:text-inherit"
+        >
+          <span className="w-6 shrink-0">{i + 1}.</span>
+          <span className="min-w-0 flex-1 text-right text-primary">{name(m.team_one)}</span>
+          <span className="min-w-0 flex-1 text-primary">{name(m.team_two)}</span>
+          {m.referee_team != null && <span className="shrink-0">({name(m.referee_team)})</span>}
+          <span className="shrink-0">
+            {m.start && (
+              <>
+                {m.score_one}:{m.score_two}
+                {m.with_shootout ? 'P' : ''}
+                {!m.end && ' hraje se'}
+              </>
+            )}
+          </span>
+        </Link>
+      ))}
     </section>
   );
 }
