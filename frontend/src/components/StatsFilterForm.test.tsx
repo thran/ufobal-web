@@ -6,7 +6,7 @@ import { renderWithProviders } from '../test/utils';
 import StatsFilterForm, { useStatsFilter } from './StatsFilterForm';
 
 function Probe() {
-  const [filter, set, reset] = useStatsFilter();
+  const [filter, set, reset] = useStatsFilter('players');
   const { search } = useLocation();
   return (
     <>
@@ -40,4 +40,26 @@ test('decimal year is truncated, not dropped', async () => {
   await userEvent.clear(input);
   await userEvent.type(input, '2015.7');
   await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent(/from=2015(&|$)/));
+});
+
+test('filters are remembered and restored when the URL has none', async () => {
+  const first = renderWithProviders(<Probe />, { route: '/?g=w&sort=-G&page=3' });
+  await waitFor(() => expect(localStorage.getItem('ufo:statsFilter:players')).toContain('g=w&sort=-G'));
+  expect(localStorage.getItem('ufo:statsFilter:players')).not.toContain('page');
+  first.unmount();
+  renderWithProviders(<Probe />, { route: '/' });
+  await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent(/^\?g=w&sort=-G$/));
+});
+
+test('remembered filters expire after a day and never override the URL', async () => {
+  localStorage.setItem(
+    'ufo:statsFilter:players',
+    JSON.stringify({ at: Date.now() - 25 * 60 * 60 * 1000, search: 'g=w' }),
+  );
+  const first = renderWithProviders(<Probe />, { route: '/' });
+  expect(screen.getByTestId('search')).toBeEmptyDOMElement();
+  first.unmount();
+  localStorage.setItem('ufo:statsFilter:players', JSON.stringify({ at: Date.now(), search: 'g=w' }));
+  renderWithProviders(<Probe />, { route: '/?g=m' });
+  expect(screen.getByTestId('search')).toHaveTextContent(/^\?g=m$/);
 });

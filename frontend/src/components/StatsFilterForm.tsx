@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import {
   CATEGORY_LABELS,
@@ -15,14 +15,53 @@ const RESET_KEYS = {
 } as const satisfies Record<string, readonly string[]>;
 export type StatsFilterGroup = keyof typeof RESET_KEYS;
 
-/** Stats filter stored in the URL; writes replace the history entry and reset pagination. */
-export function useStatsFilter(): [
-  StatsFilter,
-  (patch: Partial<StatsFilter>) => void,
-  (group: StatsFilterGroup) => void,
-] {
+const PERSIST_MS = 24 * 60 * 60 * 1000;
+const persistKey = (page: string) => `ufo:statsFilter:${page}`;
+
+function loadPersisted(page: string): string | null {
+  try {
+    const raw = localStorage.getItem(persistKey(page));
+    if (!raw) return null;
+    const { at, search } = JSON.parse(raw) as { at: number; search: string };
+    return Date.now() - at < PERSIST_MS && typeof search === 'string' ? search : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePersisted(page: string, search: string) {
+  try {
+    localStorage.setItem(persistKey(page), JSON.stringify({ at: Date.now(), search }));
+  } catch {
+    /* storage unavailable or full */
+  }
+}
+
+/**
+ * Stats filter stored in the URL; writes replace the history entry and reset pagination.
+ * Filters and sort (not the page) are remembered for 24 hours and restored when the URL has none.
+ */
+export function useStatsFilter(
+  page: 'players' | 'goalies',
+): [StatsFilter, (patch: Partial<StatsFilter>) => void, (group: StatsFilterGroup) => void] {
   const [params, setParams] = useSearchParams();
+  const [restore] = useState(() => (params.size ? null : loadPersisted(page)));
+  // Not a layout effect: React Router ignores navigation before its own effects have run.
+  useEffect(() => {
+    if (restore) setParams(new URLSearchParams(restore), { replace: true });
+  }, [restore, setParams]);
   const paramsKey = params.toString();
+  const restoring = useRef(restore != null);
+  useEffect(() => {
+    // Skip the empty URL seen before the restore lands.
+    if (restoring.current) {
+      restoring.current = false;
+      return;
+    }
+    const next = new URLSearchParams(paramsKey);
+    next.delete('page');
+    savePersisted(page, next.toString());
+  }, [page, paramsKey]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filter = useMemo(() => parseStatsFilter(params, new Date().getFullYear()), [paramsKey]);
   const set = useCallback(

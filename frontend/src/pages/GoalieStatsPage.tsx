@@ -31,7 +31,7 @@ export default function GoalieStatsPage() {
   const statsQuery = useGoalieStats();
   const { graph } = graphQuery;
   const stats = statsQuery.data;
-  const [filter, setFilter, resetFilter] = useStatsFilter();
+  const [filter, setFilter, resetFilter] = useStatsFilter('goalies');
 
   const tournaments = useMemo(
     () =>

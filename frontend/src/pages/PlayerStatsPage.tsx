@@ -21,7 +21,7 @@ const numberColumn = (id: 'goals' | 'assists' | 'canada', header: string) =>
 
 export default function PlayerStatsPage() {
   const { graph, error, isPending, refetch } = useGraph();
-  const [filter, setFilter, resetFilter] = useStatsFilter();
+  const [filter, setFilter, resetFilter] = useStatsFilter('players');
 
   const tournaments = useMemo(
     () => (graph ? filterTournaments(graph.tournaments, filter, { allowLiga: true }) : []),
