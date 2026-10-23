@@ -75,3 +75,23 @@ test('closed_edit still shows the record link to staff', async () => {
   render(500, testUser({ is_authorized: true, is_staff: true }));
   expect(await screen.findByRole('link', { name: 'Zaznamenávat' })).toBeInTheDocument();
 });
+
+test('shows penalties still running at the latest event time', async () => {
+  const match = recordedMatch();
+  mockGraphApi({
+    'tournament/1': t1,
+    'matchs?tournament=1': [{ ...match, penalties: [{ ...match.penalties[0], time: '00:09:30' }] }],
+  });
+  render();
+  expect(await screen.findByText(/00:30 -/)).toBeInTheDocument();
+});
+
+test('swap button swaps the sides', async () => {
+  mock();
+  render();
+  await screen.findByTestId('events-mobile');
+  const names = () => screen.getAllByTitle(/.+/).map((e) => e.getAttribute('title'));
+  const before = names();
+  await userEvent.click(screen.getByRole('button', { name: 'Prohodit strany' }));
+  expect(names()).toEqual([...before].reverse());
+});

@@ -7,11 +7,19 @@ import ErrorBox from '../components/ErrorBox';
 import { EventList } from '../components/match/EventList';
 import { GoalieRow } from '../components/match/GoalieRow';
 import { MatchStatus } from '../components/match/MatchStatus';
+import { PenaltyCountdowns } from '../components/match/PenaltyCountdowns';
 import { Scoreboard } from '../components/match/Scoreboard';
 import { SwitchToggle } from '../components/match/SwitchToggle';
 import { TeamNames } from '../components/match/TeamNames';
 import Spinner from '../components/Spinner';
-import { computeGoalies, eventCounts, serverEvents } from '../domain/matchEvents';
+import {
+  activePenalties,
+  computeGoalies,
+  eventCounts,
+  serverEvents,
+  type PenaltyData,
+} from '../domain/matchEvents';
+import { hmsToMs } from '../domain/time';
 import { livePath, matchPath } from '../paths';
 import { useGraph, useMatches, useTournament } from '../queries/data';
 
@@ -21,6 +29,7 @@ export default function MatchViewPage() {
   const matchId = Number(params.matchId);
   const [live, setLive] = useState(true);
   const [showShots, setShowShots] = useState(false);
+  const [swapped, setSwapped] = useState(false);
   const { data: user } = useUser();
   const tournamentQuery = useTournament(id);
   const { graph, error: graphError, refetch: refetchGraph } = useGraph();
@@ -68,14 +77,22 @@ export default function MatchViewPage() {
   const phase = match.length ? null : match.halftime_length ? 2 : match.start ? 1 : 0;
   const totName = (pk: number | null) => (pk == null ? '' : (graph.totsById.get(pk)?.name_pure ?? ''));
   const playerName = (pk: number | null) => (pk == null ? '' : (graph.playersById.get(pk)?.nickname ?? ''));
-  const left = { team: match.team_one ?? 0, colorClass: 'team-one' };
-  const right = { team: match.team_two ?? 0, colorClass: 'team-two' };
+  const leftTeam = (swapped ? match.team_two : match.team_one) ?? 0;
+  const rightTeam = (swapped ? match.team_one : match.team_two) ?? 0;
   const teamColor = (team: number | null) =>
     team === match.team_one ? 'team-one' : team === match.team_two ? 'team-two' : '';
+  const left = { team: leftTeam, colorClass: teamColor(leftTeam) };
+  const right = { team: rightTeam, colorClass: teamColor(rightTeam) };
   const goalieName = (team: number) => (goalies[team] != null ? playerName(goalies[team]) : null);
-  const leftCounts = eventCounts(events, match.team_one);
-  const rightCounts = eventCounts(events, match.team_two);
   const referee = match.referee != null ? graph.playersById.get(match.referee) : undefined;
+  // The view has no running clock; like the old app, penalties count from the latest event.
+  const gameMs = Math.max(0, ...events.map((e) => hmsToMs(e.time)));
+  const penaltyItems = (team: number) =>
+    activePenalties(events, team, gameMs).map((p) => ({
+      id: p.event.id,
+      playerName: playerName((p.event.data as PenaltyData).player),
+      remainingMs: p.remainingMs,
+    }));
   const showRecord = canRecord(user) && !(tournament.closed_edit && !isStaff(user));
 
   return (
@@ -101,16 +118,23 @@ export default function MatchViewPage() {
         </p>
       )}
       <GoalieRow
-        left={{ ...left, goalieName: left.team == null ? null : goalieName(left.team) }}
-        right={{ ...right, goalieName: right.team == null ? null : goalieName(right.team) }}
+        left={{ ...left, goalieName: goalieName(left.team) }}
+        right={{ ...right, goalieName: goalieName(right.team) }}
       />
       <TeamNames
-        left={{ name: totName(match.team_one), colorClass: left.colorClass }}
-        right={{ name: totName(match.team_two), colorClass: right.colorClass }}
+        left={{ name: totName(leftTeam), colorClass: left.colorClass }}
+        right={{ name: totName(rightTeam), colorClass: right.colorClass }}
+        onSwap={() => setSwapped((v) => !v)}
       />
+      {(phase === 1 || phase === 2) && (
+        <PenaltyCountdowns
+          left={{ items: penaltyItems(leftTeam), colorClass: left.colorClass }}
+          right={{ items: penaltyItems(rightTeam), colorClass: right.colorClass }}
+        />
+      )}
       <Scoreboard
-        left={{ ...leftCounts, colorClass: left.colorClass }}
-        right={{ ...rightCounts, colorClass: right.colorClass }}
+        left={{ ...eventCounts(events, leftTeam), colorClass: left.colorClass }}
+        right={{ ...eventCounts(events, rightTeam), colorClass: right.colorClass }}
         aside={<SwitchToggle label="střely" checked={showShots} onChange={setShowShots} />}
       />
       <label data-testid="toggles-mobile" className="my-2 block text-center md:hidden">
@@ -124,7 +148,7 @@ export default function MatchViewPage() {
       </label>
       <EventList
         events={events}
-        sides={{ left: match.team_one, right: match.team_two }}
+        sides={{ left: leftTeam, right: rightTeam }}
         teamColor={teamColor}
         playerName={playerName}
         showShots={showShots}
