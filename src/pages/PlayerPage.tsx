@@ -4,6 +4,7 @@ import { isOwnPlayer, isStaff } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
+import { CrossIcon, LinkIcon, PencilIcon } from '../components/icons';
 import { FieldError, useValidation } from '../components/forms/validation';
 import Spinner from '../components/Spinner';
 import { scoreWithoutTeam } from '../domain/graph';
@@ -15,6 +16,8 @@ import PlayerEditForm from './PlayerEditForm';
 import PlayerPairingDialog from './PlayerPairingDialog';
 
 const SIGNS: Record<string, string> = { man: '♂', woman: '♀' };
+
+const actionLink = 'flex cursor-pointer items-center gap-1 text-primary hover:text-primary-dark';
 
 export default function PlayerPage() {
   const { id } = useParams();
@@ -89,15 +92,20 @@ function PlayerDetail({ id }: { id: string | undefined }) {
             </h2>
           )}
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {canEdit && !editing && (
-            <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
-              upravit profil
+            <button type="button" className={actionLink} onClick={() => setEditing(true)}>
+              <PencilIcon /> upravit profil
+            </button>
+          )}
+          {editing && (
+            <button type="button" className={actionLink} onClick={() => setEditing(false)}>
+              <CrossIcon /> zrušit změny
             </button>
           )}
           {user && !user.player && !player.is_paired && (
-            <button type="button" className="btn btn-secondary" onClick={() => setPairing(true)}>
-              spárovat
+            <button type="button" className={actionLink} onClick={() => setPairing(true)}>
+              <LinkIcon /> spárovat
             </button>
           )}
         </div>

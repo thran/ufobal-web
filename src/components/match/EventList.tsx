@@ -10,7 +10,7 @@ import {
 } from '../../domain/matchEvents';
 import { shortTime } from '../../domain/time';
 import { ICONS } from './icons';
-import { PencilIcon, TrashIcon } from './svgIcons';
+import { PencilIcon, TrashIcon } from '../icons';
 
 interface Props {
   events: MatchEvent[];

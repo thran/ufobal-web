@@ -61,7 +61,7 @@ function StringList({
       </div>
       <button
         type="button"
-        className="btn btn-secondary"
+        className="btn"
         onClick={() => {
           grew.current = true;
           onChange([...items, '']);
@@ -159,7 +159,7 @@ export default function RefereeFeedbackPage() {
     <div>
       <BackLink fallback={tournamentResultsPath(id)} />
       <div className="mb-2 text-right">
-        <button type="button" className="btn btn-secondary" onClick={() => void feedbacks.refetch()}>
+        <button type="button" className="btn" onClick={() => void feedbacks.refetch()}>
           Obnovit
         </button>
       </div>

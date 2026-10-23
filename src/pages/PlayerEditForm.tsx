@@ -63,14 +63,9 @@ export default function PlayerEditForm({
         <p className="text-sm text-gray-600">Datum narození vyplň jen pokud ho chceš změnit.</p>
       )}
       <p className="mb-3 italic">Datum narození nebude nikde zveřejňováno (pouze jako věk).</p>
-      <div className="flex gap-3">
-        <button type="submit" className="btn btn-primary" disabled={save.isPending}>
-          Uložit
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={onDone}>
-          zrušit změny
-        </button>
-      </div>
+      <button type="submit" className="btn" disabled={save.isPending}>
+        Uložit
+      </button>
     </form>
   );
 }

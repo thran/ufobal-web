@@ -32,7 +32,7 @@ export default function StarRating({
       {!readOnly && (
         <button
           type="button"
-          className="btn btn-secondary py-0"
+          className="btn py-1 text-xl font-bold"
           aria-label="Snížit hodnocení"
           onClick={() => step(-0.5)}
         >
@@ -63,7 +63,7 @@ export default function StarRating({
       {!readOnly && (
         <button
           type="button"
-          className="btn btn-secondary py-0"
+          className="btn py-1 text-xl font-bold"
           aria-label="Zvýšit hodnocení"
           onClick={() => step(0.5)}
         >

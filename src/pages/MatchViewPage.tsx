@@ -84,7 +84,7 @@ export default function MatchViewPage() {
       <MatchStatus phase={phase} liveToggle={{ checked: live, onChange: setLive }} />
       {showRecord && (
         <div className="my-2 text-center">
-          <Link to={matchPath(id, matchId, true)} className="btn btn-secondary text-sm">
+          <Link to={matchPath(id, matchId, true)} className="btn text-sm">
             Zaznamenávat
           </Link>
         </div>

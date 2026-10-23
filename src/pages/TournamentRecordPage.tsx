@@ -21,7 +21,7 @@ import {
 import { useGraph, useMatches, useTournament } from '../queries/data';
 import { useAddMatch } from '../queries/mutations';
 
-const btn = 'btn btn-secondary text-sm';
+const btn = 'btn text-sm';
 const heading = 'text-xl font-bold';
 
 function MatchPanel({
@@ -221,7 +221,7 @@ function RecordHub({
       {(tournament.is_tournament_open || staff) && (
         <>
           <h3 className={heading}>Zápasy</h3>
-          <button type="button" className="btn btn-secondary my-2" onClick={() => setDialog(true)}>
+          <button type="button" className="btn my-2" onClick={() => setDialog(true)}>
             + Nový zápas
           </button>
           <div className="grid gap-4 md:grid-cols-2">

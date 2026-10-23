@@ -8,7 +8,7 @@ import type { Graph } from '../domain/graph';
 import { matchPath, recordPath, tournamentResultsPath } from '../paths';
 import { useGraph, useMatches, useTournament } from '../queries/data';
 
-const btn = 'btn btn-secondary text-sm';
+const btn = 'btn text-sm';
 
 function Section({
   title,

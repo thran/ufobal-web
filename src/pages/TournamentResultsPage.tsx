@@ -124,7 +124,7 @@ const pairColumns = [
 ];
 const pairRowId = (r: PairRow) => r.id;
 
-const btn = 'btn btn-secondary text-sm';
+const btn = 'btn text-sm';
 const heading = 'text-xl font-bold';
 
 function TournamentResults({

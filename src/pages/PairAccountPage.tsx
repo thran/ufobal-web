@@ -69,7 +69,7 @@ export default function PairAccountPage() {
           <button type="button" className="btn" onClick={() => setLoginOpen(true)}>
             přes jméno
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => setSignupOpen(true)}>
+          <button type="button" className="btn" onClick={() => setSignupOpen(true)}>
             registrovat
           </button>
         </div>
