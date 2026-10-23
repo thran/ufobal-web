@@ -32,6 +32,10 @@ export default function PlayerStatsPage() {
       graph ? playerStatsRows(graph.players, tournaments).filter((r) => genderMatches(r.player, filter)) : [],
     [graph, tournaments, filter],
   );
+  const columnTournaments = useMemo(
+    () => tournaments.filter((t) => rows.some((r) => r.perTournament[t.pk])),
+    [tournaments, rows],
+  );
   const team = filter.team;
   const extraFilter = useMemo(
     () => (team ? (r: PlayerStatsRow) => r.player.teamsSearch.includes(searchKey(team)) : undefined),
@@ -46,7 +50,7 @@ export default function PlayerStatsPage() {
         cell: ({ row }) => <PlayerLink player={row.original.player} />,
         meta: { width: '10%' },
       }),
-      ...tournaments.map((t) =>
+      ...columnTournaments.map((t) =>
         helper.display({
           id: `t${t.pk}`,
           header: () => <Link to={tournamentResultsPath(t.pk)}>{t.full_name}</Link>,
@@ -68,7 +72,7 @@ export default function PlayerStatsPage() {
       numberColumn('assists', 'A'),
       numberColumn('canada', 'K'),
     ],
-    [tournaments],
+    [columnTournaments],
   );
 
   if (error) return <ErrorBox error={error} onRetry={refetch} />;

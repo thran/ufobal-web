@@ -47,3 +47,10 @@ test('all categories off shows no tournament columns and still renders', async (
   await screen.findByRole('checkbox', { name: 'Brno' });
   expect(screen.queryByRole('link', { name: 'Brno 2023' })).not.toBeInTheDocument();
 });
+
+test('tournaments without any player stats get no column', async () => {
+  mockGraphApi();
+  renderWithProviders(<PlayerStatsPage />, { route: '/stats/players?cat=brno,nizkov,hala' });
+  expect(await screen.findByRole('link', { name: 'Brno 2023' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Hala 2025' })).not.toBeInTheDocument();
+});
