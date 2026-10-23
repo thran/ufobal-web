@@ -65,3 +65,9 @@ Before finishing a change: `pytest` for backend changes; `npm test`, `npm run ty
 - Django sends `X-Frame-Options: DENY`; to test narrow viewports in a browser, use an iframe served by a Vite dev server, not Django.
 - Social login does not work on the Vite dev server unless its redirect URI is registered.
 - The legacy app (`/old/`, AngularJS + Grunt + Bower) is kept until the new frontend is deployed; don't refactor it.
+
+## Deploy
+
+- `git push production master` → server hook runs `deploy.sh`: `poetry install`, frontend `npm ci` + build into `static/spa/` + `templates/spa.html`, `migrate`, `collectstatic`, then restarts the app.
+- The server builds the frontend, so it needs Node `^20.19.0 || >=22.12.0` (Vite 7). On the server (CentOS 7) it is the unofficial glibc-217 build in `/opt/node/current`; `deploy.sh` puts it first in `PATH`.
+- The legacy app's build (`static/dist/`) is committed; rebuild it locally with `grunt` when changing it.
