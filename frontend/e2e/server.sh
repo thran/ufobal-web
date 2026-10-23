@@ -2,7 +2,7 @@
 # Fresh sqlite DB + seed + Django runserver for Playwright (started by playwright.config.ts webServer).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-BACKEND_DIR="${UFOBAL_BACKEND:-../ufobal-web}"
+BACKEND_DIR="${UFOBAL_BACKEND:-..}"
 [ -d "$BACKEND_DIR" ] || { echo "Backend dir not found: $BACKEND_DIR (set UFOBAL_BACKEND)" >&2; exit 1; }
 BACKEND="$(cd "$BACKEND_DIR" && pwd)"
 PY="${UFOBAL_PYTHON:-$HOME/miniconda3/envs/ufobal_web/bin/python}"

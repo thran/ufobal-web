@@ -42,7 +42,7 @@ Login: `e2e` / `e2e`. (`seed_e2e` refuses non-sqlite databases and already seede
 
 ## Frontend
 
-- The new React SPA lives in the `ufobal-web-frontend` repo. Its `scripts/build-to-backend.sh` builds it into `static/spa/` and `templates/spa.html`.
+- The new React SPA lives in `frontend/` (see `frontend/README.md`). `frontend/scripts/build-to-backend.sh` builds it into `static/spa/` and `templates/spa.html`.
 - Without a build, `/` returns 503 "Frontend is not built".
 - The old AngularJS app is served under `/old/`.
 

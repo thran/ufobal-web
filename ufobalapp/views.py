@@ -1182,7 +1182,7 @@ def home(request):
         return render(request, "spa.html", {"initial_json": _json_for_script(initial)})
     except TemplateDoesNotExist:
         return HttpResponse(
-            "Frontend is not built. Run ufobal-web-frontend/scripts/build-to-backend.sh.",
+            "Frontend is not built. Run frontend/scripts/build-to-backend.sh.",
             status=503,
             content_type="text/plain; charset=utf-8",
         )

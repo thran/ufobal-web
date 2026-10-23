@@ -7,6 +7,6 @@ managestats/static/managestats/dist
 ufobalapp/static/ufobalapp/dist
 django_error.log
 
-# new React frontend build output (copied from ufobal-web-frontend)
+# new React frontend build output (from frontend/scripts/build-to-backend.sh)
 /static/spa/
 /templates/spa.html

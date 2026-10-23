@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Builds the SPA and copies it into the Django repo (static/spa + templates/spa.html).
+# Builds the SPA and copies it into the Django project (static/spa + templates/spa.html).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-BACKEND="$(cd "${1:-${UFOBAL_BACKEND:-../ufobal-web}}" && pwd)"
+BACKEND="$(cd "${1:-${UFOBAL_BACKEND:-..}}" && pwd)"
 
 [ -f "$BACKEND/manage.py" ] || { echo "Not a Django repo: $BACKEND" >&2; exit 1; }
 
