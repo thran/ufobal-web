@@ -210,7 +210,9 @@ export function initRecorder(o: {
     initialGoalies: server.initialGoalies,
     matchPatchError: null,
   };
-  if (o.stored) {
+  // Local data wins only while it holds unsaved changes; otherwise the server is the source of truth.
+  const unsaved = o.stored && (o.stored.matchPatch != null || o.stored.events.length > 0);
+  if (o.stored && unsaved) {
     const markers = [
       ...(o.stored.h1Length ? [marker('halftime', o.stored.h1Length)] : []),
       ...(o.stored.length ? [marker('end', o.stored.length)] : []),
@@ -239,13 +241,16 @@ export function initRecorder(o: {
   const h1Length = p?.halftime_length ?? match.halftime_length;
   const length = p?.length ?? match.length;
   const start = p?.start ?? match.start;
-  const { phase, clock } = initialClock({
+  const derived = initialClock({
     halftimeMinutes: tournament.halftime_length,
     h1Length,
     length,
     start,
     latestTime,
   });
+  const { phase } = derived;
+  // Keep a stored (possibly running) clock across reloads unless the server moved the match on.
+  const clock = o.stored && o.stored.phase === phase ? o.stored.clock : derived.clock;
   return {
     ...common,
     phase,
@@ -258,6 +263,6 @@ export function initRecorder(o: {
     clock,
     events,
     goalies: computeGoalies(server.initialGoalies, events),
-    sidesSwapped: false,
+    sidesSwapped: o.stored?.sidesSwapped ?? false,
   };
 }

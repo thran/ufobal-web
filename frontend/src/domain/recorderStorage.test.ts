@@ -126,7 +126,13 @@ test('import drops old events missing their required player or goalie, or with a
 test('stored restore rebuilds halftime/end markers the server does not know yet', () => {
   const match = { ...recordedMatch(), halftime_length: null, length: null };
   let s = initRecorder({ match, tournament, rosterOf, stored: null, imported: null });
-  s = { ...s, phase: null, h1Length: '00:10:00', length: '00:20:00' };
+  s = {
+    ...s,
+    phase: null,
+    h1Length: '00:10:00',
+    length: '00:20:00',
+    matchPatch: { halftime_length: '00:10:00', length: '00:20:00' },
+  };
   saveRecorder(s);
   const restored = initRecorder({ match, tournament, rosterOf, stored: loadRecorder(500), imported: null });
   expect(restored.events.filter((e) => e.type === 'halftime').map((e) => e.time)).toEqual(['00:10:00']);
@@ -194,4 +200,34 @@ describe('loadRecorder shape guard', () => {
     const s = initRecorder({ match: recordedMatch(), tournament, rosterOf, stored, imported: null });
     expect(s.phase).toBe(2);
   });
+});
+
+test('stored data without unsaved changes yields to the server, keeping the clock when the phase matches', () => {
+  const match = { ...recordedMatch(), halftime_length: null, length: null, referee: 102 };
+  let s = initRecorder({ match, tournament, rosterOf, stored: null, imported: null });
+  s = { ...s, referee: null, clock: startClock(stoppedClock(300_000), 1_000), sidesSwapped: true };
+  saveRecorder(s);
+  const restored = initRecorder({ match, tournament, rosterOf, stored: loadRecorder(500), imported: null });
+  expect(restored.referee).toBe(102);
+  expect(restored.phase).toBe(1);
+  expect(restored.clock.running).toBe(true);
+  expect(restored.sidesSwapped).toBe(true);
+  const ended = initRecorder({
+    match: { ...match, halftime_length: '00:10:00', length: '00:20:00' },
+    tournament,
+    rosterOf,
+    stored: loadRecorder(500),
+    imported: null,
+  });
+  expect(ended.phase).toBe(null);
+  expect(ended.clock.running).toBe(false);
+});
+
+test('stored data with an unsaved match patch still wins over the server', () => {
+  const match = { ...recordedMatch(), halftime_length: null, length: null, referee: 102 };
+  let s = initRecorder({ match, tournament, rosterOf, stored: null, imported: null });
+  s = { ...s, referee: 101, matchPatch: { referee: 101 } };
+  saveRecorder(s);
+  const restored = initRecorder({ match, tournament, rosterOf, stored: loadRecorder(500), imported: null });
+  expect(restored.referee).toBe(101);
 });
