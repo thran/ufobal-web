@@ -31,7 +31,7 @@ const bodyOf = (fetchMock: ReturnType<typeof render>, suffix: string) =>
 test('shows roster, adds a player via combobox', async () => {
   const fetchMock = render();
   expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Brno 2023 - Ufo');
-  expect(screen.getByRole('link', { name: /Pépa/ })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Pépa - Josef Novák/ })).toBeInTheDocument();
   await userEvent.type(screen.getByRole('combobox', { name: 'Hráč' }), 'karel');
   await userEvent.click(await screen.findByRole('option', { name: /Karel/ }));
   await userEvent.click(screen.getByRole('button', { name: 'Přidat' }));

@@ -227,7 +227,7 @@ function Roster({ tot, players }: { tot: TotVM; players: PlayerVM[] }) {
             >
               ×
             </button>
-            <PlayerLink player={p} />
+            <PlayerLink player={p} label={p.full_name} />
           </li>
         ))}
       </ul>
