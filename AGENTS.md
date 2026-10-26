@@ -48,6 +48,7 @@ Before finishing a change: `pytest` for backend changes; `npm test`, `npm run ty
 - Old Czech URLs of the AngularJS app redirect client-side (`src/routes/legacyRedirects.tsx`).
 - Live match recording: events stored in localStorage (`src/domain/recorderStorage.ts`) and sent through an ordered sync queue with retry, timeout and poison handling (`src/hooks/useMatchSync.ts`); `client_id` makes event creation idempotent on the backend.
 - Permissions are intentionally loose: any user paired with a player can edit rosters, register teams and add matches; `closed_edit` is not enforced server-side.
+- Roles: **managers** have the `ufobalapp.manage` permission (`ufobalapp/permissions.py:is_manager`; superusers pass automatically) and get `managestats`, birthdates, editing any player and recording in closed tournaments. **Admins** are `is_staff` users, i.e. those who can enter Django `/admin/`. `/user_profile` exposes both as `is_manager` / `is_admin`. Grant the permission in Django admin on the user.
 
 ## Conventions
 

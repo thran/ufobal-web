@@ -2,9 +2,9 @@ import json
 from datetime import date
 
 import pytest
-from django.contrib.auth.models import User
 
 from ufobalapp.models import Match, Player, Team, TeamOnTournament, Tournament
+from ufobalapp.tests.helpers import create_manager
 
 
 def make_tournament():
@@ -47,7 +47,7 @@ def test_anonymous_pairing_request_is_401(client, setup):
 
 @pytest.mark.django_db
 def test_referee_feedbacks_for_staff_without_player_is_400(client, setup):
-    client.force_login(User.objects.create_user('admin', password='x', is_staff=True))
+    client.force_login(create_manager('admin'))
     response = client.get(f'/api_frontend/get_referee_feedbacks/{setup["t"].pk}')
     assert response.status_code == 400
     assert response.content.decode() == 'Nejsi v žádném týmu'
@@ -58,7 +58,7 @@ def test_referee_feedbacks_for_staff_without_player_is_400(client, setup):
 @pytest.mark.django_db
 def test_add_match_with_bad_goalie_creates_nothing(client, setup):
     a, b, c = setup['tots']
-    client.force_login(User.objects.create_user('admin', password='x', is_staff=True))
+    client.force_login(create_manager('admin'))
     outsider = Player.objects.create(name='o', lastname='o', nickname='Out')
     response = post(client, '/api_frontend/add_match', {
         'tournament': setup['t'].pk, 'team_one': a.pk, 'team_two': b.pk, 'referee_team': c.pk,

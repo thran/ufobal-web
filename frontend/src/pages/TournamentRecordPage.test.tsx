@@ -76,7 +76,7 @@ test('matches grouped by field with no-field panel, scores and running state', a
   expect(screen.getByRole('link', { name: 'Kométa' })).toHaveAttribute('href', '/tournaments/1/teams/1001');
 });
 
-test('closed_edit redirects non-staff to results', async () => {
+test('closed_edit redirects non-managers to results', async () => {
   render({ ...openT1, closed_edit: true });
   await screen.findByTestId('loc');
   expect(await screen.findByText('/tournaments/1/results')).toBeInTheDocument();

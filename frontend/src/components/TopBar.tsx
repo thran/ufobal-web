@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
 import { useAppConfig } from '../AppContext';
-import { isStaff } from '../auth/permissions';
+import { isManager } from '../auth/permissions';
 import UserMenu from '../auth/UserMenu';
 import { useUser } from '../auth/user';
 
@@ -61,7 +61,7 @@ export default function TopBar() {
             <NavLink to="/faq" onClick={close} className={linkClass}>
               Co a jak?
             </NavLink>
-            {isStaff(user) && (
+            {isManager(user) && (
               <a href="/managestats/" className={linkClass}>
                 Admin
               </a>

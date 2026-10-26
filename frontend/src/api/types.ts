@@ -13,6 +13,8 @@ export interface User {
   first_name: string;
   last_name: string;
   is_staff: boolean;
+  is_admin: boolean;
+  is_manager: boolean;
   is_authorized: boolean;
   player: PlayerSimple | null;
 }

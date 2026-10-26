@@ -1,13 +1,22 @@
 import { expect, test } from 'vitest';
 import type { User } from '../api/types';
-import { canRecord, isLoggedIn, isOwnPlayer, isStaff } from './permissions';
+import { canRecord, isAdmin, isLoggedIn, isManager, isOwnPlayer } from './permissions';
 
-const base: User = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: false, player: null };
+const base: User = {
+  first_name: 'A',
+  last_name: 'B',
+  is_staff: false,
+  is_admin: false,
+  is_manager: false,
+  is_authorized: false,
+  player: null,
+};
 const player = { pk: 7, name: 'a', lastname: 'b', nickname: 'c', age: 20, full_name: 'a b', gender: 'man', is_paired: true };
 
 test('anonymous', () => {
   expect(isLoggedIn(null)).toBe(false);
-  expect(isStaff(null)).toBe(false);
+  expect(isManager(null)).toBe(false);
+  expect(isAdmin(null)).toBe(false);
   expect(canRecord(undefined)).toBe(false);
   expect(isOwnPlayer(null, 7)).toBe(false);
 });
@@ -25,6 +34,12 @@ test('authorized user with player', () => {
   expect(isOwnPlayer(u, 8)).toBe(false);
 });
 
-test('staff', () => {
-  expect(isStaff({ ...base, is_staff: true })).toBe(true);
+test('manager', () => {
+  expect(isManager(base)).toBe(false);
+  expect(isManager({ ...base, is_manager: true })).toBe(true);
+});
+
+test('admin', () => {
+  expect(isAdmin(base)).toBe(false);
+  expect(isAdmin({ ...base, is_admin: true })).toBe(true);
 });

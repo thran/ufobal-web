@@ -4,11 +4,11 @@ from datetime import date, time
 from unittest import mock
 
 import pytest
-from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from ufobalapp import views
 from ufobalapp.models import Goal, GoalieInMatch, Match, Penalty, Player, Shot, Team, TeamOnTournament, Tournament
+from ufobalapp.tests.helpers import create_manager
 
 
 @pytest.fixture()
@@ -29,7 +29,7 @@ def setup(client):
     team_b = TeamOnTournament.objects.create(team=Team.objects.create(name='B'), tournament=t)
     team_b.players.add(b1)
     m = Match.objects.create(tournament=t, team_one=team_a, team_two=team_b, referee_team=team_b)
-    client.force_login(User.objects.create_user('admin', password='x', is_staff=True))
+    client.force_login(create_manager('admin'))
     return {'m': m, 'a1': a1, 'b1': b1, 'team_a': team_a, 'team_b': team_b}
 
 

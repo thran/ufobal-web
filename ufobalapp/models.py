@@ -78,7 +78,7 @@ class Player(MergeableModel):
     pairing_token = models.CharField('Párovací token', max_length=10, null=True, blank=True, default=generate_pair)
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
 
-    def to_json(self, tournaments=True, simple=False, staff=False, **kwargs):
+    def to_json(self, tournaments=True, simple=False, manager=False, **kwargs):
         data = {
             "pk": self.pk,
             "name": self.name,
@@ -91,7 +91,7 @@ class Player(MergeableModel):
             "penalties": [p.to_json() for p in self.penalty_set.all()],
         }
 
-        if staff:
+        if manager:
             data["birthdate"] = self.birthdate
 
         if tournaments and not simple:
@@ -302,6 +302,8 @@ class Tournament(models.Model):
     class Meta:
         verbose_name = "turnaj"
         verbose_name_plural = "turnaje"
+        # Not tied to tournaments; the model only hosts the permission.
+        permissions = [('manage', 'Správce - přístup do sekce Správa')]
 
     BRNO = 'brno'
     NIZKOV = 'nizkov'
@@ -745,9 +747,9 @@ class RefereeFeedback(models.Model):
         }
 
 
-def list_cache_key(model_class, staff):
-    """Cache key of a list endpoint; staff responses contain extra fields (e.g. birthdate)."""
-    return f"{model_class.__name__}:staff" if staff else model_class.__name__
+def list_cache_key(model_class, manager):
+    """Cache key of a list endpoint; manager responses contain extra fields (e.g. birthdate)."""
+    return f"{model_class.__name__}:manager" if manager else model_class.__name__
 
 
 @receiver(post_save, sender=Player)
@@ -757,8 +759,8 @@ def list_cache_key(model_class, staff):
 @receiver(m2m_changed, sender=TeamOnTournament.players.through)
 def reset_cache(sender, instance, **kwargs):
     for model_class in (TeamOnTournament, Tournament, Player):
-        for staff in (False, True):
-            cache.delete(list_cache_key(model_class, staff))
+        for manager in (False, True):
+            cache.delete(list_cache_key(model_class, manager))
 
 
 @receiver(post_save, sender=Goal)

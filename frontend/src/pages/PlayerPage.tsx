@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { isOwnPlayer, isStaff } from '../auth/permissions';
+import { isOwnPlayer, isManager } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
@@ -52,7 +52,7 @@ function PlayerDetail({ id }: { id: string | undefined }) {
       </>
     );
 
-  const canEdit = isStaff(user) || isOwnPlayer(user, player.pk);
+  const canEdit = isManager(user) || isOwnPlayer(user, player.pk);
   const histTournamentVM = graph.tournamentsById.get(Number(histTournament));
   const histTots = [...(histTournamentVM?.tots ?? [])].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
   const allTournaments = [...graph.tournaments].sort((a, b) => b.date.localeCompare(a.date));
@@ -111,7 +111,7 @@ function PlayerDetail({ id }: { id: string | undefined }) {
         </div>
       </div>
       {editing && (
-        <PlayerEditForm player={player} isStaffUser={isStaff(user)} onDone={() => setEditing(false)} />
+        <PlayerEditForm player={player} isManagerUser={isManager(user)} onDone={() => setEditing(false)} />
       )}
       <hr className="my-3 border-gray-300" />
       <h3 className="text-xl font-bold">Turnaje</h3>
