@@ -4,6 +4,8 @@
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.forms import SelectMultiple
 
 from .models import Player, Team, TeamOnTournament, Tournament, \
@@ -41,24 +43,24 @@ class PlayerAdmin(admin.ModelAdmin):
     inlines = [PlayerInTeamsInline]
     actions = [merge]
 
-    # TOO SLOW
-    '''
     def get_queryset(self, request):
-        qs = super(ModelAdmin, self).get_queryset(request)
-        qs = qs.annotate(number_of_goals=Count('goals', distinct=True))
-        qs = qs.annotate(number_of_assistances=Count('assistances', distinct=True))
-        return qs
+        # correlated subqueries instead of joined Count()s: the join over goals x assistances was too slow
+        goals = Goal.objects.filter(shooter=OuterRef('pk')).order_by().values('shooter').annotate(c=Count('pk'))
+        assistances = (
+            Goal.objects.filter(assistance=OuterRef('pk')).order_by().values('assistance').annotate(c=Count('pk'))
+        )
+        return super().get_queryset(request).annotate(
+            number_of_goals=Coalesce(Subquery(goals.values('c')), 0),
+            number_of_assistances=Coalesce(Subquery(assistances.values('c')), 0),
+        )
 
-    def number_of_goals(self, obj):
+    @admin.display(description='Gólů celkem', ordering='number_of_goals')
+    def goal_count(self, obj):
         return obj.number_of_goals
-    number_of_goals.admin_order_field = 'number_of_goals'
-    number_of_goals.short_description = 'Počet gólů'
 
-    def number_of_assistances(self, obj):
+    @admin.display(description='Asistencí celkem', ordering='number_of_assistances')
+    def assistance_count(self, obj):
         return obj.number_of_assistances
-    number_of_assistances.admin_order_field = 'number_of_assistances'
-    number_of_assistances.short_description = 'Počet asistencí'
-    '''
 
 
 class TeamOnTournamentInline(admin.TabularInline):
