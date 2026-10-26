@@ -6,6 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from ufobalapp.permissions import is_manager
 from ufobalapp.views import is_authorized
 
 
@@ -18,6 +19,8 @@ def get_user_data(request):
             "first_name": user.first_name if user.first_name or user.last_name else user.username,
             "last_name": user.last_name,
             "is_staff": user.is_staff,
+            "is_admin": user.is_staff,
+            "is_manager": is_manager(user),
             "is_authorized": is_authorized(user),
             "player": user.player.to_json(simple=True) if hasattr(user, "player") else None,
         }

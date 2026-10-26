@@ -1,15 +1,15 @@
 from datetime import datetime, time
 
 import pytest
-from django.contrib.auth.models import User
 from django.urls import reverse
 
 from ufobalapp.models import Goal, Match, Player, Team, TeamOnTournament, Tournament
+from ufobalapp.tests.helpers import create_manager
 
 
 @pytest.mark.django_db
 def test_tournament_page_lists_scoring_players_missing_from_rosters(client):
-    client.force_login(User.objects.create(username='staff', is_staff=True))
+    client.force_login(create_manager())
     tournament = Tournament.objects.create(
         category=Tournament.BRNO, date=datetime(2023, 6, 10), name='T', location='L', field_count=1
     )

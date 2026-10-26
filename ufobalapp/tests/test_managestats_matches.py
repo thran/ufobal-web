@@ -6,6 +6,7 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from ufobalapp.models import Match, Team, TeamOnTournament, Tournament
+from ufobalapp.tests.helpers import create_manager
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def teams(tournament):
 
 @pytest.fixture
 def staff_client(client):
-    client.force_login(User.objects.create_user('staff', password='x', is_staff=True))
+    client.force_login(create_manager())
     return client
 
 
@@ -59,7 +60,7 @@ def test_matches_page_lists_matches_with_constant_query_count(
 
 
 @pytest.mark.django_db
-def test_matches_page_requires_staff(client, tournament):
+def test_matches_page_requires_manager(client, tournament):
     client.force_login(User.objects.create_user('plain', password='x'))
 
     response = client.get(f'/managestats/tournament/{tournament.pk}/matches/')

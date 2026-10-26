@@ -63,16 +63,16 @@ test('failed background refetch of tournament keeps the match visible', async ()
   expect(screen.getByTestId('events-mobile')).toBeInTheDocument();
 });
 
-test('closed_edit hides the record link from authorized non-staff', async () => {
+test('closed_edit hides the record link from authorized non-managers', async () => {
   mock(true);
   render(500, testUser({ is_authorized: true }));
   await screen.findByTestId('events-mobile');
   expect(screen.queryByRole('link', { name: 'Zaznamenávat' })).not.toBeInTheDocument();
 });
 
-test('closed_edit still shows the record link to staff', async () => {
+test('closed_edit still shows the record link to managers', async () => {
   mock(true);
-  render(500, testUser({ is_authorized: true, is_staff: true }));
+  render(500, testUser({ is_authorized: true, is_manager: true }));
   expect(await screen.findByRole('link', { name: 'Zaznamenávat' })).toBeInTheDocument();
 });
 
