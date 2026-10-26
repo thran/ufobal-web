@@ -85,7 +85,7 @@ test('server error text shown', async () => {
   renderWithProviders(<RefereeFeedbackPage />, {
     route: '/tournaments/1/referee-feedback',
     path: '/tournaments/:id/referee-feedback',
-    user: testUser({ is_staff: true, is_authorized: true }),
+    user: testUser({ is_manager: true, is_authorized: true }),
   });
   expect(await screen.findByRole('alert')).toBeInTheDocument();
 });

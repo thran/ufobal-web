@@ -12,7 +12,7 @@ export function useUser() {
 
 function setUserAndRefreshRest(qc: QueryClient, user: User | null) {
   qc.setQueryData(userQueryKey, user);
-  // Responses differ for staff (e.g. birthdate), so everything else is refetched.
+  // Responses differ for managers (e.g. birthdate), so everything else is refetched.
   void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== userQueryKey[0] });
 }
 

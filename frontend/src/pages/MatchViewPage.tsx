@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { canRecord, isStaff } from '../auth/permissions';
+import { canRecord, isManager } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
@@ -93,7 +93,7 @@ export default function MatchViewPage() {
       playerName: playerName((p.event.data as PenaltyData).player),
       remainingMs: p.remainingMs,
     }));
-  const showRecord = canRecord(user) && !(tournament.closed_edit && !isStaff(user));
+  const showRecord = canRecord(user) && !(tournament.closed_edit && !isManager(user));
 
   return (
     <>

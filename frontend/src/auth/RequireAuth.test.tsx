@@ -26,11 +26,11 @@ test('authorized level passes for authorized user', () => {
   expect(screen.getByText('tajné')).toBeInTheDocument();
 });
 
-test('staff level', () => {
-  const { unmount } = renderWithProviders(<RequireAuth level="staff">{secret}</RequireAuth>, { user: testUser({ is_authorized: true }) });
-  expect(screen.getByRole('alert')).toHaveTextContent('jen pro administrátory');
+test('manager level', () => {
+  const { unmount } = renderWithProviders(<RequireAuth level="manager">{secret}</RequireAuth>, { user: testUser({ is_authorized: true }) });
+  expect(screen.getByRole('alert')).toHaveTextContent('jen pro správce');
   unmount();
-  renderWithProviders(<RequireAuth level="staff">{secret}</RequireAuth>, { user: testUser({ is_staff: true }) });
+  renderWithProviders(<RequireAuth level="manager">{secret}</RequireAuth>, { user: testUser({ is_manager: true }) });
   expect(screen.getByText('tajné')).toBeInTheDocument();
 });
 

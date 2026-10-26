@@ -19,7 +19,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from managestats.views import is_staff_check
+from ufobalapp.permissions import is_manager
 from django.conf import settings
 from ufobalapp.models import (
     list_cache_key,
@@ -62,7 +62,7 @@ def user_passes_test_or_401(test_func):
 
 
 def is_authorized(user):
-    return user.is_staff or hasattr(user, "player") or settings.TEST
+    return is_manager(user) or hasattr(user, "player") or settings.TEST
 
 
 def get_json_one(request, model_class, pk):
@@ -78,7 +78,7 @@ def get_json_one(request, model_class, pk):
 def get_json_all(request, model_class):
     filtering = dict(request.GET)
     use_cache = model_class != Match and not filtering
-    cache_key = list_cache_key(model_class, request.user.is_staff)
+    cache_key = list_cache_key(model_class, is_manager(request.user))
     if use_cache:
         cached = cache.get(cache_key)
         if cached:
@@ -103,7 +103,7 @@ def get_json_all(request, model_class):
         filtering = {key: value[0] for key, value in filtering.items()}
         objs = objs.filter(**filtering)
 
-    data = [obj.to_json(simple=True, staff=request.user.is_staff) for obj in objs]
+    data = [obj.to_json(simple=True, manager=is_manager(request.user)) for obj in objs]
     if request.GET.get("html", False):
         return render(request, "api.html", {"data": json.dumps(data, indent=4)})
     if use_cache:
@@ -370,7 +370,7 @@ def get_empty_tournaments(request):
 def save_player(request):
     data = json.loads(str(request.body.decode('utf-8')))
     player = get_object_or_404(Player, pk=data["pk"])
-    if not (request.user.is_staff or player.user == request.user):
+    if not (is_manager(request.user) or player.user == request.user):
         return HttpResponse('Unauthorized', status=401)
 
     for field in ["nickname", "lastname", "name", "gender", "birthdate"]:
@@ -834,7 +834,7 @@ def remove_shot(request, shot_id):
     return HttpResponse("OK")
 
 
-@user_passes_test_or_401(is_staff_check)
+@user_passes_test_or_401(is_manager)
 @require_http_methods(["DELETE"])
 def remove_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
@@ -969,7 +969,7 @@ def create_pairing_request(request, player_id):
     return HttpResponse("OK")
 
 
-@user_passes_test_or_401(is_staff_check)
+@user_passes_test_or_401(is_manager)
 @require_http_methods(["POST"])
 def approve_pairing_request(request, request_id):
     pairing_req = get_object_or_404(PairingRequest, pk=request_id)
@@ -1000,7 +1000,7 @@ def approve_pairing_request(request, request_id):
     return HttpResponse("OK")
 
 
-@user_passes_test_or_401(is_staff_check)
+@user_passes_test_or_401(is_manager)
 @require_http_methods(["POST"])
 def deny_pairing_request(request, request_id):
     pairing_req = get_object_or_404(PairingRequest, pk=request_id)

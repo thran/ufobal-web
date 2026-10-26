@@ -142,7 +142,7 @@ test('clock does not start without goalies', async () => {
   expect(bodiesOf(fetchMock, 'edit_match/600')).toHaveLength(0);
 });
 
-test('closed_edit redirects non-staff to the view page', async () => {
+test('closed_edit redirects non-managers to the view page', async () => {
   mockFetch({ tournament: { ...openT1, closed_edit: true } });
   render();
   await waitFor(() =>
@@ -298,9 +298,9 @@ test('removing an event the server no longer has (404) succeeds silently', async
   expect(error).not.toHaveBeenCalled();
 });
 
-test('staff is not redirected on closed_edit', async () => {
+test('manager is not redirected on closed_edit', async () => {
   mockFetch({ tournament: { ...openT1, closed_edit: true } });
-  render(testUser({ is_authorized: true, is_staff: true }));
+  render(testUser({ is_authorized: true, is_manager: true }));
   expect(await screen.findByRole('button', { name: 'Čas zápasu' })).toBeInTheDocument();
   expect(screen.getByTestId('loc')).toHaveTextContent('/tournaments/1/matches/600/edit');
 });

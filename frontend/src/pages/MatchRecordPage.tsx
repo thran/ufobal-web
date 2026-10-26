@@ -3,7 +3,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { toast } from 'sonner';
 import type { MatchDto, TournamentDto } from '../api/types';
-import { isStaff } from '../auth/permissions';
+import { isManager } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
@@ -80,7 +80,7 @@ export default function MatchRecordPage() {
         }}
       />
     );
-  if (tournament?.closed_edit && !isStaff(user)) return <Navigate replace to={matchPath(id, matchId)} />;
+  if (tournament?.closed_edit && !isManager(user)) return <Navigate replace to={matchPath(id, matchId)} />;
   const fresh = matchesQuery.isFetchedAfterMount || matchesQuery.fetchStatus !== 'fetching';
   if (!tournament || !graph || !matches || !fresh) return <Spinner />;
   if (!match)
