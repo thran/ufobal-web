@@ -12,7 +12,7 @@ afterEach(() => {
   fetchMock.mockReset();
 });
 
-const user = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: true, player: null };
+const user = { first_name: 'A', last_name: 'B', is_staff: false, is_admin: false, is_manager: false, is_authorized: true, player: null };
 
 function setup(initialUser?: typeof user | null) {
   const qc = createQueryClient(

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router';
 import type { MatchDto, TournamentDto } from '../api/types';
-import { isStaff } from '../auth/permissions';
+import { isManager } from '../auth/permissions';
 import { useUser } from '../auth/user';
 import BackLink from '../components/BackLink';
 import ErrorBox from '../components/ErrorBox';
@@ -179,12 +179,12 @@ function RecordHub({
   tournament,
   graph,
   matches,
-  staff,
+  manager,
 }: {
   tournament: TournamentDto;
   graph: Graph;
   matches: MatchDto[];
-  staff: boolean;
+  manager: boolean;
 }) {
   const id = tournament.pk;
   const [dialog, setDialog] = useState(false);
@@ -215,7 +215,7 @@ function RecordHub({
       </div>
       <h1 className="text-center text-3xl">{tournament.full_name}</h1>
       <hr className="my-3 border-gray-300" />
-      {(tournament.is_tournament_open || staff) && (
+      {(tournament.is_tournament_open || manager) && (
         <>
           <h3 className={heading}>Zápasy</h3>
           <button type="button" className="btn my-2" onClick={() => setDialog(true)}>
@@ -285,7 +285,7 @@ export default function TournamentRecordPage() {
       />
     );
   if (!tournament || !graph || !matchesQuery.data) return <Spinner />;
-  const staff = isStaff(user);
-  if (tournament.closed_edit && !staff) return <Navigate replace to={tournamentResultsPath(id)} />;
-  return <RecordHub tournament={tournament} graph={graph} matches={matchesQuery.data} staff={staff} />;
+  const manager = isManager(user);
+  if (tournament.closed_edit && !manager) return <Navigate replace to={tournamentResultsPath(id)} />;
+  return <RecordHub tournament={tournament} graph={graph} matches={matchesQuery.data} manager={manager} />;
 }

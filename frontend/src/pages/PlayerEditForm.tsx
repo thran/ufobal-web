@@ -8,15 +8,15 @@ import { useSavePlayer } from '../queries/mutations';
 
 export default function PlayerEditForm({
   player,
-  isStaffUser,
+  isManagerUser,
   onDone,
 }: {
   player: PlayerVM;
-  isStaffUser: boolean;
+  isManagerUser: boolean;
   onDone: () => void;
 }) {
   const save = useSavePlayer();
-  // Birthdate is only received for staff; for others the field starts empty.
+  // Birthdate is only received for managers; for others the field starts empty.
   const initialBirthdate = player.birthdate?.slice(0, 10) ?? '';
   const [nickname, setNickname] = useState(player.nickname);
   const [name, setName] = useState(player.name);
@@ -59,7 +59,7 @@ export default function PlayerEditForm({
       <label htmlFor="pe-gender">Pohlaví</label>
       <GenderSelect id="pe-gender" value={gender} onChange={setGender} />
       <BirthdateAgeInput idPrefix="pe" value={birthdate} onChange={setBirthdate} />
-      {!isStaffUser && (
+      {!isManagerUser && (
         <p className="text-sm text-gray-600">Datum narození vyplň jen pokud ho chceš změnit.</p>
       )}
       <p className="mb-3 italic">Datum narození nebude nikde zveřejňováno (pouze jako věk).</p>

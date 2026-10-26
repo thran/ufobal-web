@@ -20,11 +20,11 @@ test('live tournament link only when known', () => {
   expect(screen.getByRole('link', { name: 'Aktuální turnaj' })).toHaveAttribute('href', '/tournaments/42/record');
 });
 
-test('admin link only for staff, as full page link', () => {
+test('admin link only for managers, as full page link', () => {
   const { unmount } = renderWithProviders(<TopBar />, { user: testUser() });
   expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
   unmount();
-  renderWithProviders(<TopBar />, { user: testUser({ is_staff: true }) });
+  renderWithProviders(<TopBar />, { user: testUser({ is_manager: true }) });
   expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/managestats/');
 });
 

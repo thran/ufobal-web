@@ -10,16 +10,13 @@ from django.contrib import messages
 from django.db.models import Q
 
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest, RefereeFeedback
+from ufobalapp.permissions import is_manager
 
 import datetime
 import logging
 import json
 
 logger = logging.getLogger(__name__)
-
-
-def is_staff_check(user):
-    return user.is_staff
 
 
 def add_goal(request, match, shooter, assistance):
@@ -47,12 +44,12 @@ def add_goal(request, match, shooter, assistance):
     return goal
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def index(request):
     return render(request, 'managestats/index.html')
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def players(request):
     player_list = Player.objects.order_by('nickname').all()
 
@@ -60,7 +57,7 @@ def players(request):
     return render(request, 'managestats/players.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def players_edit(request):
     if request.POST:
         id = request.POST.get("id")
@@ -84,7 +81,7 @@ def players_edit(request):
     return render(request, 'managestats/players_edit.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def tournaments(request):
     tournament_list = Tournament.objects.order_by('-date').all()
 
@@ -92,7 +89,7 @@ def tournaments(request):
     return render(request, 'managestats/tournaments.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
     teams = TeamOnTournament.objects.order_by('registration_time').filter(tournament=tournament)
@@ -110,7 +107,7 @@ def tournament(request, tournament_id):
     return render(request, 'managestats/tournament.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def referee_feedbacks(request, tournament_id):
     teams = {}
     for feedback in RefereeFeedback.objects.filter(match__tournament_id=tournament_id)\
@@ -137,7 +134,7 @@ def referee_feedbacks(request, tournament_id):
     })
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 @require_http_methods(["POST"])
 def match_add(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
@@ -160,7 +157,7 @@ def match_add(request, tournament_id):
     return redirect("managestats:tournament", tournament_id=tournament_id)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def match(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
 
@@ -205,7 +202,7 @@ def match(request, match_id):
     return render(request, 'managestats/match.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 @require_http_methods(["POST"])
 def goal_add(request, match_id):
     match = get_object_or_404(Match.objects, id=match_id)
@@ -219,7 +216,7 @@ def goal_add(request, match_id):
     return redirect("managestats:match", match_id=match_id)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def teams(request):
     teams_list = Team.objects.order_by('name')
 
@@ -227,7 +224,7 @@ def teams(request):
     return render(request, 'managestats/teams.html', context)
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 @require_http_methods(["POST"])
 def set_tournament_ranking(request):
     teams_list = json.loads(str(request.body.decode('utf-8')))
@@ -240,7 +237,7 @@ def set_tournament_ranking(request):
     return HttpResponse("OK")
 
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def generate_pairing_info(request, object_type, object_id):
     players_list = []
     team = None
@@ -266,12 +263,13 @@ def generate_pairing_info(request, object_type, object_id):
     return render(request, 'managestats/pairing_info.html', context)
 
 
+@user_passes_test(is_manager)
 def pairing_requests(request):
     return render(request, 'managestats/pairing_requests.html', {
         "requests": PairingRequest.objects.filter(state=PairingRequest.PENDING).select_related("player", "user")
     })
 
-@user_passes_test(is_staff_check)
+@user_passes_test(is_manager)
 def clear_cache(request):
     cache.clear()
     return redirect("managestats:index")
