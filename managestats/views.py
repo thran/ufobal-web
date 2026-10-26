@@ -7,8 +7,6 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 
-from django.db.models import Q
-
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest, RefereeFeedback
 
 import datetime
@@ -96,12 +94,24 @@ def tournaments(request):
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
     teams = TeamOnTournament.objects.order_by('registration_time').filter(tournament=tournament)
-    match_list = Match.objects.filter(tournament=tournament)
+    match_list = Match.objects.filter(tournament=tournament).select_related(
+        'tournament', 'team_one__team', 'team_two__team'
+    )
 
-    knowns = Player.objects.filter(tournaments__tournament=tournament)
-    unknowns = Player.objects.order_by('nickname').filter(
-        Q(goals__match__tournament=tournament) | Q(assistances__match__tournament=tournament)
-    ).distinct().exclude(id__in=knowns)
+    # Hráči, kteří na turnaji skórovali nebo asistovali, ale nejsou v soupisce žádného týmu.
+    # Načítáme ve dvou krocích -- jediný dotaz s OR přes dva joiny (goals/assistances)
+    # dělá obří kartézský mezivýsledek a trvá i přes dvě sekundy.
+    scoring_ids = set()
+    for shooter_id, assistance_id in Goal.objects.filter(match__tournament=tournament).values_list(
+        'shooter_id', 'assistance_id'
+    ):
+        scoring_ids.add(shooter_id)
+        scoring_ids.add(assistance_id)
+    scoring_ids.discard(None)
+    known_ids = set(
+        TeamOnTournament.objects.filter(tournament=tournament).values_list('players__id', flat=True)
+    )
+    unknowns = Player.objects.filter(id__in=scoring_ids - known_ids).order_by('nickname')
 
     context = {'tournament': tournament,
                'matches': match_list,
