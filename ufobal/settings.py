@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import sys
+import warnings
 
 import dj_database_url
 import os
@@ -8,7 +9,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-SECRET_KEY = '@b)=16lh3$y+g=ut()rq#7o%)s4ox_3aid(8b5qtoc0hokv@r_'
+# Production must set DJANGO_SECRET_KEY. The fallback is public (it is in git history), local development only.
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '@b)=16lh3$y+g=ut()rq#7o%)s4ox_3aid(8b5qtoc0hokv@r_')
 
 ON_SERVER = os.getenv('ON_VIPER', "False") == "True"
 DEBUG = os.getenv('DJANGO_DEBUG', "False") == "True"
@@ -16,6 +18,8 @@ TESTING = sys.argv[1:2] == ['test'] or any('pytest' in arg for arg in sys.argv)
 
 if not ON_SERVER:
     DEBUG = True
+elif 'DJANGO_SECRET_KEY' not in os.environ:
+    warnings.warn('DJANGO_SECRET_KEY is not set, using the public fallback key')
 
 TEST = os.getenv('TEST', "False") == "True"
 
