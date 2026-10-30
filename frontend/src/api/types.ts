@@ -16,6 +16,8 @@ export interface User {
   is_admin: boolean;
   is_manager: boolean;
   is_authorized: boolean;
+  /** false for accounts that only log in through Google/Facebook */
+  has_password: boolean;
   player: PlayerSimple | null;
 }
 

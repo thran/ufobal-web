@@ -12,13 +12,24 @@ afterEach(() => {
   fetchMock.mockReset();
 });
 
-const user = { first_name: 'A', last_name: 'B', is_staff: false, is_admin: false, is_manager: false, is_authorized: true, player: null };
+const user = {
+  first_name: 'A',
+  last_name: 'B',
+  is_staff: false,
+  is_admin: false,
+  is_manager: false,
+  has_password: true,
+  is_authorized: true,
+  player: null,
+};
 
 function setup(initialUser?: typeof user | null) {
   const qc = createQueryClient(
     initialUser === undefined ? null : { user: initialUser, liveTournamentPk: null, test: false },
   );
-  const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+  );
   return { qc, wrapper };
 }
 
@@ -58,8 +69,12 @@ test('social login message from same origin refetches user; other origins ignore
   const { qc, wrapper } = setup(null);
   const spy = vi.spyOn(qc, 'invalidateQueries');
   renderHook(() => useSocialLoginListener(), { wrapper });
-  window.dispatchEvent(new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: 'https://evil.example' }));
+  window.dispatchEvent(
+    new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: 'https://evil.example' }),
+  );
   expect(spy).not.toHaveBeenCalled();
-  window.dispatchEvent(new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: window.location.origin }));
+  window.dispatchEvent(
+    new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: window.location.origin }),
+  );
   expect(spy).toHaveBeenCalled();
 });

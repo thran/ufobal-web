@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 from django.utils import timezone
+from social_django.models import UserSocialAuth
 
 from ufobalapp.models import Goal, GoalieInMatch, Match, Player, Team, TeamOnTournament, Tournament
 
@@ -74,10 +75,28 @@ class Command(BaseCommand):
         user = User.objects.create_user('e2e', password='e2e', is_staff=False)
         Player.objects.create(nickname='E2E', user=user)
 
+        # accounts whose passwords the account tests change, so the main e2e user keeps working
+        accounts = {
+            'reset': {'username': 'e2e-reset', 'email': 'e2e-reset@example.cz', 'password': 'e2e-reset-old'},
+            'google': {'username': 'e2e-google', 'email': 'e2e-google@example.cz', 'password': None},
+            'change': {'username': 'e2e-change', 'email': 'e2e-change@example.cz', 'password': 'e2e-change-old'},
+        }
+        for account in accounts.values():
+            created = User.objects.create_user(
+                account['username'],
+                email=account['email'],
+                password=account['password'],
+                first_name='Účet',
+                last_name=account['username'],
+            )
+            if account['password'] is None:
+                UserSocialAuth.objects.create(user=created, provider='google-oauth2', uid=account['email'])
+
         return {
             'tournament': tournament.pk,
             'recordMatch': record_match.pk,
             'viewMatch': view_match.pk,
             'user': {'username': 'e2e', 'password': 'e2e'},
+            'accounts': accounts,
             'players': {n: p.pk for n, p in players.items()},
         }

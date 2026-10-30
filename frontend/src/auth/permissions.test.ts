@@ -8,10 +8,20 @@ const base: User = {
   is_staff: false,
   is_admin: false,
   is_manager: false,
+  has_password: true,
   is_authorized: false,
   player: null,
 };
-const player = { pk: 7, name: 'a', lastname: 'b', nickname: 'c', age: 20, full_name: 'a b', gender: 'man', is_paired: true };
+const player = {
+  pk: 7,
+  name: 'a',
+  lastname: 'b',
+  nickname: 'c',
+  age: 20,
+  full_name: 'a b',
+  gender: 'man',
+  is_paired: true,
+};
 
 test('anonymous', () => {
   expect(isLoggedIn(null)).toBe(false);
