@@ -31,6 +31,26 @@ export function useLogout() {
   return useMutation({ mutationFn: authApi.logout, onSuccess: () => setUserAndRefreshRest(qc, null) });
 }
 
+export function useRequestPasswordReset() {
+  return useMutation({ mutationFn: authApi.requestPasswordReset });
+}
+
+export function useConfirmPasswordReset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.confirmPasswordReset,
+    onSuccess: (user) => setUserAndRefreshRest(qc, user),
+  });
+}
+
+export function useChangePassword() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.changePassword,
+    onSuccess: (user) => qc.setQueryData(userQueryKey, user),
+  });
+}
+
 export function openSocialLogin(provider: 'google-oauth2' | 'facebook') {
   window.open(
     `/login/${provider}/?next=/login/close_login_popup`,

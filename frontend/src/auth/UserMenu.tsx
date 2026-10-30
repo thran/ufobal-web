@@ -44,6 +44,11 @@ export default function UserMenu() {
                 </MenuItem>
               )}
               <MenuItem>
+                <button className={itemClass} onClick={() => navigate('/settings')}>
+                  Nastavení účtu
+                </button>
+              </MenuItem>
+              <MenuItem>
                 <button className={itemClass} onClick={() => logout.mutate()}>
                   Odhlásit se
                 </button>

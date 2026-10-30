@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import connection
@@ -19,6 +20,9 @@ def test_seed_creates_data_and_writes_ids(tmp_path):
     assert rec.start is None and GoalieInMatch.objects.filter(match=rec).count() == 2
     assert Goal.objects.filter(match_id=ids['viewMatch'], shooter__nickname='Beta').count() == 1
     assert Player.objects.get(nickname='E2E').user.username == 'e2e'
+    google = User.objects.get(username=ids['accounts']['google']['username'])
+    assert not google.has_usable_password() and google.social_auth.filter(provider='google-oauth2').exists()
+    assert User.objects.get(username='e2e-change').check_password(ids['accounts']['change']['password'])
     assert set(ids['players']) >= {'Alfa', 'Beta', 'Gama', 'Delta'}
 
 

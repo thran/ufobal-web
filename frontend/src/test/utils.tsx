@@ -36,6 +36,7 @@ export const testUser = (overrides: Partial<User> = {}): User => ({
   is_admin: false,
   is_manager: false,
   is_authorized: false,
+  has_password: true,
   player: null,
   ...overrides,
 });
