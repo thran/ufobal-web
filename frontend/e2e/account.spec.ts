@@ -133,3 +133,30 @@ test('Google login leaves for Google and a cancelled one comes back with a messa
   await expect(page).toHaveURL(/\/players$/);
   await expect(page.getByText('Přihlášení bylo zrušeno.')).toBeVisible();
 });
+
+test('registration works only after the link from the e-mail', async ({ page }) => {
+  const email = 'e2e-novy@example.cz';
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Přihlášení' }).click();
+  await page.getByRole('menuitem', { name: /registrovat/ }).click();
+  await page.getByLabel('Uživatelské jméno').fill('e2e-novy');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Heslo', { exact: true }).fill(NEW_PASSWORD);
+  await page.getByLabel('Kontrola hesla').fill(NEW_PASSWORD);
+  await page.getByRole('button', { name: 'Registrovat' }).click();
+  await expect(page.getByRole('status')).toContainText(`na ${email} jsme poslali odkaz`);
+  const link = await mailLink(email, /\/verify-email\/\S+/);
+
+  // not usable before the confirmation
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Přihlášení' }).click();
+  await page.getByRole('menuitem', { name: /přes jméno/ }).click();
+  await page.getByPlaceholder('jméno nebo e-mail').fill(email);
+  await page.getByPlaceholder('heslo').fill(NEW_PASSWORD);
+  await page.getByRole('button', { name: 'Přihlásit' }).click();
+  await expect(page.getByText('E-mail tohoto účtu ještě není potvrzený.')).toBeVisible();
+
+  await page.goto(link);
+  await expect(page.getByText(/E-mail potvrzený, účet je aktivní/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'e2e-novy' })).toBeVisible();
+});

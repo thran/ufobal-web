@@ -1,15 +1,14 @@
-"""Account settings for the logged-in user: profile, e-mail change and linked Google/Facebook logins."""
+"""Account settings for the logged-in user: e-mail change and linked Google/Facebook logins."""
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core import signing
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_GET, require_POST
 from social_core.exceptions import NotAllowedToDisconnect
 from social_django.utils import load_backend, load_strategy
 
@@ -24,8 +23,6 @@ def account_json(user):
     return {
         'username': user.username,
         'email': user.email,
-        'first_name': user.first_name,
-        'last_name': user.last_name,
         'has_password': user.has_usable_password(),
         'social': [
             {'id': s.pk, 'provider': s.provider, 'uid': s.uid} for s in user.social_auth.order_by('provider', 'pk')
@@ -41,29 +38,11 @@ def _email_taken(email, user):
     return User.objects.filter(email__iexact=email, is_active=True).exclude(pk=user.pk).exists()
 
 
-@require_http_methods(['GET', 'POST'])
+@require_GET
 def account(request):
-    """GET the account, POST {username, first_name, last_name} to change them."""
     user = request.user
     if not user.is_authenticated:
         return _not_logged_in()
-    if request.method == 'POST':
-        data = _json(request)
-        username = (data.get('username') or '').strip()
-        if not username:
-            return _error('Vyplň uživatelské jméno.', 'username_empty')
-        try:
-            UnicodeUsernameValidator()(username)
-        except ValidationError as error:
-            return _error(' '.join(error.messages), 'username_invalid')
-        if len(username) > 150:
-            return _error('Uživatelské jméno je moc dlouhé.', 'username_invalid')
-        if User.objects.filter(username__iexact=username).exclude(pk=user.pk).exists():
-            return _error('Uživatel s tímto uživatelským jménem již existuje.', 'username_exists')
-        user.username = username
-        user.first_name = (data.get('first_name') or '').strip()[:150]
-        user.last_name = (data.get('last_name') or '').strip()[:150]
-        user.save(update_fields=['username', 'first_name', 'last_name'])
     return JsonResponse(account_json(user))
 
 

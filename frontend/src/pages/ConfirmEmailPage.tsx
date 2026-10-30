@@ -15,6 +15,7 @@ export default function ConfirmEmailPage() {
     queryKey: ['email-change-confirm', token],
     queryFn: () => confirmEmailChange(token),
     staleTime: Infinity,
+    meta: { once: true },
     retry: false,
   });
   const confirmed = confirm.isSuccess;
