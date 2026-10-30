@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
 import type { Account, NewPassword } from '../api/auth';
 import type { User } from '../api/types';
-import { useAccount, useDisconnectSocial, useRequestEmailChange, useUpdateAccount } from '../auth/account';
+import { useAccount, useDisconnectSocial, useRequestEmailChange } from '../auth/account';
 import NewPasswordFields, { EMPTY_PASSWORD, newPasswordErrors } from '../auth/NewPasswordFields';
 import { startSocialLogin, useChangePassword, useUser, type SocialProvider } from '../auth/user';
 import ErrorBox from '../components/ErrorBox';
+import PlayerLink from '../components/PlayerLink';
 import { EMAIL_RE, FieldError, useValidation } from '../components/forms/validation';
 import Spinner from '../components/Spinner';
 
@@ -24,7 +26,7 @@ export default function SettingsPage() {
         <ErrorBox error={account.error} onRetry={() => void account.refetch()} />
       ) : (
         <>
-          <ProfileSection account={account.data} />
+          <PlayerSection user={user} />
           <EmailSection account={account.data} />
           <PasswordSection user={user} />
           <LinkedAccountsSection account={account.data} />
@@ -69,49 +71,20 @@ function TextField({
   );
 }
 
-function ProfileSection({ account }: { account: Account }) {
-  const [data, setData] = useState({
-    username: account.username,
-    first_name: account.first_name,
-    last_name: account.last_name,
-  });
-  const update = useUpdateAccount();
-  const v = useValidation({ username: !data.username.trim() && 'Vyplň uživatelské jméno.' });
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!v.attempt()) return;
-    update.mutate(data, { onSuccess: () => toast.success('Uloženo.') });
-  };
-
+function PlayerSection({ user }: { user: User }) {
   return (
     <section>
-      <h3 className={sectionTitle}>Profil</h3>
-      <form onSubmit={submit} noValidate className="flex flex-col gap-3">
-        <TextField
-          label="Uživatelské jméno (k přihlášení)"
-          autoComplete="username"
-          value={data.username}
-          onChange={(username) => setData({ ...data, username })}
-          onBlur={v.touch('username')}
-          error={v.error('username')}
-        />
-        <TextField
-          label="Jméno"
-          autoComplete="given-name"
-          value={data.first_name}
-          onChange={(first_name) => setData({ ...data, first_name })}
-        />
-        <TextField
-          label="Příjmení"
-          autoComplete="family-name"
-          value={data.last_name}
-          onChange={(last_name) => setData({ ...data, last_name })}
-        />
-        <button type="submit" className="btn self-start" disabled={update.isPending}>
-          Uložit
-        </button>
-      </form>
+      <h3 className={sectionTitle}>Hráč</h3>
+      {user.player ? (
+        <p>
+          Účet je spárovaný s hráčem <PlayerLink player={user.player} />.
+        </p>
+      ) : (
+        <p>
+          Účet zatím není spárovaný s hráčem, takže nemůžeš přihlašovat tým ani zapisovat zápasy.{' '}
+          <Link to="/pair-account">Spárovat účet</Link>
+        </p>
+      )}
     </section>
   );
 }
@@ -133,7 +106,8 @@ function EmailSection({ account }: { account: Account }) {
     <section>
       <h3 className={sectionTitle}>E-mail</h3>
       <p className="text-sm">
-        Současný: <b>{account.email || 'žádný'}</b>. Slouží k přihlášení a k obnovení hesla.
+        Současný: <b>{account.email || 'žádný'}</b>. Přihlásit se můžeš e-mailem nebo jménem{' '}
+        <b>{account.username}</b>; na e-mail přijde i odkaz pro obnovení hesla.
       </p>
       {change.isSuccess ? (
         <p role="status" className="mt-2">

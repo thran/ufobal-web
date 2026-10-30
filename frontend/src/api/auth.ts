@@ -12,7 +12,11 @@ export interface SignupData {
 
 export const getUserProfile = () => api<User | null>('user_profile');
 export const login = (c: { username: string; password: string }) => api<User>('login', { method: 'POST', body: c });
-export const signup = (c: SignupData) => api<User>('signup', { method: 'POST', body: c });
+export const signup = (c: SignupData) =>
+  api<{ verification_sent: true; email: string }>('signup', { method: 'POST', body: c });
+export const verifyEmail = (token: string) => api<User>('email_verify', { method: 'POST', body: { token } });
+export const resendVerification = (login: string) =>
+  api<{ ok: true }>('email_verify_resend', { method: 'POST', body: { login } });
 export const logout = async (): Promise<void> => {
   await api<string>('logout', { method: 'POST' });
 };
@@ -48,16 +52,11 @@ export interface SocialLogin {
 export interface Account {
   username: string;
   email: string;
-  first_name: string;
-  last_name: string;
   has_password: boolean;
   social: SocialLogin[];
 }
 
-export type AccountUpdate = Pick<Account, 'username' | 'first_name' | 'last_name'>;
-
 export const getAccount = () => api<Account>('account');
-export const updateAccount = (data: AccountUpdate) => api<Account>('account', { method: 'POST', body: data });
 export const requestEmailChange = (email: string) =>
   api<{ ok: true }>('email_change', { method: 'POST', body: { email } });
 export const confirmEmailChange = (token: string) =>

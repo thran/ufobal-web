@@ -1,21 +1,23 @@
 from django.contrib.auth.models import User
 from social_core.exceptions import AuthException
 
+from ufobalapp.models import PendingEmailVerification
+
 
 class EmailAccountExists(AuthException):
-    """Another account already uses the e-mail; its owner has to log in there and connect the provider in settings."""
+    """The e-mail cannot be matched to one account safely; its owner logs in otherwise and connects in settings."""
 
     def __str__(self):
         return 'Účet s tímto e-mailem už existuje.'
 
 
 def associate_by_email(backend, details, user=None, response=None, *args, **kwargs):
-    """One account per e-mail: a new Google/Facebook login never creates a second account for a known e-mail.
+    """One account per e-mail: a Google/Facebook login with a known e-mail joins that account.
 
-    A Google login with a verified e-mail joins the account with that e-mail when the account has no password (its
-    e-mail came from Google or Facebook too). Accounts with a password typed their e-mail in themselves and nobody
-    verified it, so joining them would hand the account to whoever registered the address first; the login stops and
-    the owner connects Google in settings instead. Facebook is never joined automatically.
+    Account e-mails are confirmed (a link sent at registration) or older than confirming; the provider vouches for
+    its side (Google says so explicitly, Facebook returns only confirmed e-mails). An account still waiting for its
+    confirmation is taken over: whoever typed that e-mail at registration never proved it, the provider just did,
+    so that password is dropped.
     """
     if user:
         return None
@@ -25,7 +27,11 @@ def associate_by_email(backend, details, user=None, response=None, *args, **kwar
     accounts = list(User.objects.filter(email__iexact=email, is_active=True))
     if not accounts:
         return None
-    verified = backend.name == 'google-oauth2' and (response or {}).get('email_verified') in (True, 'true')
-    if verified and len(accounts) == 1 and not accounts[0].has_usable_password():
-        return {'user': accounts[0], 'is_new': False}
-    raise EmailAccountExists(backend)
+    unverified = backend.name == 'google-oauth2' and (response or {}).get('email_verified') not in (True, 'true')
+    if unverified or len(accounts) > 1:
+        raise EmailAccountExists(backend)
+    account = accounts[0]
+    if PendingEmailVerification.objects.filter(user=account).delete()[0]:
+        account.set_unusable_password()
+        account.save(update_fields=['password'])
+    return {'user': account, 'is_new': False}

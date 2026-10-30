@@ -638,6 +638,26 @@ class Log(models.Model):
     timestamp = models.DateTimeField('timestamp', auto_now_add=True)
 
 
+class PendingEmailVerification(models.Model):
+    """An account registered with a password whose e-mail was not confirmed yet; it cannot log in until it is.
+
+    Accounts without a row count as verified: those from Google/Facebook, and all accounts from before e-mail
+    verification existed.
+    """
+
+    class Meta:
+        verbose_name = "nepotvrzený e-mail"
+        verbose_name_plural = "nepotvrzené e-maily"
+
+    user = models.OneToOneField(
+        User, related_name='pending_email_verification', verbose_name="uživatel", on_delete=models.CASCADE
+    )
+    created = models.DateTimeField('vytvořeno', auto_now_add=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
 class Group(models.Model):
     class Meta:
         verbose_name = 'Skupina'

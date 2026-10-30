@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
+import { ApiError } from '../api/client';
 import { EMAIL_RE, FieldError, useValidation } from '../components/forms/validation';
 import Modal from '../components/Modal';
-import { useLogin, useRequestPasswordReset } from './user';
+import { useLogin, useRequestPasswordReset, useResendVerification } from './user';
 
 export default function LoginDialog({
   open,
@@ -65,10 +66,31 @@ function LoginForm({ onDone, onForgotten }: { onDone: () => void; onForgotten: (
         </button>
       </form>
       <FieldError error={v.error('username') || v.error('password')} />
+      {login.error instanceof ApiError && login.error.errorType === 'email_not_verified' && (
+        <ResendVerification login={username.trim()} />
+      )}
       <button type="button" className="mt-3 text-sm underline" onClick={onForgotten}>
         Zapomenuté heslo?
       </button>
     </>
+  );
+}
+
+function ResendVerification({ login }: { login: string }) {
+  const resend = useResendVerification();
+  return (
+    <div className="callout mt-3">
+      {resend.isSuccess ? (
+        <p role="status">Odkaz jsme poslali znovu, mrkni do e-mailu.</p>
+      ) : (
+        <>
+          <p>E-mail tohoto účtu ještě není potvrzený.</p>
+          <button type="button" className="btn mt-2" disabled={resend.isPending} onClick={() => resend.mutate(login)}>
+            Poslat odkaz znovu
+          </button>
+        </>
+      )}
+    </div>
   );
 }
 

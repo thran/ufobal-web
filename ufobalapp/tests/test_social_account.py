@@ -9,6 +9,7 @@ from django.core import mail
 from django.core.cache import cache
 from social_django.models import UserSocialAuth
 
+from ufobalapp.models import PendingEmailVerification
 from ufobalapp.social_pipeline import EmailAccountExists, associate_by_email
 
 
@@ -53,23 +54,38 @@ class Backend:
 
 
 @pytest.mark.django_db
-def test_google_joins_verified_email_of_account_without_password():
-    social_only = User.objects.create_user('fb-account', email='Pepa@Example.cz')
-    result = associate_by_email(
-        Backend('google-oauth2'), {'email': 'pepa@example.cz'}, response={'email_verified': True}
+@pytest.mark.parametrize(
+    'backend, has_password', [('google-oauth2', True), ('google-oauth2', False), ('facebook', True)]
+)
+def test_known_email_joins_the_account(backend, has_password):
+    account = User.objects.create_user(
+        'pepa', email='Pepa@Example.cz', password='heslo-123456' if has_password else None
     )
-    assert result == {'user': social_only, 'is_new': False}
+    result = associate_by_email(Backend(backend), {'email': 'pepa@example.cz'}, response={'email_verified': True})
+    assert result == {'user': account, 'is_new': False}
+    account.refresh_from_db()
+    assert account.has_usable_password() == has_password
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'backend, verified, has_password',
-    [('google-oauth2', True, True), ('google-oauth2', False, False), ('facebook', True, False)],
-)
-def test_known_email_stops_the_login(backend, verified, has_password):
-    User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456' if has_password else None)
+def test_unverified_google_email_or_two_accounts_stop_the_login():
+    User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
     with pytest.raises(EmailAccountExists):
-        associate_by_email(Backend(backend), {'email': 'pepa@example.cz'}, response={'email_verified': verified})
+        associate_by_email(Backend('google-oauth2'), {'email': 'pepa@example.cz'}, response={'email_verified': False})
+    User.objects.create_user('pepa2', email='PEPA@example.cz')
+    with pytest.raises(EmailAccountExists):
+        associate_by_email(Backend('facebook'), {'email': 'pepa@example.cz'})
+
+
+@pytest.mark.django_db
+def test_unconfirmed_registration_is_taken_over_without_its_password():
+    squatted = User.objects.create_user('squat', email='pepa@example.cz', password='heslo-123456')
+    PendingEmailVerification.objects.create(user=squatted)
+    result = associate_by_email(Backend('facebook'), {'email': 'pepa@example.cz'})
+    assert result['user'] == squatted
+    squatted.refresh_from_db()
+    assert not squatted.has_usable_password()
+    assert not PendingEmailVerification.objects.exists()
 
 
 @pytest.mark.django_db
@@ -123,9 +139,17 @@ def test_google_login_joins_facebook_only_account_with_the_same_email(client):
 
 
 @pytest.mark.django_db
-def test_google_login_with_email_of_password_account_stops(client):
+def test_google_login_joins_password_account_with_the_same_email(client):
+    account = User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
+    assert google_login(client, profile('pepa@example.cz')) == '/settings'
+    assert logged_in_user(client) == account
+    assert User.objects.count() == 1 and account.social_auth.get().provider == 'google-oauth2'
+
+
+@pytest.mark.django_db
+def test_google_login_with_unverified_email_of_known_account_stops(client):
     User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
-    location = google_login(client, profile('pepa@example.cz'))
+    location = google_login(client, profile('pepa@example.cz', verified=False))
     assert location == '/settings?login_error=email_exists'
     assert logged_in_user(client) is None
     assert User.objects.count() == 1 and not UserSocialAuth.objects.exists()
@@ -171,19 +195,6 @@ def test_account_shows_linked_logins(client, user):
     data = client.get('/api_frontend/account').json()
     assert data['username'] == 'pepa' and data['has_password'] is True
     assert [(s['provider'], s['uid']) for s in data['social']] == [('google-oauth2', 'pepa@gmail.com')]
-
-
-@pytest.mark.django_db
-def test_account_update(client, user):
-    User.objects.create_user('Obsazeno')
-    assert post(client, 'account', {'username': 'obsazeno'}).json()['error_type'] == 'username_exists'
-    assert post(client, 'account', {'username': 'má mezeru'}).json()['error_type'] == 'username_invalid'
-    response = post(client, 'account', {'username': 'pepa2', 'first_name': ' Josef ', 'last_name': 'Novák'})
-    assert response.status_code == 200
-    user.refresh_from_db()
-    assert (user.username, user.first_name, user.last_name) == ('pepa2', 'Josef', 'Novák')
-    # the own username unchanged is fine
-    assert post(client, 'account', {'username': 'pepa2'}).status_code == 200
 
 
 @pytest.mark.django_db

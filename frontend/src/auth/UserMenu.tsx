@@ -14,9 +14,9 @@ export default function UserMenu() {
   const navigate = useNavigate();
   const [dialog, setDialog] = useState<'login' | 'signup' | null>(null);
 
-  const label = user
-    ? `${user.first_name} ${user.last_name}${user.player ? ` - ${user.player.nickname}` : ''}`
-    : 'Přihlášení';
+  // a paired account shows its player: the account's own name is not editable anywhere
+  const name = user && (user.player?.full_name || `${user.first_name} ${user.last_name}`.trim());
+  const label = user ? `${name}${user.player ? ` - ${user.player.nickname}` : ''}` : 'Přihlášení';
 
   return (
     <>

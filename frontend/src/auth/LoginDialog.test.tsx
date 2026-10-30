@@ -46,3 +46,19 @@ test('stays open on failure', async () => {
   await waitFor(() => expect(fetchMock).toHaveBeenCalled());
   expect(onClose).not.toHaveBeenCalled();
 });
+
+test('unconfirmed e-mail offers to send the link again', async () => {
+  fetchMock
+    .mockResolvedValueOnce(
+      new Response('{"error":"Nejdřív potvrď e-mail.","error_type":"email_not_verified"}', { status: 403 }),
+    )
+    .mockResolvedValueOnce(new Response('{"ok":true}', { status: 200 }));
+  renderWithProviders(<LoginDialog open onClose={vi.fn()} />);
+  await userEvent.type(screen.getByPlaceholderText('jméno nebo e-mail'), 'novy ');
+  await userEvent.type(screen.getByPlaceholderText('heslo'), 'Ufobal-heslo-2026');
+  await userEvent.click(screen.getByRole('button', { name: 'Přihlásit' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Poslat odkaz znovu' }));
+  expect(await screen.findByRole('status')).toHaveTextContent('Odkaz jsme poslali znovu');
+  expect(String(fetchMock.mock.calls[1][0])).toMatch(/email_verify_resend$/);
+  expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ login: 'novy' });
+});

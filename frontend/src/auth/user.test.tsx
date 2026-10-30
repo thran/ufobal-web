@@ -70,7 +70,7 @@ test('login error from the backend redirect shows a message and leaves the URL',
   );
   expect(await screen.findByText('/settings?tab=x')).toBeInTheDocument();
   expect(error).toHaveBeenCalledWith(
-    expect.stringContaining('Účet s tímto e-mailem už existuje'),
+    expect.stringContaining('Účet s tímto e-mailem nejde propojit automaticky'),
     expect.anything(),
   );
   error.mockRestore();

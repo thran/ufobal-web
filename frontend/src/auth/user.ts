@@ -14,8 +14,9 @@ export function useUser() {
 
 function setUserAndRefreshRest(qc: QueryClient, user: User | null) {
   qc.setQueryData(userQueryKey, user);
-  // Responses differ for staff (e.g. birthdate), so everything else is refetched.
-  void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== userQueryKey[0] });
+  // Responses differ for staff (e.g. birthdate), so everything else is refetched, except one-time links from
+  // e-mails (meta.once): those must not be sent again.
+  void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== userQueryKey[0] && !q.meta?.once });
 }
 
 export function useLogin() {
@@ -23,9 +24,19 @@ export function useLogin() {
   return useMutation({ mutationFn: authApi.login, onSuccess: (user) => setUserAndRefreshRest(qc, user) });
 }
 
+/** Registers without logging in: the account works once the link sent to its e-mail is opened. */
 export function useSignup() {
+  return useMutation({ mutationFn: authApi.signup });
+}
+
+export function useResendVerification() {
+  return useMutation({ mutationFn: authApi.resendVerification });
+}
+
+/** Logs in with the user the confirmed e-mail link returned. */
+export function useSetLoggedInUser() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: authApi.signup, onSuccess: (user) => setUserAndRefreshRest(qc, user) });
+  return (user: User) => setUserAndRefreshRest(qc, user);
 }
 
 export function useLogout() {
@@ -72,7 +83,7 @@ export function startSocialLogin(
 const LOGIN_ERRORS: Record<string, string> = {
   cancelled: 'Přihlášení bylo zrušeno.',
   email_exists:
-    'Účet s tímto e-mailem už existuje. Přihlas se do něj jménem nebo e-mailem a heslem (heslo si případně obnov přes „Zapomenuté heslo“) a Google nebo Facebook si pak připoj v Nastavení účtu.',
+    'Účet s tímto e-mailem nejde propojit automaticky. Přihlas se do něj jménem nebo e-mailem a heslem (případně přes „Zapomenuté heslo“) a Google nebo Facebook si pak připoj v Nastavení účtu.',
   already_linked: 'Tento účet Google nebo Facebook už je propojený s jiným účtem v ISu.',
   inactive: 'Tento účet je deaktivovaný.',
   failed: 'Přihlášení se nepovedlo, zkus to znovu.',
@@ -84,7 +95,7 @@ export function useLoginErrorNotice() {
   const code = params.get('login_error');
   useEffect(() => {
     if (!code) return;
-    toast.error(LOGIN_ERRORS[code] ?? LOGIN_ERRORS.failed, { id: 'login-error', duration: 15_000 });
+    toast.error(LOGIN_ERRORS[code] ?? LOGIN_ERRORS.failed, { id: 'login-error', duration: 10_000, closeButton: true });
     setParams(
       (current) => {
         current.delete('login_error');
