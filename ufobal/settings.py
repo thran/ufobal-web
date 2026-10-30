@@ -160,6 +160,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
+    'ufobalapp.social_pipeline.mark_email_verified',
 )
 
 # Static files (CSS, JavaScript, Images)

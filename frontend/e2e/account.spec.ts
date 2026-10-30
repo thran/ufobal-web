@@ -22,6 +22,10 @@ async function mailLink(to: string, path: RegExp): Promise<string> {
   return link;
 }
 
+/** A section of the settings page by its heading. */
+const section = (page: Page, name: string) =>
+  page.locator('section', { has: page.getByRole('heading', { name, exact: true }) });
+
 const resetLink = (to: string) => mailLink(to, /\/reset-password\/\S+\/\S+/);
 
 async function requestReset(page: Page, email: string) {
@@ -72,20 +76,21 @@ test('Google-only account sets its first password through the reset link', async
   await setNewPassword(page, await resetLink(account.email), account.username);
   // with a password the settings ask for the current one when changing it
   await expect(page.getByRole('heading', { name: 'Změna hesla' })).toBeVisible();
-  await expect(page.getByLabel('Současné heslo')).toBeVisible();
+  await expect(section(page, 'Změna hesla').getByLabel('Současné heslo')).toBeVisible();
 });
 
 test('change password in settings', async ({ page }) => {
   const account = seed().accounts.change;
   await login(page, { username: account.username, password: account.password! });
   await page.goto('/settings');
-  await page.getByLabel('Současné heslo').fill('spatne-heslo');
+  const passwordSection = section(page, 'Změna hesla');
+  await passwordSection.getByLabel('Současné heslo').fill('spatne-heslo');
   await page.getByLabel('Nové heslo', { exact: true }).fill(NEW_PASSWORD);
   await page.getByLabel('Nové heslo znovu').fill(NEW_PASSWORD);
   await page.getByRole('button', { name: 'Změnit heslo' }).click();
   await expect(page.getByText('Vaše současné heslo nebylo zadáno správně.', { exact: false })).toBeVisible();
 
-  await page.getByLabel('Současné heslo').fill(account.password!);
+  await passwordSection.getByLabel('Současné heslo').fill(account.password!);
   await page.getByRole('button', { name: 'Změnit heslo' }).click();
   await expect(page.getByText('Heslo změněno.')).toBeVisible();
   // still logged in after the change, and only the new password works
@@ -101,6 +106,7 @@ test('change e-mail through the link sent to the new address', async ({ page }) 
   await login(page, { username: account.username, password: NEW_PASSWORD });
   await page.goto('/settings');
   await page.getByLabel('Nový e-mail').fill(newEmail);
+  await section(page, 'E-mail').getByLabel('Současné heslo').fill(NEW_PASSWORD);
   await page.getByRole('button', { name: 'Poslat potvrzovací odkaz' }).click();
   await expect(page.getByRole('status')).toContainText(`Na ${newEmail} jsme poslali odkaz`);
 

@@ -1,4 +1,7 @@
+import hashlib
 import json
+import logging
+import smtplib
 from urllib.parse import urlsplit
 
 from django.conf import settings
@@ -11,18 +14,28 @@ from django.core import signing
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
+from django.core.validators import validate_email
+from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
-from ufobalapp.models import PendingEmailVerification
+from ufobalapp.models import EmailVerification
 from ufobalapp.views import SYSTEM_MAIL, is_authorized
 
+logger = logging.getLogger(__name__)
+
 PASSWORD_BACKEND = 'ufobalapp.auth_backends.UsernameOrEmailBackend'
+
+
+def normalize_email(email):
+    """Trimmed, with the domain lower-cased; accounts are still matched case-insensitively (email__iexact)."""
+    return User.objects.normalize_email((email or '').strip())
 
 
 def get_user_data(request):
@@ -57,7 +70,7 @@ def login(request):
         )
     if not user.is_active:
         return JsonResponse({'error': 'Účet je deaktivován.', 'error_type': 'account_not_activated'}, status=401)
-    if PendingEmailVerification.objects.filter(user=user).exists():
+    if EmailVerification.is_pending(user):
         return _error('Nejdřív potvrď e-mail, odkaz jsme ti poslali po registraci.', 'email_not_verified', status=403)
     auth.login(request, user)
     return user_profile(request)
@@ -74,6 +87,11 @@ def _check_credentials(credentials, new=False):
             'error': 'Není vyplněný e-mail',
             'error_type': 'email_empty',
         }
+    if new:
+        try:
+            validate_email(credentials['email'])
+        except ValidationError:
+            return {'error': 'Neplatný e-mail.', 'error_type': 'email_invalid'}
     if new and not credentials.get('password'):
         return {
             'error': 'Není vyplněné heslo',
@@ -98,7 +116,7 @@ def _check_credentials(credentials, new=False):
             'error': 'Uživatel s tímto uživatelským jménem již existuje.',
             'error_type': 'username_exists',
         }
-    if new and _user_exists(email__iexact=credentials['email'].strip()):
+    if new and _user_exists(email__iexact=credentials['email']):
         return {
             'error': 'Uživatel s tímto e-mailem již existuje.',
             'error_type': 'email_exists',
@@ -141,23 +159,26 @@ def signup(request):
             },
             status=400,
         )
+    if request.resolver_match.namespace == 'api':
+        # the old app at /old/ would take the answer for a logged-in user and never mention the confirmation link
+        return _error(f'Registrace funguje jen na novém webu: {settings.SITE_URL}', 'signup_moved')
     data = json.loads(str(request.body.decode('utf-8')))
-    error = _save_user(request, data, new=True)
-    if error is not None:
-        return JsonResponse(error, status=400)
-    # nobody checked the e-mail yet: the account logs in only after the link from it is opened
-    user = request.user
-    PendingEmailVerification.objects.create(user=user)
-    send_email_verification(user)
+    if 'email' in data:
+        data['email'] = normalize_email(data['email'])
+    try:
+        # an account whose confirmation e-mail did not go out is not created, so the signup can simply be repeated
+        with transaction.atomic():
+            error = _save_user(request, data, new=True)
+            if error is not None:
+                return JsonResponse(error, status=400)
+            # nobody checked the e-mail yet: the account logs in only after the link from it is opened
+            user = request.user
+            EmailVerification.objects.create(user=user)
+            send_email_verification(user)
+    except (smtplib.SMTPException, OSError):
+        logger.exception('signup confirmation e-mail failed')
+        return _error('E-mail s odkazem se nepodařilo odeslat, zkus to prosím později.', 'email_failed', status=503)
     return JsonResponse({'verification_sent': True, 'email': user.email})
-
-
-def update_profile(request, status=200):
-    data = json.loads(str(request.body.decode('utf-8')))
-    error = _save_user(request, data, new=False)
-    if error:
-        return JsonResponse(error, status=400)
-    return user_profile(request)
 
 
 def logout(request):
@@ -181,12 +202,15 @@ def _form_error(form):
 
 
 def _client_ip(request):
+    # nginx appends the address it saw as the last entry; the entries before it come from the client
     forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
-    return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+    return forwarded.split(',')[-1].strip() or request.META.get('REMOTE_ADDR', '')
 
 
 def _over_limit(key, limit, window=60 * 60):
     """Counts a hit on ``key``; True once there were more than ``limit`` hits within ``window`` seconds."""
+    # hashed: the key carries what the user typed, and memcached refuses keys with spaces or over 250 characters
+    key = 'rate_limit:' + hashlib.sha256(key.encode()).hexdigest()
     cache.add(key, 0, window)
     try:
         hits = cache.incr(key)
@@ -252,7 +276,7 @@ def password_reset_confirm(request):
         return _form_error(form)
     form.save()
     # the link came to the account's e-mail, so the e-mail is confirmed too
-    PendingEmailVerification.objects.filter(user=user).delete()
+    EmailVerification.mark_verified(user)
     auth.login(request, user, backend=PASSWORD_BACKEND)
     return user_profile(request)
 
@@ -298,7 +322,7 @@ def email_verify(request):
         user = User.objects.get(pk=data['user'], is_active=True, email=data['email'])
     except (signing.BadSignature, User.DoesNotExist, KeyError, TypeError):
         return _error('Odkaz je neplatný nebo vypršel. Nech si poslat nový při přihlášení.', 'token_invalid')
-    if not PendingEmailVerification.objects.filter(user=user).delete()[0]:
+    if not EmailVerification.objects.filter(user=user, verified__isnull=True).update(verified=timezone.now()):
         return _error('E-mail už je potvrzený, stačí se přihlásit.', 'already_verified')
     auth.login(request, user, backend=PASSWORD_BACKEND)
     return user_profile(request)
@@ -314,7 +338,7 @@ def email_verify_resend(request):
     over_login = _over_limit(f'email_verify:login:{login.lower()}', 5)
     if over_ip or over_login:
         return _error('Příliš mnoho pokusů, zkus to znovu za hodinu.', 'rate_limited', status=429)
-    pending = PendingEmailVerification.objects.filter(user__is_active=True).select_related('user')
+    pending = EmailVerification.objects.filter(verified__isnull=True, user__is_active=True).select_related('user')
     for verification in pending.filter(Q(user__username=login) | Q(user__email__iexact=login)):
         send_email_verification(verification.user)
     return JsonResponse({'ok': True})

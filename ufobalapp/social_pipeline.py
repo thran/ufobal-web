@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from social_core.exceptions import AuthException
 
-from ufobalapp.models import PendingEmailVerification
+from ufobalapp.models import EmailVerification
 
 
 class EmailAccountExists(AuthException):
@@ -11,13 +11,18 @@ class EmailAccountExists(AuthException):
         return 'Účet s tímto e-mailem už existuje.'
 
 
+def _provider_vouches(backend, response):
+    """Google says whether it verified the e-mail; Facebook returns only confirmed e-mails."""
+    return backend.name != 'google-oauth2' or (response or {}).get('email_verified') in (True, 'true')
+
+
 def associate_by_email(backend, details, user=None, response=None, *args, **kwargs):
     """One account per e-mail: a Google/Facebook login with a known e-mail joins that account.
 
-    Account e-mails are confirmed (a link sent at registration) or older than confirming; the provider vouches for
-    its side (Google says so explicitly, Facebook returns only confirmed e-mails). An account still waiting for its
-    confirmation is taken over: whoever typed that e-mail at registration never proved it, the provider just did,
-    so that password is dropped.
+    Only when the account's e-mail is proven too (a link opened, or an earlier Google/Facebook login), or the account
+    has no password. An older account with a password may carry an e-mail its creator never owned, and that password
+    would still open it. An account still waiting for its confirmation is taken over: whoever typed that e-mail at
+    registration never proved it, the provider just did, so that password is dropped.
     """
     if user:
         return None
@@ -27,11 +32,20 @@ def associate_by_email(backend, details, user=None, response=None, *args, **kwar
     accounts = list(User.objects.filter(email__iexact=email, is_active=True))
     if not accounts:
         return None
-    unverified = backend.name == 'google-oauth2' and (response or {}).get('email_verified') not in (True, 'true')
-    if unverified or len(accounts) > 1:
+    if not _provider_vouches(backend, response) or len(accounts) > 1:
         raise EmailAccountExists(backend)
     account = accounts[0]
-    if PendingEmailVerification.objects.filter(user=account).delete()[0]:
+    if EmailVerification.is_pending(account):
         account.set_unusable_password()
         account.save(update_fields=['password'])
+    elif account.has_usable_password() and not EmailVerification.is_verified(account):
+        raise EmailAccountExists(backend)
     return {'user': account, 'is_new': False}
+
+
+def mark_email_verified(backend, details, user=None, response=None, *args, **kwargs):
+    """The provider proved the account's e-mail, so later logins with the other provider may join the account."""
+    email = (details.get('email') or '').strip()
+    if user and email and user.email.strip().lower() == email.lower() and _provider_vouches(backend, response):
+        if not EmailVerification.is_verified(user):
+            EmailVerification.mark_verified(user)

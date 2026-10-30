@@ -29,10 +29,11 @@ test('changing the password asks for the current one', async () => {
   const fetchMock = mockApi({ account: account(), password_change: testUser() });
   renderWithProviders(<SettingsPage />, { user: testUser({ has_password: true }) });
   await userEvent.type(await screen.findByLabelText('Nové heslo'), 'Ufobal-heslo-2026');
+  const passwordSection = within(section('Změna hesla'));
   await userEvent.type(screen.getByLabelText('Nové heslo znovu'), 'Ufobal-heslo-2026');
   await userEvent.click(screen.getByRole('button', { name: 'Změnit heslo' }));
-  expect(screen.getByText(/Vyplň současné heslo/)).toBeInTheDocument();
-  await userEvent.type(screen.getByLabelText('Současné heslo'), 'stare');
+  expect(passwordSection.getByText(/Vyplň současné heslo/)).toBeInTheDocument();
+  await userEvent.type(passwordSection.getByLabelText('Současné heslo'), 'stare');
   await userEvent.click(screen.getByRole('button', { name: 'Změnit heslo' }));
   await waitFor(() => expect(screen.getByLabelText('Nové heslo')).toHaveValue(''));
   expect(body(fetchMock, 'password_change')).toEqual({
@@ -79,13 +80,28 @@ test('player section links the paired player or the pairing', async () => {
   expect(await screen.findByRole('link', { name: 'Spárovat účet' })).toHaveAttribute('href', '/pair-account');
 });
 
-test('e-mail change sends a confirmation link', async () => {
+test('e-mail change asks for the password and sends a confirmation link', async () => {
   const fetchMock = mockApi({ account: account(), email_change: { ok: true } });
   renderWithProviders(<SettingsPage />, { user: testUser() });
   expect(await screen.findByText('pepa@example.cz')).toBeInTheDocument();
-  await userEvent.type(screen.getByLabelText('Nový e-mail'), 'novy@example.cz');
-  await userEvent.click(screen.getByRole('button', { name: 'Poslat potvrzovací odkaz' }));
-  expect(await screen.findByRole('status')).toHaveTextContent('Na novy@example.cz jsme poslali odkaz');
+  const emailSection = within(section('E-mail'));
+  await userEvent.type(emailSection.getByLabelText('Nový e-mail'), 'novy@example.cz');
+  await userEvent.click(emailSection.getByRole('button', { name: 'Poslat potvrzovací odkaz' }));
+  expect(emailSection.getByText(/Vyplň současné heslo/)).toBeInTheDocument();
+  await userEvent.type(emailSection.getByLabelText('Současné heslo'), 'heslo');
+  await userEvent.click(emailSection.getByRole('button', { name: 'Poslat potvrzovací odkaz' }));
+  expect(await emailSection.findByRole('status')).toHaveTextContent('Na novy@example.cz jsme poslali odkaz');
+  expect(body(fetchMock, 'email_change')).toEqual({ email: 'novy@example.cz', password: 'heslo' });
+});
+
+test('e-mail change of an account without a password needs none', async () => {
+  const fetchMock = mockApi({ account: account({ has_password: false }), email_change: { ok: true } });
+  renderWithProviders(<SettingsPage />, { user: testUser({ has_password: false }) });
+  const emailSection = within(await waitFor(() => section('E-mail')));
+  expect(emailSection.queryByLabelText('Současné heslo')).not.toBeInTheDocument();
+  await userEvent.type(emailSection.getByLabelText('Nový e-mail'), 'novy@example.cz');
+  await userEvent.click(emailSection.getByRole('button', { name: 'Poslat potvrzovací odkaz' }));
+  await emailSection.findByRole('status');
   expect(body(fetchMock, 'email_change')).toEqual({ email: 'novy@example.cz' });
 });
 

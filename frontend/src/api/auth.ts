@@ -11,7 +11,8 @@ export interface SignupData {
 }
 
 export const getUserProfile = () => api<User | null>('user_profile');
-export const login = (c: { username: string; password: string }) => api<User>('login', { method: 'POST', body: c });
+export const login = (c: { username: string; password: string }) =>
+  api<User>('login', { method: 'POST', body: c });
 export const signup = (c: SignupData) =>
   api<{ verification_sent: true; email: string }>('signup', { method: 'POST', body: c });
 export const verifyEmail = (token: string) => api<User>('email_verify', { method: 'POST', body: { token } });
@@ -57,8 +58,9 @@ export interface Account {
 }
 
 export const getAccount = () => api<Account>('account');
-export const requestEmailChange = (email: string) =>
-  api<{ ok: true }>('email_change', { method: 'POST', body: { email } });
+/** `password` is the current one, required when the account has a password */
+export const requestEmailChange = (data: { email: string; password?: string }) =>
+  api<{ ok: true }>('email_change', { method: 'POST', body: data });
 export const confirmEmailChange = (token: string) =>
   api<{ email: string }>('email_change_confirm', { method: 'POST', body: { token } });
 export const disconnectSocial = (id: number) =>

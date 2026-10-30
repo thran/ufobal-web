@@ -91,15 +91,17 @@ function PlayerSection({ user }: { user: User }) {
 
 function EmailSection({ account }: { account: Account }) {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const change = useRequestEmailChange();
   const v = useValidation({
     email: (!email.trim() && 'Vyplň nový e-mail.') || (!EMAIL_RE.test(email.trim()) && 'Neplatný e-mail.'),
+    password: account.has_password && !password && 'Vyplň současné heslo.',
   });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!v.attempt()) return;
-    change.mutate(email.trim());
+    change.mutate({ email: email.trim(), ...(account.has_password ? { password } : {}) });
   };
 
   return (
@@ -111,7 +113,7 @@ function EmailSection({ account }: { account: Account }) {
       </p>
       {change.isSuccess ? (
         <p role="status" className="mt-2">
-          Na {change.variables} jsme poslali odkaz. E-mail se změní, až ho otevřeš (platí 24 hodin).
+          Na {change.variables.email} jsme poslali odkaz. E-mail se změní, až ho otevřeš (platí 24 hodin).
         </p>
       ) : (
         <form onSubmit={submit} noValidate className="mt-2 flex flex-col gap-3">
@@ -124,6 +126,17 @@ function EmailSection({ account }: { account: Account }) {
             onBlur={v.touch('email')}
             error={v.error('email')}
           />
+          {account.has_password && (
+            <TextField
+              label="Současné heslo"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={setPassword}
+              onBlur={v.touch('password')}
+              error={v.error('password')}
+            />
+          )}
           <button type="submit" className="btn self-start" disabled={change.isPending}>
             Poslat potvrzovací odkaz
           </button>

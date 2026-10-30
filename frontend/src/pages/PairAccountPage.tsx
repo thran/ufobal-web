@@ -114,8 +114,9 @@ export default function PairAccountPage() {
     <>
       <h2>Párování</h2>
       {body}
-      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
-      <SignupDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
+      {/* mounted only while open, so each opening starts with an empty form */}
+      {loginOpen && <LoginDialog open onClose={() => setLoginOpen(false)} />}
+      {signupOpen && <SignupDialog open onClose={() => setSignupOpen(false)} />}
     </>
   );
 }
