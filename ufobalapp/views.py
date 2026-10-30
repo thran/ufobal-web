@@ -75,9 +75,19 @@ def get_json_one(request, model_class, pk):
     return JsonResponse(obj.to_json(**kwargs))
 
 
+# Query params used to go straight into objs.filter(), which allowed lookups through relations
+# (e.g. ?user__password__startswith=) on these public endpoints.
+LIST_FILTERS = {Match: {"tournament"}}
+
+
 def get_json_all(request, model_class):
-    filtering = dict(request.GET)
-    use_cache = model_class != Match and not filtering
+    filtering = {key: value for key, value in request.GET.items() if key != "html"}
+    allowed = LIST_FILTERS.get(model_class, set())
+    if set(filtering) - allowed:
+        return HttpResponseBadRequest(f"Allowed filters: {', '.join(sorted(allowed)) or 'none'}")
+    if any(not value.isdigit() for value in filtering.values()):
+        return HttpResponseBadRequest("Filter values must be integers")
+    use_cache = model_class != Match and not request.GET
     cache_key = list_cache_key(model_class, request.user.is_staff)
     if use_cache:
         cached = cache.get(cache_key)
@@ -97,10 +107,7 @@ def get_json_all(request, model_class):
         objs = (objs.prefetch_related(Prefetch('players', queryset=Player.objects.all().only('id')))
                 .select_related('default_goalie', 'captain'))
 
-    if len(filtering):
-        if "html" in filtering:
-            del filtering["html"]
-        filtering = {key: value[0] for key, value in filtering.items()}
+    if filtering:
         objs = objs.filter(**filtering)
 
     data = [obj.to_json(simple=True, staff=request.user.is_staff) for obj in objs]
