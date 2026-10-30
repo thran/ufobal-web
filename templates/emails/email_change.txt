@@ -1,0 +1,11 @@
+{% autoescape off %}Ahoj,
+
+u účtu „{{ user.get_username }}“ na {{ site_url }} se má e-mail změnit na {{ email }}.
+
+Změnu potvrdíš tady:
+{{ site_url }}/confirm-email/{{ token }}
+
+Odkaz platí 24 hodin. Pokud o změnu nestojíš, e-mail ignoruj, nic se nezmění.
+
+Ufo-IS
+{% endautoescape %}

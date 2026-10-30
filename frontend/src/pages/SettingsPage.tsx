@@ -1,19 +1,161 @@
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
-import type { NewPassword } from '../api/auth';
+import type { Account, NewPassword } from '../api/auth';
 import type { User } from '../api/types';
+import { useAccount, useDisconnectSocial, useRequestEmailChange, useUpdateAccount } from '../auth/account';
 import NewPasswordFields, { EMPTY_PASSWORD, newPasswordErrors } from '../auth/NewPasswordFields';
-import { useChangePassword, useUser } from '../auth/user';
-import { FieldError, useValidation } from '../components/forms/validation';
+import { startSocialLogin, useChangePassword, useUser, type SocialProvider } from '../auth/user';
+import ErrorBox from '../components/ErrorBox';
+import { EMAIL_RE, FieldError, useValidation } from '../components/forms/validation';
+import Spinner from '../components/Spinner';
+
+const sectionTitle = 'mt-6 mb-2 text-xl font-bold';
 
 export default function SettingsPage() {
   const user = useUser().data;
+  const account = useAccount();
   if (!user) return null; // RequireAuth renders the page only for a logged-in user
   return (
     <div className="mx-auto max-w-md">
       <h2>Nastavení účtu</h2>
-      <PasswordSection user={user} />
+      {account.isPending ? (
+        <Spinner />
+      ) : account.error ? (
+        <ErrorBox error={account.error} onRetry={() => void account.refetch()} />
+      ) : (
+        <>
+          <ProfileSection account={account.data} />
+          <EmailSection account={account.data} />
+          <PasswordSection user={user} />
+          <LinkedAccountsSection account={account.data} />
+        </>
+      )}
     </div>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+  error,
+  onBlur,
+  ...input
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  onBlur?: () => void;
+  type?: string;
+  autoComplete?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-sm">
+        {label}
+        <input
+          className="input mt-1"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          aria-invalid={!!error}
+          {...input}
+        />
+      </label>
+      <FieldError error={error} />
+    </div>
+  );
+}
+
+function ProfileSection({ account }: { account: Account }) {
+  const [data, setData] = useState({
+    username: account.username,
+    first_name: account.first_name,
+    last_name: account.last_name,
+  });
+  const update = useUpdateAccount();
+  const v = useValidation({ username: !data.username.trim() && 'Vyplň uživatelské jméno.' });
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!v.attempt()) return;
+    update.mutate(data, { onSuccess: () => toast.success('Uloženo.') });
+  };
+
+  return (
+    <section>
+      <h3 className={sectionTitle}>Profil</h3>
+      <form onSubmit={submit} noValidate className="flex flex-col gap-3">
+        <TextField
+          label="Uživatelské jméno (k přihlášení)"
+          autoComplete="username"
+          value={data.username}
+          onChange={(username) => setData({ ...data, username })}
+          onBlur={v.touch('username')}
+          error={v.error('username')}
+        />
+        <TextField
+          label="Jméno"
+          autoComplete="given-name"
+          value={data.first_name}
+          onChange={(first_name) => setData({ ...data, first_name })}
+        />
+        <TextField
+          label="Příjmení"
+          autoComplete="family-name"
+          value={data.last_name}
+          onChange={(last_name) => setData({ ...data, last_name })}
+        />
+        <button type="submit" className="btn self-start" disabled={update.isPending}>
+          Uložit
+        </button>
+      </form>
+    </section>
+  );
+}
+
+function EmailSection({ account }: { account: Account }) {
+  const [email, setEmail] = useState('');
+  const change = useRequestEmailChange();
+  const v = useValidation({
+    email: (!email.trim() && 'Vyplň nový e-mail.') || (!EMAIL_RE.test(email.trim()) && 'Neplatný e-mail.'),
+  });
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!v.attempt()) return;
+    change.mutate(email.trim());
+  };
+
+  return (
+    <section>
+      <h3 className={sectionTitle}>E-mail</h3>
+      <p className="text-sm">
+        Současný: <b>{account.email || 'žádný'}</b>. Slouží k přihlášení a k obnovení hesla.
+      </p>
+      {change.isSuccess ? (
+        <p role="status" className="mt-2">
+          Na {change.variables} jsme poslali odkaz. E-mail se změní, až ho otevřeš (platí 24 hodin).
+        </p>
+      ) : (
+        <form onSubmit={submit} noValidate className="mt-2 flex flex-col gap-3">
+          <TextField
+            label="Nový e-mail"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={setEmail}
+            onBlur={v.touch('email')}
+            error={v.error('email')}
+          />
+          <button type="submit" className="btn self-start" disabled={change.isPending}>
+            Poslat potvrzovací odkaz
+          </button>
+        </form>
+      )}
+    </section>
   );
 }
 
@@ -44,24 +186,18 @@ function PasswordSection({ user }: { user: User }) {
 
   return (
     <section>
-      <h3>{user.has_password ? 'Změna hesla' : 'Heslo'}</h3>
+      <h3 className={sectionTitle}>{user.has_password ? 'Změna hesla' : 'Heslo'}</h3>
       <form onSubmit={submit} noValidate className="flex flex-col gap-3">
         {user.has_password ? (
-          <div>
-            <label className="block text-sm">
-              Současné heslo
-              <input
-                className="input mt-1"
-                type="password"
-                autoComplete="current-password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                onBlur={v.touch('old_password')}
-                aria-invalid={!!v.error('old_password')}
-              />
-            </label>
-            <FieldError error={v.error('old_password')} />
-          </div>
+          <TextField
+            label="Současné heslo"
+            type="password"
+            autoComplete="current-password"
+            value={oldPassword}
+            onChange={setOldPassword}
+            onBlur={v.touch('old_password')}
+            error={v.error('old_password')}
+          />
         ) : (
           <p className="text-sm">
             Účet zatím nemá heslo, přihlašuješ se přes Google nebo Facebook. Když si heslo nastavíš, můžeš se
@@ -73,6 +209,59 @@ function PasswordSection({ user }: { user: User }) {
           {user.has_password ? 'Změnit heslo' : 'Nastavit heslo'}
         </button>
       </form>
+    </section>
+  );
+}
+
+const PROVIDERS: { provider: SocialProvider; name: string }[] = [
+  { provider: 'google-oauth2', name: 'Google' },
+  { provider: 'facebook', name: 'Facebook' },
+];
+
+function LinkedAccountsSection({ account }: { account: Account }) {
+  const disconnect = useDisconnectSocial();
+  return (
+    <section>
+      <h3 className={sectionTitle}>Propojené účty</h3>
+      <p className="text-sm">Přes propojený účet se můžeš přihlásit místo hesla.</p>
+      <ul className="mt-2 flex flex-col gap-2">
+        {PROVIDERS.map(({ provider, name }) => {
+          const logins = account.social.filter((s) => s.provider === provider);
+          return (
+            <li key={provider} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <b className="w-20">{name}</b>
+              {logins.length === 0 ? (
+                <>
+                  <span className="text-sm">nepropojeno</span>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => startSocialLogin(provider, '/settings')}
+                  >
+                    Propojit {name}
+                  </button>
+                </>
+              ) : (
+                logins.map((login) => (
+                  <span key={login.id} className="flex items-center gap-3">
+                    <span className="text-sm">{provider === 'google-oauth2' ? login.uid : 'propojeno'}</span>
+                    <button
+                      type="button"
+                      className="btn"
+                      disabled={disconnect.isPending}
+                      onClick={() =>
+                        disconnect.mutate(login.id, { onSuccess: () => toast.success(`${name} odpojen.`) })
+                      }
+                    >
+                      Odpojit {name}
+                    </button>
+                  </span>
+                ))
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
