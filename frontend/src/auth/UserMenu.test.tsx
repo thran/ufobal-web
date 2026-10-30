@@ -25,7 +25,7 @@ test('paired account shows the player name, unpaired the account name', () => {
     name: 'Jonáš',
     lastname: 'Holcner',
     nickname: 'Wizy',
-    full_name: 'Jonáš Holcner',
+    full_name: 'Wizy - Jonáš Holcner',
     age: null,
     gender: 'man',
     is_paired: true,

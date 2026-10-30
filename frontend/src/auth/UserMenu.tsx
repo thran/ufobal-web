@@ -15,7 +15,8 @@ export default function UserMenu() {
   const [dialog, setDialog] = useState<'login' | 'signup' | null>(null);
 
   // a paired account shows its player: the account's own name is not editable anywhere
-  const name = user && (user.player?.full_name || `${user.first_name} ${user.last_name}`.trim());
+  const playerName = user?.player && `${user.player.name ?? ''} ${user.player.lastname ?? ''}`.trim();
+  const name = user && (playerName || `${user.first_name} ${user.last_name}`.trim());
   const label = user ? `${name}${user.player ? ` - ${user.player.nickname}` : ''}` : 'Přihlášení';
 
   return (
