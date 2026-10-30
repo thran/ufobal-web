@@ -2,6 +2,7 @@ import { Navigate, type RouteObject } from 'react-router';
 import RequireAuth from './auth/RequireAuth';
 import Layout from './components/Layout';
 import RouteError from './components/RouteError';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import FaqPage from './pages/FaqPage';
 import GroupsPage from './pages/GroupsPage';
 import HallOfRecordsPage from './pages/HallOfRecordsPage';
@@ -40,6 +41,7 @@ export const routes: RouteObject[] = [
       { path: 'hall-of-records', element: <HallOfRecordsPage /> },
       { path: 'pair-account/:token?', element: <PairAccountPage /> },
       { path: 'reset-password/:uid/:token', element: <ResetPasswordPage /> },
+      { path: 'confirm-email/:token', element: <ConfirmEmailPage /> },
       {
         path: 'settings',
         element: (
