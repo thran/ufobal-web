@@ -30,3 +30,23 @@ test('admin entry in the user menu only for admins, as full page link', async ()
   await userEvent.click(screen.getByRole('button', { name: /Jan Novák/ }));
   expect(screen.getByRole('menuitem', { name: 'Admin' })).toHaveAttribute('href', '/admin/');
 });
+
+test('paired account shows the player name, unpaired the account name', () => {
+  const player = {
+    pk: 735,
+    name: 'Jonáš',
+    lastname: 'Holcner',
+    nickname: 'Wizy',
+    full_name: 'Jonáš Holcner',
+    age: null,
+    gender: 'man',
+    is_paired: true,
+  };
+  const { unmount } = renderWithProviders(<UserMenu />, {
+    user: testUser({ first_name: 'jojkos', last_name: '', player }),
+  });
+  expect(screen.getByRole('button', { name: 'Jonáš Holcner - Wizy' })).toBeInTheDocument();
+  unmount();
+  renderWithProviders(<UserMenu />, { user: testUser({ first_name: 'Jan', last_name: 'Novák' }) });
+  expect(screen.getByRole('button', { name: 'Jan Novák' })).toBeInTheDocument();
+});

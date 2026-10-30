@@ -35,8 +35,19 @@ export default function SignupDialog({ open, onClose }: { open: boolean; onClose
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!v.attempt()) return;
-    signup.mutate(data, { onSuccess: onClose });
+    signup.mutate(data);
   };
+
+  if (signup.isSuccess) {
+    return (
+      <Modal open={open} onClose={onClose} title="Registrace">
+        <p role="status">
+          Skoro hotovo: na <b>{signup.data.email}</b> jsme poslali odkaz. Po jeho otevření se účet aktivuje a
+          přihlásí. Nepřišel? Zkontroluj spam.
+        </p>
+      </Modal>
+    );
+  }
 
   return (
     <Modal open={open} onClose={onClose} title="Registrace">

@@ -1,0 +1,9 @@
+{% autoescape off %}Ahoj,
+
+díky za registraci na {{ site_url }}. Účet „{{ user.get_username }}“ začne fungovat, až potvrdíš tenhle e-mail:
+{{ site_url }}/verify-email/{{ token }}
+
+Odkaz platí 7 dní a po otevření tě rovnou přihlásí. Pokud ses neregistroval(a), e-mail ignoruj.
+
+Ufo-IS
+{% endautoescape %}

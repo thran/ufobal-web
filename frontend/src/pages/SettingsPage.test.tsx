@@ -13,8 +13,6 @@ afterEach(() => {
 const account = (overrides: Partial<Account> = {}): Account => ({
   username: 'pepa',
   email: 'pepa@example.cz',
-  first_name: 'Pepa',
-  last_name: 'Novák',
   has_password: true,
   social: [],
   ...overrides,
@@ -61,22 +59,24 @@ test('account without a password sets its first one', async () => {
   });
 });
 
-test('profile saves username and name', async () => {
-  const fetchMock = mockApi({ account: account() });
-  renderWithProviders(<SettingsPage />, { user: testUser() });
-  const username = await screen.findByLabelText('Uživatelské jméno (k přihlášení)');
-  await userEvent.clear(username);
-  await userEvent.type(username, 'pepa2');
-  await userEvent.clear(screen.getByLabelText('Jméno'));
-  await userEvent.type(screen.getByLabelText('Jméno'), 'Josef');
-  await userEvent.click(screen.getByRole('button', { name: 'Uložit' }));
-  await waitFor(() =>
-    expect(body(fetchMock, 'account')).toEqual({
-      username: 'pepa2',
-      first_name: 'Josef',
-      last_name: 'Novák',
-    }),
-  );
+test('player section links the paired player or the pairing', async () => {
+  mockApi({ account: account() });
+  const player = {
+    pk: 735,
+    name: 'Jonáš',
+    lastname: 'Holcner',
+    nickname: 'Wizy',
+    full_name: 'Jonáš Holcner',
+  };
+  const { unmount } = renderWithProviders(<SettingsPage />, {
+    user: testUser({ player: { ...player, age: null, gender: 'man', is_paired: true } }),
+  });
+  expect(
+    await within(await waitFor(() => section('Hráč'))).findByRole('link', { name: /Wizy/ }),
+  ).toBeInTheDocument();
+  unmount();
+  renderWithProviders(<SettingsPage />, { user: testUser({ player: null }) });
+  expect(await screen.findByRole('link', { name: 'Spárovat účet' })).toHaveAttribute('href', '/pair-account');
 });
 
 test('e-mail change sends a confirmation link', async () => {

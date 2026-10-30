@@ -16,6 +16,7 @@ export default function ResetPasswordPage() {
     queryKey: ['password-reset-check', uid, token],
     queryFn: () => checkResetLink({ uid, token }),
     staleTime: Infinity,
+    meta: { once: true },
   });
   const [forgottenOpen, setForgottenOpen] = useState(false);
 
