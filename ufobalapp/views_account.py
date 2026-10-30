@@ -12,8 +12,9 @@ from django.views.decorators.http import require_GET, require_POST
 from social_core.exceptions import NotAllowedToDisconnect
 from social_django.utils import load_backend, load_strategy
 
+from ufobalapp.models import EmailVerification
 from ufobalapp.views import SYSTEM_MAIL
-from ufobalapp.views_auth import _error, _json, _over_limit
+from ufobalapp.views_auth import _error, _json, _over_limit, normalize_email
 
 EMAIL_CHANGE_SALT = 'ufobalapp.email-change'
 EMAIL_CHANGE_MAX_AGE = 24 * 60 * 60
@@ -48,11 +49,19 @@ def account(request):
 
 @require_POST
 def email_change(request):
-    """Sends a confirmation link to the new address; the e-mail changes only once it is opened."""
+    """Sends a confirmation link to the new address; the e-mail changes only once it is opened.
+
+    Asks for the password (when the account has one): with the e-mail, whoever has the session could reset it.
+    """
     user = request.user
     if not user.is_authenticated:
         return _not_logged_in()
-    email = (_json(request).get('email') or '').strip()
+    if _over_limit(f'email_change:user:{user.pk}', 10):
+        return _error('Příliš mnoho pokusů, zkus to znovu za hodinu.', 'rate_limited', status=429)
+    data = _json(request)
+    if user.has_usable_password() and not user.check_password(data.get('password') or ''):
+        return _error('Současné heslo nesedí.', 'password_wrong')
+    email = normalize_email(data.get('email'))
     try:
         validate_email(email)
     except ValidationError:
@@ -61,8 +70,6 @@ def email_change(request):
         return _error('Tenhle e-mail už máš.', 'email_same')
     if _email_taken(email, user):
         return _error('Tento e-mail už používá jiný účet.', 'email_exists')
-    if _over_limit(f'email_change:user:{user.pk}', 5):
-        return _error('Příliš mnoho pokusů, zkus to znovu za hodinu.', 'rate_limited', status=429)
     # the old e-mail in the token makes the link useless once the e-mail changed in any other way
     token = signing.dumps({'user': user.pk, 'old': user.email, 'new': email}, salt=EMAIL_CHANGE_SALT)
     context = {'user': user, 'site_url': settings.SITE_URL, 'token': token, 'email': email}
@@ -90,6 +97,7 @@ def email_change_confirm(request):
             return _error('Tento e-mail už mezitím začal používat jiný účet.', 'email_exists')
         user.email = data['new']
         user.save(update_fields=['email'])
+        EmailVerification.mark_verified(user)  # the link came to the new address
     return JsonResponse({'email': user.email})
 
 
@@ -99,7 +107,8 @@ def social_disconnect(request):
     user = request.user
     if not user.is_authenticated:
         return _not_logged_in()
-    association = user.social_auth.filter(pk=_json(request).get('id')).first()
+    association_id = _json(request).get('id')
+    association = user.social_auth.filter(pk=association_id).first() if isinstance(association_id, int) else None
     if association is None:
         return _error('Propojení nenalezeno.', 'not_found', status=404)
     strategy = load_strategy(request)

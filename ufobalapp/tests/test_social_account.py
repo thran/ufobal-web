@@ -9,8 +9,8 @@ from django.core import mail
 from django.core.cache import cache
 from social_django.models import UserSocialAuth
 
-from ufobalapp.models import PendingEmailVerification
-from ufobalapp.social_pipeline import EmailAccountExists, associate_by_email
+from ufobalapp.models import EmailVerification
+from ufobalapp.social_pipeline import EmailAccountExists, associate_by_email, mark_email_verified
 
 
 def post(client, url, data):
@@ -61,10 +61,19 @@ def test_known_email_joins_the_account(backend, has_password):
     account = User.objects.create_user(
         'pepa', email='Pepa@Example.cz', password='heslo-123456' if has_password else None
     )
+    if has_password:
+        EmailVerification.mark_verified(account)
     result = associate_by_email(Backend(backend), {'email': 'pepa@example.cz'}, response={'email_verified': True})
     assert result == {'user': account, 'is_new': False}
     account.refresh_from_db()
     assert account.has_usable_password() == has_password
+
+
+@pytest.mark.django_db
+def test_older_account_with_password_and_unproven_email_is_not_joined():
+    User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
+    with pytest.raises(EmailAccountExists):
+        associate_by_email(Backend('google-oauth2'), {'email': 'pepa@example.cz'}, response={'email_verified': True})
 
 
 @pytest.mark.django_db
@@ -80,12 +89,22 @@ def test_unverified_google_email_or_two_accounts_stop_the_login():
 @pytest.mark.django_db
 def test_unconfirmed_registration_is_taken_over_without_its_password():
     squatted = User.objects.create_user('squat', email='pepa@example.cz', password='heslo-123456')
-    PendingEmailVerification.objects.create(user=squatted)
+    EmailVerification.objects.create(user=squatted)
     result = associate_by_email(Backend('facebook'), {'email': 'pepa@example.cz'})
     assert result['user'] == squatted
     squatted.refresh_from_db()
     assert not squatted.has_usable_password()
-    assert not PendingEmailVerification.objects.exists()
+
+
+@pytest.mark.django_db
+def test_provider_marks_a_matching_email_verified():
+    pepa = User.objects.create_user('pepa', email='Pepa@example.cz', password='heslo-123456')
+    google = Backend('google-oauth2')
+    mark_email_verified(google, {'email': 'jiny@example.cz'}, user=pepa, response={'email_verified': True})
+    mark_email_verified(google, {'email': 'pepa@example.cz'}, user=pepa, response={'email_verified': False})
+    assert not EmailVerification.is_verified(pepa)
+    mark_email_verified(Backend('facebook'), {'email': 'pepa@example.cz'}, user=pepa)
+    assert EmailVerification.is_verified(pepa)
 
 
 @pytest.mark.django_db
@@ -141,9 +160,26 @@ def test_google_login_joins_facebook_only_account_with_the_same_email(client):
 @pytest.mark.django_db
 def test_google_login_joins_password_account_with_the_same_email(client):
     account = User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
+    EmailVerification.mark_verified(account)
     assert google_login(client, profile('pepa@example.cz')) == '/settings'
     assert logged_in_user(client) == account
     assert User.objects.count() == 1 and account.social_auth.get().provider == 'google-oauth2'
+
+
+@pytest.mark.django_db
+def test_google_login_stops_at_older_password_account_until_connected_in_settings(client):
+    account = User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
+    assert google_login(client, profile('pepa@example.cz')) == '/settings?login_error=email_exists'
+    assert logged_in_user(client) is None
+    client.force_login(account)
+    assert google_login(client, profile('pepa@example.cz')) == '/settings'
+    assert EmailVerification.is_verified(account)  # Facebook with this e-mail now joins the account too
+
+
+@pytest.mark.django_db
+def test_new_google_account_counts_as_verified(client):
+    google_login(client, profile('new@example.cz'))
+    assert EmailVerification.is_verified(logged_in_user(client))
 
 
 @pytest.mark.django_db
@@ -176,10 +212,12 @@ def test_connecting_google_linked_to_another_account_fails(client):
 
 # account settings
 
+PASSWORD = 'heslo-123456'
+
 
 @pytest.fixture()
 def user(client):
-    user = User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456', first_name='Pepa')
+    user = User.objects.create_user('pepa', email='pepa@example.cz', password=PASSWORD, first_name='Pepa')
     client.force_login(user)
     return user
 
@@ -200,7 +238,7 @@ def test_account_shows_linked_logins(client, user):
 @pytest.mark.django_db
 def test_email_change_needs_the_link_from_the_new_address(client, user, settings):
     settings.SITE_URL = 'https://is.ufobal.cz'
-    assert post(client, 'email_change', {'email': 'novy@example.cz'}).status_code == 200
+    assert post(client, 'email_change', {'password': PASSWORD, 'email': 'novy@example.cz'}).status_code == 200
     user.refresh_from_db()
     assert user.email == 'pepa@example.cz'
     assert mail.outbox[0].to == ['novy@example.cz']
@@ -215,17 +253,41 @@ def test_email_change_needs_the_link_from_the_new_address(client, user, settings
 @pytest.mark.django_db
 def test_email_change_refuses_taken_same_or_invalid(client, user):
     User.objects.create_user('jiny', email='Jiny@example.cz')
-    assert post(client, 'email_change', {'email': 'jiny@example.cz'}).json()['error_type'] == 'email_exists'
-    assert post(client, 'email_change', {'email': 'PEPA@example.cz'}).json()['error_type'] == 'email_same'
-    assert post(client, 'email_change', {'email': 'nic'}).json()['error_type'] == 'email_invalid'
+    assert (
+        post(client, 'email_change', {'password': PASSWORD, 'email': 'jiny@example.cz'}).json()['error_type']
+        == 'email_exists'
+    )
+    assert (
+        post(client, 'email_change', {'password': PASSWORD, 'email': 'PEPA@example.cz'}).json()['error_type']
+        == 'email_same'
+    )
+    assert post(client, 'email_change', {'password': PASSWORD, 'email': 'nic'}).json()['error_type'] == 'email_invalid'
     assert mail.outbox == []
 
 
 @pytest.mark.django_db
+def test_email_change_asks_for_the_password_of_an_account_with_one(client, user):
+    for data in ({'email': 'novy@example.cz'}, {'email': 'novy@example.cz', 'password': 'spatne'}):
+        assert post(client, 'email_change', data).json()['error_type'] == 'password_wrong'
+    assert mail.outbox == []
+    client.force_login(User.objects.create_user('fb', email='fb@example.cz'))
+    assert post(client, 'email_change', {'email': ' Novy@Example.CZ '}).status_code == 200
+    assert mail.outbox[0].to == ['Novy@example.cz']
+
+
+@pytest.mark.django_db
+def test_confirmed_email_change_counts_as_verified(client, user):
+    post(client, 'email_change', {'password': PASSWORD, 'email': 'novy@example.cz'})
+    token = re.search(r'/confirm-email/(\S+)', mail.outbox[-1].body).group(1)
+    post(client, 'email_change_confirm', {'token': token})
+    assert EmailVerification.is_verified(user)
+
+
+@pytest.mark.django_db
 def test_email_change_link_dies_when_email_changed_otherwise_or_tampered(client, user):
-    post(client, 'email_change', {'email': 'prvni@example.cz'})
+    post(client, 'email_change', {'password': PASSWORD, 'email': 'prvni@example.cz'})
     first = re.search(r'/confirm-email/(\S+)', mail.outbox[-1].body).group(1)
-    post(client, 'email_change', {'email': 'druhy@example.cz'})
+    post(client, 'email_change', {'password': PASSWORD, 'email': 'druhy@example.cz'})
     second = re.search(r'/confirm-email/(\S+)', mail.outbox[-1].body).group(1)
     assert post(client, 'email_change_confirm', {'token': second}).status_code == 200
     assert post(client, 'email_change_confirm', {'token': first}).json()['error_type'] == 'token_invalid'
@@ -250,4 +312,5 @@ def test_disconnect_refuses_last_login_method_and_foreign_login(client):
     assert post(client, 'social_disconnect', {'id': facebook.pk}).json()['error_type'] == 'last_login_method'
     other = UserSocialAuth.objects.create(user=User.objects.create_user('x'), provider='google-oauth2', uid='x@x.cz')
     assert post(client, 'social_disconnect', {'id': other.pk}).status_code == 404
+    assert post(client, 'social_disconnect', {'id': 'abc'}).status_code == 404
     assert UserSocialAuth.objects.count() == 2
