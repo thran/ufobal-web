@@ -22,6 +22,11 @@ TEST = os.getenv('TEST', "False") == "True"
 ALLOWED_HOSTS = ["*"]
 
 EMAIL_HOST = '127.0.0.1'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_FILE_PATH = os.getenv('EMAIL_FILE_PATH')  # for EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
+
+# Links in e-mails are built from this, never from the request's Host header (ALLOWED_HOSTS is open).
+SITE_URL = os.getenv('SITE_URL', 'https://is.ufobal.cz' if ON_SERVER else 'http://localhost:8000')
 
 LOGIN_URL = 'admin:index'  # redirect for login_required pages
 
@@ -64,8 +69,17 @@ else:
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    'ufobalapp.auth_backends.UsernameOrEmailBackend',
 )
+
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+PASSWORD_RESET_TIMEOUT = 24 * 60 * 60
 
 ROOT_URLCONF = 'ufobal.urls'
 

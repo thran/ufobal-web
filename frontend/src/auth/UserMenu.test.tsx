@@ -11,10 +11,10 @@ test('login dialog fields are empty after closing and reopening', async () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: /přes jméno/ }));
   };
   await openDialog();
-  await userEvent.type(screen.getByPlaceholderText('jméno'), 'pepa');
+  await userEvent.type(screen.getByPlaceholderText('jméno nebo e-mail'), 'pepa');
   await userEvent.type(screen.getByPlaceholderText('heslo'), 'tajne');
   await userEvent.keyboard('{Escape}');
   await openDialog();
-  expect(screen.getByPlaceholderText('jméno')).toHaveValue('');
+  expect(screen.getByPlaceholderText('jméno nebo e-mail')).toHaveValue('');
   expect(screen.getByPlaceholderText('heslo')).toHaveValue('');
 });

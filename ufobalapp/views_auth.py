@@ -1,12 +1,24 @@
 import json
+from urllib.parse import urlsplit
 
+from django.conf import settings
 from django.contrib import auth
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 
-from ufobalapp.views import is_authorized
+from ufobalapp.views import SYSTEM_MAIL, is_authorized
+
+PASSWORD_BACKEND = 'ufobalapp.auth_backends.UsernameOrEmailBackend'
 
 
 def get_user_data(request):
@@ -19,6 +31,7 @@ def get_user_data(request):
             "last_name": user.last_name,
             "is_staff": user.is_staff,
             "is_authorized": is_authorized(user),
+            "has_password": user.has_usable_password(),
             "player": user.player.to_json(simple=True) if hasattr(user, "player") else None,
         }
 
@@ -36,7 +49,7 @@ def login(request):
     )
     if user is None:
         return JsonResponse(
-            {'error': 'Špatné jméno nebo heslo.', 'error_type': 'password_username_not_match'}, status=401
+            {'error': 'Špatné jméno, e-mail nebo heslo.', 'error_type': 'password_username_not_match'}, status=401
         )
     if not user.is_active:
         return JsonResponse({'error': 'Účet je deaktivován.', 'error_type': 'account_not_activated'}, status=401)
@@ -66,12 +79,20 @@ def _check_credentials(credentials, new=False):
             'error': 'Hesla se liší.',
             'error_type': 'password_not_match',
         }
+    if credentials.get('password'):
+        try:
+            validate_password(
+                credentials['password'],
+                User(username=credentials.get('username', ''), email=credentials.get('email', '')),
+            )
+        except ValidationError as error:
+            return {'error': ' '.join(error.messages), 'error_type': 'password_invalid'}
     if credentials.get('username') and _user_exists(username=credentials['username']):
         return {
             'error': 'Uživatel s tímto uživatelským jménem již existuje.',
             'error_type': 'username_exists',
         }
-    if new and _user_exists(email=credentials['email']):
+    if new and _user_exists(email__iexact=credentials['email'].strip()):
         return {
             'error': 'Uživatel s tímto e-mailem již existuje.',
             'error_type': 'email_exists',
@@ -91,7 +112,7 @@ def _save_user(request, credentials, new=False):
         user = request.user
         if new:
             user = User()
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            user.backend = PASSWORD_BACKEND
             user.username = credentials['username']
             user.email = credentials['email']
         if credentials.get('password'):
@@ -138,3 +159,111 @@ def logout(request):
 
 def close_login_popup(request):
     return render(request, 'close_login_popup_new.html')
+
+
+def _json(request):
+    try:
+        return json.loads(request.body.decode('utf-8') or '{}')
+    except ValueError:
+        return {}
+
+
+def _error(message, error_type, status=400):
+    return JsonResponse({'error': message, 'error_type': error_type}, status=status)
+
+
+def _form_error(form):
+    return _error(' '.join(m for messages in form.errors.values() for m in messages), 'password_invalid')
+
+
+def _client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+
+
+def _over_limit(key, limit, window=60 * 60):
+    """Counts a hit on ``key``; True once there were more than ``limit`` hits within ``window`` seconds."""
+    cache.add(key, 0, window)
+    try:
+        hits = cache.incr(key)
+    except ValueError:  # expired between add and incr
+        cache.set(key, 1, window)
+        hits = 1
+    return hits > limit
+
+
+class AccountPasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        # unlike Django's form, also accounts without a password (Google/FB only), so they can set one
+        return User.objects.filter(email__iexact=email, is_active=True)
+
+
+@require_POST
+def password_reset(request):
+    """Sends a reset link if an active account has this e-mail; the response never tells whether it does."""
+    email = (_json(request).get('email') or '').strip()
+    if not email:
+        return _error('Vyplň e-mail.', 'email_empty')
+    over_ip = _over_limit(f'password_reset:ip:{_client_ip(request)}', 20)
+    over_email = _over_limit(f'password_reset:email:{email.lower()}', 5)
+    if over_ip or over_email:
+        return _error('Příliš mnoho pokusů, zkus to znovu za hodinu.', 'rate_limited', status=429)
+    form = AccountPasswordResetForm({'email': email})
+    if form.is_valid():
+        form.save(
+            subject_template_name='emails/password_reset_subject.txt',
+            email_template_name='emails/password_reset.txt',
+            from_email=SYSTEM_MAIL,
+            domain_override=urlsplit(settings.SITE_URL).netloc,
+            extra_email_context={'site_url': settings.SITE_URL},
+        )
+    return JsonResponse({'ok': True})
+
+
+def _reset_user(data):
+    """The active account a reset link belongs to, or None when the link is wrong, used or expired."""
+    try:
+        user = User.objects.get(pk=force_str(urlsafe_base64_decode(data.get('uid') or '')), is_active=True)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError, ValidationError):
+        return None
+    return user if default_token_generator.check_token(user, data.get('token') or '') else None
+
+
+@require_POST
+def password_reset_check(request):
+    user = _reset_user(_json(request))
+    if user is None:
+        return JsonResponse({'valid': False})
+    return JsonResponse({'valid': True, 'username': user.username, 'has_password': user.has_usable_password()})
+
+
+@require_POST
+def password_reset_confirm(request):
+    data = _json(request)
+    user = _reset_user(data)
+    if user is None:
+        return _error('Odkaz je neplatný nebo vypršel, požádej o nový.', 'token_invalid')
+    form = SetPasswordForm(user, {'new_password1': data.get('password'), 'new_password2': data.get('password_check')})
+    if not form.is_valid():
+        return _form_error(form)
+    form.save()
+    auth.login(request, user, backend=PASSWORD_BACKEND)
+    return user_profile(request)
+
+
+@require_POST
+def password_change(request):
+    """Changes the password; an account without one (Google/FB only) sets its first password."""
+    if not request.user.is_authenticated:
+        return _error('Nejsi přihlášený.', 'not_logged_in', status=401)
+    data = _json(request)
+    passwords = {'new_password1': data.get('password'), 'new_password2': data.get('password_check')}
+    if request.user.has_usable_password():
+        form = PasswordChangeForm(request.user, {'old_password': data.get('old_password'), **passwords})
+    else:
+        form = SetPasswordForm(request.user, passwords)
+    if not form.is_valid():
+        return _form_error(form)
+    form.save()
+    auth.update_session_auth_hash(request, form.user)
+    return user_profile(request)

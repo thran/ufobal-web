@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import type { User } from '../api/types';
 import { canRecord, isLoggedIn, isOwnPlayer, isStaff } from './permissions';
 
-const base: User = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: false, player: null };
+const base: User = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: false, has_password: true, player: null };
 const player = { pk: 7, name: 'a', lastname: 'b', nickname: 'c', age: 20, full_name: 'a b', gender: 'man', is_paired: true };
 
 test('anonymous', () => {

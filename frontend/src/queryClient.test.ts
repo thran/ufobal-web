@@ -7,7 +7,7 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn() } }));
 
 beforeEach(() => vi.mocked(toast.error).mockClear());
 
-const user = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: true, player: null };
+const user = { first_name: 'A', last_name: 'B', is_staff: false, is_authorized: true, has_password: true, player: null };
 
 test('seeds user from initial data, including anonymous null', () => {
   expect(createQueryClient({ user, liveTournamentPk: 1, test: false }).getQueryData(['user'])).toEqual(user);

@@ -34,6 +34,7 @@ export const testUser = (overrides: Partial<User> = {}): User => ({
   last_name: 'Novák',
   is_staff: false,
   is_authorized: false,
+  has_password: true,
   player: null,
   ...overrides,
 });
