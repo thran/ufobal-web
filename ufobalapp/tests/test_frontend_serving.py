@@ -85,13 +85,6 @@ def test_intro_is_spa_route(client, spa_template):
 
 
 @pytest.mark.django_db
-def test_close_login_popup_posts_message(client):
-    response = client.get('/login/close_login_popup')
-    assert response.status_code == 200
-    assert b'ufo-social-login' in response.content
-
-
-@pytest.mark.django_db
 def test_spa_missing_build_returns_503_with_hint(client, monkeypatch):
     def missing(*args, **kwargs):
         raise TemplateDoesNotExist('spa.html')

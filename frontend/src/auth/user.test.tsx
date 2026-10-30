@@ -1,9 +1,11 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, useLocation } from 'react-router';
+import { toast } from 'sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createQueryClient } from '../queryClient';
-import { SOCIAL_LOGIN_MESSAGE, useLogin, useLogout, useSocialLoginListener, useUser } from './user';
+import { useLogin, useLoginErrorNotice, useLogout, useUser } from './user';
 
 const fetchMock = vi.fn();
 beforeEach(() => vi.stubGlobal('fetch', fetchMock));
@@ -54,12 +56,22 @@ test('logout clears user', async () => {
   expect(qc.getQueryData(['user'])).toBeNull();
 });
 
-test('social login message from same origin refetches user; other origins ignored', async () => {
-  const { qc, wrapper } = setup(null);
-  const spy = vi.spyOn(qc, 'invalidateQueries');
-  renderHook(() => useSocialLoginListener(), { wrapper });
-  window.dispatchEvent(new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: 'https://evil.example' }));
-  expect(spy).not.toHaveBeenCalled();
-  window.dispatchEvent(new MessageEvent('message', { data: { type: SOCIAL_LOGIN_MESSAGE }, origin: window.location.origin }));
-  expect(spy).toHaveBeenCalled();
+test('login error from the backend redirect shows a message and leaves the URL', async () => {
+  const error = vi.spyOn(toast, 'error');
+  function Page() {
+    useLoginErrorNotice();
+    const location = useLocation();
+    return <p>{location.pathname + location.search}</p>;
+  }
+  render(
+    <MemoryRouter initialEntries={['/settings?tab=x&login_error=email_exists']}>
+      <Page />
+    </MemoryRouter>,
+  );
+  expect(await screen.findByText('/settings?tab=x')).toBeInTheDocument();
+  expect(error).toHaveBeenCalledWith(
+    expect.stringContaining('Účet s tímto e-mailem už existuje'),
+    expect.anything(),
+  );
+  error.mockRestore();
 });

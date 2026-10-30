@@ -5,8 +5,8 @@ import { apiLogin, login, seed } from './fixtures';
 const MAIL_DIR = new URL('./.mail/', import.meta.url);
 const NEW_PASSWORD = 'Ufobal-e2e-2026';
 
-/** The reset link from the newest e-mail sent to `to` (the server writes e-mails as files, see server.sh). */
-async function resetLink(to: string): Promise<string> {
+/** The first link matching `path` in the newest e-mail sent to `to` (the server writes e-mails as files, see server.sh). */
+async function mailLink(to: string, path: RegExp): Promise<string> {
   let link = '';
   await expect
     .poll(() => {
@@ -15,12 +15,14 @@ async function resetLink(to: string): Promise<string> {
         .sort()
         .map((name) => readFileSync(new URL(name, MAIL_DIR), 'utf8'))
         .filter((mail) => mail.includes(`To: ${to}`));
-      link = mails.at(-1)?.match(/http:\/\/\S+\/reset-password\/\S+\/\S+/)?.[0] ?? '';
+      link = mails.at(-1)?.match(new RegExp(`http://\\S+${path.source}`))?.[0] ?? '';
       return link;
     })
     .toBeTruthy();
   return link;
 }
+
+const resetLink = (to: string) => mailLink(to, /\/reset-password\/\S+\/\S+/);
 
 async function requestReset(page: Page, email: string) {
   await page.goto('/');
@@ -91,4 +93,43 @@ test('change password in settings', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Nastavení účtu' })).toBeVisible();
   expect(await apiLogin(page, account.username, account.password!)).toBe(false);
   expect(await apiLogin(page, account.email, NEW_PASSWORD)).toBe(true);
+});
+
+test('change e-mail through the link sent to the new address', async ({ page }) => {
+  const account = seed().accounts.change; // its password is NEW_PASSWORD since the previous test
+  const newEmail = 'e2e-change-new@example.cz';
+  await login(page, { username: account.username, password: NEW_PASSWORD });
+  await page.goto('/settings');
+  await page.getByLabel('Nový e-mail').fill(newEmail);
+  await page.getByRole('button', { name: 'Poslat potvrzovací odkaz' }).click();
+  await expect(page.getByRole('status')).toContainText(`Na ${newEmail} jsme poslali odkaz`);
+
+  await page.goto(await mailLink(newEmail, /\/confirm-email\/\S+/));
+  await expect(page.getByText(`E-mail změněn na ${newEmail}`)).toBeVisible();
+  await page.getByRole('link', { name: 'Zpět do nastavení' }).click();
+  await expect(page.getByText(newEmail, { exact: true })).toBeVisible();
+  expect(await apiLogin(page, newEmail, NEW_PASSWORD)).toBe(true);
+  expect(await apiLogin(page, account.email, NEW_PASSWORD)).toBe(false);
+});
+
+test('disconnect Google once the account has a password', async ({ page }) => {
+  const account = seed().accounts.google; // got a password in the reset test above
+  await login(page, { username: account.username, password: NEW_PASSWORD });
+  await page.goto('/settings');
+  await expect(page.getByRole('list').getByText(account.email, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Odpojit Google' }).click();
+  await expect(page.getByRole('button', { name: 'Propojit Google' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Propojit Facebook' })).toBeVisible();
+});
+
+test('Google login leaves for Google and a cancelled one comes back with a message', async ({ page }) => {
+  await page.goto('/');
+  const start = await page.request.get('/login/google-oauth2/?next=%2Fplayers', { maxRedirects: 0 });
+  expect(start.status()).toBe(302);
+  expect(start.headers().location).toContain('https://accounts.google.com/');
+  expect(start.headers().location).toContain('redirect_uri=http://127.0.0.1:8123/complete/google-oauth2/');
+  // what Google sends back when the user cancels
+  await page.goto('/complete/google-oauth2/?error=access_denied');
+  await expect(page).toHaveURL(/\/players$/);
+  await expect(page.getByText('Přihlášení bylo zrušeno.')).toBeVisible();
 });

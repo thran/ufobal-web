@@ -10,7 +10,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -155,10 +154,6 @@ def update_profile(request, status=200):
 def logout(request):
     auth.logout(request)
     return HttpResponse('ok', status=202)
-
-
-def close_login_popup(request):
-    return render(request, 'close_login_popup_new.html')
 
 
 def _json(request):

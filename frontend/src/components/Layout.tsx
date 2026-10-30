@@ -1,13 +1,13 @@
 import { Outlet } from 'react-router';
 import { Toaster } from 'sonner';
 import { useAppConfig } from '../AppContext';
-import { useSocialLoginListener } from '../auth/user';
+import { useLoginErrorNotice } from '../auth/user';
 import Footer from './Footer';
 import TopBar from './TopBar';
 
 export default function Layout() {
   const { test } = useAppConfig();
-  useSocialLoginListener();
+  useLoginErrorNotice();
   // overflow-x-clip hides the scrollbar-width overflow of full-viewport WideBox content.
   return (
     <div className="relative min-h-screen overflow-x-clip">
