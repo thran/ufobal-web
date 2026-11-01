@@ -1,6 +1,6 @@
 from django.urls import path
 
-from ufobalapp import views_auth
+from ufobalapp import views_account, views_auth
 from . import views
 from ufobalapp.models import Player, Tournament, TeamOnTournament, Match
 
@@ -39,6 +39,16 @@ urlpatterns = [
     path('login', views_auth.login, name='login'),
     path('logout', views_auth.logout, name='logout'),
     path('signup', views_auth.signup, name='signup'),
+    path('password_reset', views_auth.password_reset, name='password_reset'),
+    path('password_reset_check', views_auth.password_reset_check, name='password_reset_check'),
+    path('password_reset_confirm', views_auth.password_reset_confirm, name='password_reset_confirm'),
+    path('password_change', views_auth.password_change, name='password_change'),
+    path('email_verify', views_auth.email_verify, name='email_verify'),
+    path('email_verify_resend', views_auth.email_verify_resend, name='email_verify_resend'),
+    path('account', views_account.account, name='account'),
+    path('email_change', views_account.email_change, name='email_change'),
+    path('email_change_confirm', views_account.email_change_confirm, name='email_change_confirm'),
+    path('social_disconnect', views_account.social_disconnect, name='social_disconnect'),
     path('create_pairing_request/<int:player_id>', views.create_pairing_request, name='create_pairing_request'),
     path('approve_pairing_request/<int:request_id>', views.approve_pairing_request, name='approve_pairing_request'),
     path('deny_pairing_request/<int:request_id>', views.deny_pairing_request, name='deny_pairing_request'),

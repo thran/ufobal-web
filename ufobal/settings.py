@@ -22,6 +22,11 @@ TEST = os.getenv('TEST', "False") == "True"
 ALLOWED_HOSTS = ["*"]
 
 EMAIL_HOST = '127.0.0.1'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_FILE_PATH = os.getenv('EMAIL_FILE_PATH')  # for EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
+
+# Links in e-mails are built from this, never from the request's Host header (ALLOWED_HOSTS is open).
+SITE_URL = os.getenv('SITE_URL', 'https://is.ufobal.cz' if ON_SERVER else 'http://localhost:8000')
 
 LOGIN_URL = 'admin:index'  # redirect for login_required pages
 
@@ -52,6 +57,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'ufobal.middleware.api_logging_middleware.ApiLoggingMiddleware',
+    'ufobal.middleware.social_login_errors.SocialLoginErrorMiddleware',
 )
 
 if DEBUG and not ON_SERVER and not TEST and not TESTING:
@@ -64,8 +70,17 @@ else:
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    'ufobalapp.auth_backends.UsernameOrEmailBackend',
 )
+
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+PASSWORD_RESET_TIMEOUT = 24 * 60 * 60
 
 ROOT_URLCONF = 'ufobal.urls'
 
@@ -129,7 +144,24 @@ SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('SOCIAL_AUTH_FACEBOOK_KEY', '30094417672165
 SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('SOCIAL_AUTH_FACEBOOK_SECRET', '5a4b653aba18f4b589d6003ec569efb3')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'fields': 'id,name,email'}
+SOCIAL_AUTH_FACEBOOK_API_VERSION = os.getenv('SOCIAL_AUTH_FACEBOOK_API_VERSION', '26.0')
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = ON_SERVER
+SOCIAL_AUTH_INACTIVE_USER_URL = '/?login_error=inactive'
+# the name from Google/Facebook only fills in an empty one, never overwrites what the user set
+SOCIAL_AUTH_IMMUTABLE_USER_FIELDS = ['first_name', 'last_name']
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'ufobalapp.social_pipeline.associate_by_email',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'ufobalapp.social_pipeline.mark_email_verified',
+)
 
 # Static files (CSS, JavaScript, Images)
 

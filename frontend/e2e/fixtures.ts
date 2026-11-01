@@ -6,6 +6,10 @@ export interface Seed {
   recordMatch: number;
   viewMatch: number;
   user: { username: string; password: string };
+  accounts: Record<
+    'reset' | 'google' | 'change',
+    { username: string; email: string; password: string | null }
+  >;
   players: Record<string, number>;
 }
 
@@ -15,14 +19,18 @@ export function seed(): Seed {
 }
 
 /** Logs in through the API; the session cookie lands in the page's browser context. */
-export async function login(page: Page): Promise<void> {
+export async function login(page: Page, credentials = seed().user): Promise<void> {
   await page.goto('/');
+  expect(await apiLogin(page, credentials.username, credentials.password)).toBe(true);
+}
+
+/** Tries a password login through the API (on an already opened page); returns whether it succeeded. */
+export async function apiLogin(page: Page, username: string, password: string): Promise<boolean> {
   const token = (await page.context().cookies()).find((c) => c.name === 'csrftoken')?.value;
   expect(token).toBeTruthy();
-  const { username, password } = seed().user;
   const res = await page.request.post('/api_frontend/login', {
     data: { username, password },
     headers: { 'X-CSRFToken': token! },
   });
-  expect(res.ok()).toBe(true);
+  return res.ok();
 }

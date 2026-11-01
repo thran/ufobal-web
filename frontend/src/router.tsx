@@ -2,6 +2,8 @@ import { Navigate, type RouteObject } from 'react-router';
 import RequireAuth from './auth/RequireAuth';
 import Layout from './components/Layout';
 import RouteError from './components/RouteError';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import FaqPage from './pages/FaqPage';
 import GroupsPage from './pages/GroupsPage';
 import HallOfRecordsPage from './pages/HallOfRecordsPage';
@@ -20,7 +22,9 @@ import TournamentResultsPage from './pages/TournamentResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import RefereeFeedbackPage from './pages/RefereeFeedbackPage';
 import RegistrationPage from './pages/RegistrationPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import RosterPage from './pages/RosterPage';
+import SettingsPage from './pages/SettingsPage';
 import TeamPage from './pages/TeamPage';
 import TournamentsPage from './pages/TournamentsPage';
 import TeamsPage from './pages/TeamsPage';
@@ -37,6 +41,17 @@ export const routes: RouteObject[] = [
       { path: 'intro', element: <Navigate replace to="/faq" /> },
       { path: 'hall-of-records', element: <HallOfRecordsPage /> },
       { path: 'pair-account/:token?', element: <PairAccountPage /> },
+      { path: 'reset-password/:uid/:token', element: <ResetPasswordPage /> },
+      { path: 'confirm-email/:token', element: <ConfirmEmailPage /> },
+      { path: 'verify-email/:token', element: <VerifyEmailPage /> },
+      {
+        path: 'settings',
+        element: (
+          <RequireAuth level="login">
+            <SettingsPage />
+          </RequireAuth>
+        ),
+      },
       { path: 'players', element: <PlayersPage /> },
       { path: 'players/:id/:slug?', element: <PlayerPage /> },
       { path: 'teams', element: <TeamsPage /> },

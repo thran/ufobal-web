@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import LoginDialog from '../auth/LoginDialog';
 import SignupDialog from '../auth/SignupDialog';
-import { openSocialLogin, useUser } from '../auth/user';
+import { startSocialLogin, useUser } from '../auth/user';
 import { FieldError, useValidation } from '../components/forms/validation';
 import PlayerLink from '../components/PlayerLink';
 import { playerPath } from '../paths';
@@ -60,10 +60,10 @@ export default function PairAccountPage() {
       <>
         <p>Pokud chceš spárovat tvůj účet s nějakým hráčem v systému, musíš se nejdříve přihlásit.</p>
         <div className="flex flex-wrap gap-3">
-          <button type="button" className="btn" onClick={() => openSocialLogin('google-oauth2')}>
+          <button type="button" className="btn" onClick={() => startSocialLogin('google-oauth2')}>
             přes Google
           </button>
-          <button type="button" className="btn" onClick={() => openSocialLogin('facebook')}>
+          <button type="button" className="btn" onClick={() => startSocialLogin('facebook')}>
             přes Facebook
           </button>
           <button type="button" className="btn" onClick={() => setLoginOpen(true)}>
@@ -114,8 +114,9 @@ export default function PairAccountPage() {
     <>
       <h2>Párování</h2>
       {body}
-      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
-      <SignupDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
+      {/* mounted only while open, so each opening starts with an empty form */}
+      {loginOpen && <LoginDialog open onClose={() => setLoginOpen(false)} />}
+      {signupOpen && <SignupDialog open onClose={() => setSignupOpen(false)} />}
     </>
   );
 }

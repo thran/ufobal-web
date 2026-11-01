@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { playerPath } from '../paths';
 import LoginDialog from './LoginDialog';
 import SignupDialog from './SignupDialog';
-import { openSocialLogin, useLogout, useUser } from './user';
+import { startSocialLogin, useLogout, useUser } from './user';
 
 const itemClass = 'flex w-full items-center gap-2 px-4 py-2 text-left text-white data-focus:bg-topbar-hover';
 
@@ -14,9 +14,10 @@ export default function UserMenu() {
   const navigate = useNavigate();
   const [dialog, setDialog] = useState<'login' | 'signup' | null>(null);
 
-  const label = user
-    ? `${user.first_name} ${user.last_name}${user.player ? ` - ${user.player.nickname}` : ''}`
-    : 'Přihlášení';
+  // a paired account shows its player: the account's own name is not editable anywhere
+  const playerName = user?.player && `${user.player.name ?? ''} ${user.player.lastname ?? ''}`.trim();
+  const name = user && (playerName || `${user.first_name} ${user.last_name}`.trim());
+  const label = user ? `${name}${user.player ? ` - ${user.player.nickname}` : ''}` : 'Přihlášení';
 
   return (
     <>
@@ -36,6 +37,11 @@ export default function UserMenu() {
                 </button>
               </MenuItem>
               <MenuItem>
+                <button className={itemClass} onClick={() => navigate('/settings')}>
+                  Nastavení účtu
+                </button>
+              </MenuItem>
+              <MenuItem>
                 <button className={itemClass} onClick={() => logout.mutate()}>
                   Odhlásit se
                 </button>
@@ -44,12 +50,12 @@ export default function UserMenu() {
           ) : (
             <>
               <MenuItem>
-                <button className={itemClass} onClick={() => openSocialLogin('google-oauth2')}>
+                <button className={itemClass} onClick={() => startSocialLogin('google-oauth2')}>
                   <img src="/static/google-icon.png" width={24} height={24} alt="" /> přes <b>Google</b>
                 </button>
               </MenuItem>
               <MenuItem>
-                <button className={itemClass} onClick={() => openSocialLogin('facebook')}>
+                <button className={itemClass} onClick={() => startSocialLogin('facebook')}>
                   <img src="/static/facebook-icon.png" width={24} height={24} alt="" /> přes <b>Facebook</b>
                 </button>
               </MenuItem>

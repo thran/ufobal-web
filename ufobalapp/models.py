@@ -321,9 +321,11 @@ class Tournament(models.Model):
     category = models.CharField(max_length=15, verbose_name='kategorie', choices=CATEGORIES, null=True)
     date = models.DateField('Datum')
     registration_from = models.DateTimeField(
-        'Přihlašování od', null=True, blank=True,
+        'Přihlašování od',
+        null=True,
+        blank=True,
         help_text='Kdy se turnaj vypustí. Dokud tento čas nenastane, přihlašování je zavřené. '
-                  'Prázdné znamená, že přihlašování je otevřené hned.'
+        'Prázdné znamená, že přihlašování je otevřené hned.',
     )
     registration_to = models.DateField('Přihlašování do', null=True, blank=True)
     name = models.CharField('Název', max_length=50)
@@ -636,6 +638,39 @@ class Log(models.Model):
     url = models.TextField("url")
     data = models.TextField("data")
     timestamp = models.DateTimeField('timestamp', auto_now_add=True)
+
+
+class EmailVerification(models.Model):
+    """Whether the account's e-mail was proven by a link sent to it or by Google/Facebook.
+
+    ``verified`` empty: registered with a password and waiting for the link; the account cannot log in yet.
+    No row: an account from before e-mail confirmation existed, or one whose e-mail nobody proved since.
+    """
+
+    class Meta:
+        verbose_name = "ověření e-mailu"
+        verbose_name_plural = "ověření e-mailů"
+
+    user = models.OneToOneField(
+        User, related_name='email_verification', verbose_name="uživatel", on_delete=models.CASCADE
+    )
+    created = models.DateTimeField('vytvořeno', auto_now_add=True)
+    verified = models.DateTimeField('ověřeno', null=True, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    @classmethod
+    def is_pending(cls, user):
+        return cls.objects.filter(user=user, verified__isnull=True).exists()
+
+    @classmethod
+    def is_verified(cls, user):
+        return cls.objects.filter(user=user, verified__isnull=False).exists()
+
+    @classmethod
+    def mark_verified(cls, user):
+        cls.objects.update_or_create(user=user, defaults={'verified': timezone.now()})
 
 
 class Group(models.Model):
