@@ -1,0 +1,30 @@
+{% extends "managestats/base.html" %}
+
+{% block content %}
+
+    <h2>Zápasy – {{ tournament.name }} {{ tournament.date.year }}</h2>
+    <a href="{% url 'managestats:tournament' tournament.id %}">zpět</a>
+
+    <hr>
+
+    <table>
+        <thead>
+            <tr><th>#</th><th>Tým 1</th><th>Tým 2</th><th>Začátek</th><th>Hřiště</th><th>Gólů</th></tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{% if match.team_one %}<a href="{% url 'managestats:match' match.id %}">{{ match.team_one.get_name }}</a>{% else %}—{% endif %}</td>
+                    <td>{% if match.team_two %}<a href="{% url 'managestats:match' match.id %}">{{ match.team_two.get_name }}</a>{% else %}—{% endif %}</td>
+                    <td>{% if match.start %}{{ match.start|date:"j. n. H:i" }}{% else %}—{% endif %}</td>
+                    <td>{{ match.place|default:"—" }}</td>
+                    <td>{{ match.goal_count }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Na turnaji zatím nejsou žádné zápasy.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
