@@ -7,6 +7,8 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 
+from django.db.models import Count
+
 from ufobalapp.models import Player, Tournament, Team, TeamOnTournament, Match, Goal, PairingRequest, RefereeFeedback
 
 import datetime
@@ -94,9 +96,7 @@ def tournaments(request):
 def tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament.objects, id=tournament_id)
     teams = TeamOnTournament.objects.order_by('registration_time').filter(tournament=tournament)
-    match_list = Match.objects.filter(tournament=tournament).select_related(
-        'tournament', 'team_one__team', 'team_two__team'
-    )
+    match_count = Match.objects.filter(tournament=tournament).count()
 
     # Hráči, kteří na turnaji skórovali nebo asistovali, ale nejsou v soupisce žádného týmu.
     # Načítáme ve dvou krocích -- jediný dotaz s OR přes dva joiny (goals/assistances)
@@ -114,10 +114,22 @@ def tournament(request, tournament_id):
     unknowns = Player.objects.filter(id__in=scoring_ids - known_ids).order_by('nickname')
 
     context = {'tournament': tournament,
-               'matches': match_list,
+               'match_count': match_count,
                'teams': teams,
                'unknowns': unknowns}
     return render(request, 'managestats/tournament.html', context)
+
+
+@user_passes_test(is_staff_check)
+def tournament_matches(request, tournament_id):
+    tournament = get_object_or_404(Tournament.objects, id=tournament_id)
+    matches = list(
+        Match.objects.filter(tournament=tournament)
+        .select_related('team_one__team', 'team_two__team')
+        .annotate(goal_count=Count('goals', distinct=True))
+        .order_by('start', 'pk')
+    )
+    return render(request, 'managestats/tournament_matches.html', {'tournament': tournament, 'matches': matches})
 
 
 @user_passes_test(is_staff_check)

@@ -60,13 +60,7 @@
 
 
     <h3>Zápasy</h3>
-    <ul>
-        {% for match in matches %}
-            <li>
-            <a href="{% url 'managestats:match' match.id %}">{{ match }}</a>
-        {% endfor %}
-
-    </ul>
+    <p><a href="{% url 'managestats:tournament_matches' tournament.id %}">Seznam zápasů ({{ match_count }})</a></p>
 
     <form method="post" action="{% url 'managestats:match_add' tournament.id %}">
         {% csrf_token %}
