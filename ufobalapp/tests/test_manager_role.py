@@ -139,3 +139,12 @@ def test_migration_grants_manage_permission_to_non_superuser_staff():
     assert not User.objects.get(pk=superuser.pk).user_permissions.exists()
     assert not User.objects.get(pk=plain.pk).user_permissions.exists()
     assert Permission.objects.filter(codename='manage').count() == 1
+
+
+@pytest.mark.django_db
+def test_managestats_index_links_to_admin_only_for_admins(client):
+    client.force_login(create_manager())
+    assert '/admin/' not in client.get('/managestats/').content.decode()
+
+    client.force_login(create_manager('staff_manager', is_staff=True))
+    assert '/admin/' in client.get('/managestats/').content.decode()

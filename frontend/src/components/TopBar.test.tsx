@@ -20,12 +20,17 @@ test('live tournament link only when known', () => {
   expect(screen.getByRole('link', { name: 'Aktuální turnaj' })).toHaveAttribute('href', '/tournaments/42/record');
 });
 
-test('admin link only for managers, as full page link', () => {
+test('manage link only for managers, as full page link', () => {
   const { unmount } = renderWithProviders(<TopBar />, { user: testUser() });
-  expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Správa' })).not.toBeInTheDocument();
   unmount();
   renderWithProviders(<TopBar />, { user: testUser({ is_manager: true }) });
-  expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/managestats/');
+  expect(screen.getByRole('link', { name: 'Správa' })).toHaveAttribute('href', '/managestats/');
+});
+
+test('admin is not in the main menu', () => {
+  renderWithProviders(<TopBar />, { user: testUser({ is_manager: true, is_admin: true, is_staff: true }) });
+  expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
 });
 
 test('anonymous user sees login menu', async () => {
