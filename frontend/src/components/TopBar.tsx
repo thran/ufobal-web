@@ -63,7 +63,7 @@ export default function TopBar() {
             </NavLink>
             {isManager(user) && (
               <a href="/managestats/" className={linkClass}>
-                Admin
+                Správa
               </a>
             )}
             <UserMenu />

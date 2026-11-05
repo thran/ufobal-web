@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { playerPath } from '../paths';
 import LoginDialog from './LoginDialog';
+import { isAdmin } from './permissions';
 import SignupDialog from './SignupDialog';
 import { openSocialLogin, useLogout, useUser } from './user';
 
@@ -35,6 +36,13 @@ export default function UserMenu() {
                   Profil hráče
                 </button>
               </MenuItem>
+              {isAdmin(user) && (
+                <MenuItem>
+                  <a href="/admin/" className={`${itemClass} hover:text-white`}>
+                    Admin
+                  </a>
+                </MenuItem>
+              )}
               <MenuItem>
                 <button className={itemClass} onClick={() => logout.mutate()}>
                   Odhlásit se
