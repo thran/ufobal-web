@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <a href="{% url 'admin:index' %}">admin</a><br><br>
+    {% if request.user.is_staff %}<a href="{% url 'admin:index' %}">admin</a><br><br>{% endif %}
     <a href="{% url 'managestats:players' %}">seznam hráčů</a><br>
     <a href="{% url 'managestats:tournaments' %}">seznam turnajů</a><br>
     <a href="{% url 'managestats:teams' %}">seznam týmů</a><br>
