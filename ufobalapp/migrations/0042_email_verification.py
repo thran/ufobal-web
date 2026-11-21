@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ufobalapp', '0040_client_id'),
+        ('ufobalapp', '0041_manager_permission'),
     ]
 
     operations = [
