@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.utils.crypto import constant_time_compare, salted_hmac
 from django.views.decorators.http import require_GET, require_POST
 from social_core.exceptions import NotAllowedToDisconnect
 from social_django.utils import load_backend, load_strategy
@@ -18,6 +19,11 @@ from ufobalapp.views_auth import _error, _json, _over_limit, normalize_email
 
 EMAIL_CHANGE_SALT = 'ufobalapp.email-change'
 EMAIL_CHANGE_MAX_AGE = 24 * 60 * 60
+
+
+def _password_fingerprint(user):
+    """Changes with the password, so a password change kills e-mail change links requested before it."""
+    return salted_hmac(EMAIL_CHANGE_SALT, user.password).hexdigest()[:16]
 
 
 def account_json(user):
@@ -71,7 +77,9 @@ def email_change(request):
     if _email_taken(email, user):
         return _error('Tento e-mail už používá jiný účet.', 'email_exists')
     # the old e-mail in the token makes the link useless once the e-mail changed in any other way
-    token = signing.dumps({'user': user.pk, 'old': user.email, 'new': email}, salt=EMAIL_CHANGE_SALT)
+    token = signing.dumps(
+        {'user': user.pk, 'old': user.email, 'new': email, 'pw': _password_fingerprint(user)}, salt=EMAIL_CHANGE_SALT
+    )
     context = {'user': user, 'site_url': settings.SITE_URL, 'token': token, 'email': email}
     send_mail(
         render_to_string('emails/email_change_subject.txt', context).strip(),
@@ -89,6 +97,8 @@ def email_change_confirm(request):
         data = signing.loads(_json(request).get('token') or '', salt=EMAIL_CHANGE_SALT, max_age=EMAIL_CHANGE_MAX_AGE)
         user = User.objects.get(pk=data['user'], is_active=True)
     except (signing.BadSignature, User.DoesNotExist, KeyError, TypeError):
+        return _error('Odkaz je neplatný nebo vypršel.', 'token_invalid')
+    if not constant_time_compare(str(data.get('pw', '')), _password_fingerprint(user)):
         return _error('Odkaz je neplatný nebo vypršel.', 'token_invalid')
     if user.email != data['new']:
         if user.email != data['old']:

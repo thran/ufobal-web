@@ -331,3 +331,14 @@ def test_google_login_with_unverified_email_does_not_open_a_linked_account(clien
     location = google_login(client, profile('pepa@example.cz', verified=False))
     assert location == '/settings?login_error=email_unverified'
     assert logged_in_user(client) is None
+
+
+@pytest.mark.django_db
+def test_email_change_link_dies_when_the_password_changed(client, user):
+    post(client, 'email_change', {'password': PASSWORD, 'email': 'utocnik@example.cz'})
+    token = re.search(r'/confirm-email/(\S+)', mail.outbox[-1].body).group(1)
+    user.set_password('nove-heslo-987654')
+    user.save()
+    assert post(client, 'email_change_confirm', {'token': token}).json()['error_type'] == 'token_invalid'
+    user.refresh_from_db()
+    assert user.email == 'pepa@example.cz'
