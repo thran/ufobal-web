@@ -26,7 +26,9 @@ export default function SignupDialog({ open, onClose }: { open: boolean; onClose
   const [data, setData] = useState<SignupData>(EMPTY);
   const signup = useSignup();
   const v = useValidation<keyof SignupData>({
-    username: !data.username.trim() && 'Vyplň uživatelské jméno.',
+    username:
+      (!data.username.trim() && 'Vyplň uživatelské jméno.') ||
+      (data.username.includes('@') && 'Uživatelské jméno nesmí obsahovat @.'),
     email: (!data.email.trim() && 'Vyplň email.') || (!EMAIL_RE.test(data.email.trim()) && 'Neplatný email.'),
     password: !data.password && 'Vyplň heslo.',
     password_check: data.password !== data.password_check && 'Hesla se liší.',

@@ -19,3 +19,15 @@ test('signup does not log in and asks to confirm the e-mail', async () => {
   expect(onClose).not.toHaveBeenCalled();
   expect(queryClient.getQueryData(['user'])).toBeNull();
 });
+
+test('username with @ is refused before sending', async () => {
+  const fetchMock = mockApi({ signup: { verification_sent: true, email: 'x@example.cz' } });
+  renderWithProviders(<SignupDialog open onClose={vi.fn()} />);
+  await userEvent.type(screen.getByLabelText('Uživatelské jméno'), 'obet@example.cz');
+  await userEvent.type(screen.getByLabelText('Email'), 'x@example.cz');
+  await userEvent.type(screen.getByLabelText('Heslo'), 'Ufobal-heslo-2026');
+  await userEvent.type(screen.getByLabelText('Kontrola hesla'), 'Ufobal-heslo-2026');
+  await userEvent.click(screen.getByRole('button', { name: 'Registrovat' }));
+  expect(await screen.findByText(/Uživatelské jméno nesmí obsahovat @/)).toBeInTheDocument();
+  expect(fetchMock).not.toHaveBeenCalled();
+});

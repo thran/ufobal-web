@@ -85,6 +85,12 @@ def _check_credentials(credentials, new=False):
             'error': 'Není vyplněno uživateslé jméno',
             'error_type': 'username_empty',
         }
+    # login takes a matching username before e-mails, so an e-mail-like username would block that e-mail's owner
+    if new and '@' in credentials['username']:
+        return {
+            'error': 'Uživatelské jméno nesmí obsahovat @.',
+            'error_type': 'username_invalid',
+        }
     if new and not credentials.get('email'):
         return {
             'error': 'Není vyplněný e-mail',

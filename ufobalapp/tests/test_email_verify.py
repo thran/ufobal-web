@@ -168,3 +168,11 @@ def test_client_ip_is_the_address_nginx_saw():
     request = RequestFactory().get('/', HTTP_X_FORWARDED_FOR='6.6.6.6, 1.2.3.4', REMOTE_ADDR='127.0.0.1')
     assert _client_ip(request) == '1.2.3.4'
     assert _client_ip(RequestFactory().get('/', REMOTE_ADDR='1.2.3.4')) == '1.2.3.4'
+
+
+@pytest.mark.django_db
+def test_signup_refuses_username_with_at_sign(client):
+    # e-mail login tries a matching username first, so such a username would block that e-mail's owner
+    response = post(client, 'signup', {**SIGNUP, 'username': 'obet@example.cz'})
+    assert response.json()['error_type'] == 'username_invalid'
+    assert not User.objects.exists()
