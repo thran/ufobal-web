@@ -2,10 +2,13 @@
 
 ### Setup backend environment
 
+Install poetry 2.5.1 globally, outside the project environment (e.g. `uv tool install poetry==2.5.1`).
+
 #### With [conda](https://docs.conda.io/en/latest/miniconda.html) (recommended)
 
 ```bash
 conda env create
+conda activate ufobal_web
 poetry install
 ```
 
@@ -13,7 +16,7 @@ poetry install
 
 requirements:
 - python ^3.10
-- [poetry](https://python-poetry.org/) ^1.3.2
+- [poetry](https://python-poetry.org/) 2.5.1
 
 ```bash
 poetry install
