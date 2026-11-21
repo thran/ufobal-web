@@ -40,6 +40,7 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ('nickname', 'name', 'lastname', 'age', 'goal_count', 'assistance_count', 'gender')
     readonly_fields = ['age', 'goal_count', 'assistance_count']
     search_fields = ['nickname', 'name', 'lastname']
+    autocomplete_fields = ['user']
     inlines = [PlayerInTeamsInline]
     actions = [merge]
 
