@@ -16,7 +16,7 @@ django-debug-toolbar = "^4.1.0"
 mysqlclient = "^2.1.1"
 raven = "^6.10.0"
 pymemcache = "^4.0.0"
-social-auth-app-django = "^5.2.0"
+social-auth-app-django = "~5.4.3"
 Pillow = "^9.5.0"
 django-silk = "^5.4.0"
 
