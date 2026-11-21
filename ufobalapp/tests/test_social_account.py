@@ -186,7 +186,7 @@ def test_new_google_account_counts_as_verified(client):
 def test_google_login_with_unverified_email_of_known_account_stops(client):
     User.objects.create_user('pepa', email='pepa@example.cz', password='heslo-123456')
     location = google_login(client, profile('pepa@example.cz', verified=False))
-    assert location == '/settings?login_error=email_exists'
+    assert location == '/settings?login_error=email_unverified'
     assert logged_in_user(client) is None
     assert User.objects.count() == 1 and not UserSocialAuth.objects.exists()
 
@@ -314,3 +314,20 @@ def test_disconnect_refuses_last_login_method_and_foreign_login(client):
     assert post(client, 'social_disconnect', {'id': other.pk}).status_code == 404
     assert post(client, 'social_disconnect', {'id': 'abc'}).status_code == 404
     assert UserSocialAuth.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_google_login_with_unverified_email_creates_no_account(client):
+    location = google_login(client, profile('victim@example.cz', verified=False))
+    assert location == '/settings?login_error=email_unverified'
+    assert logged_in_user(client) is None
+    assert not User.objects.filter(email__iexact='victim@example.cz').exists()
+
+
+@pytest.mark.django_db
+def test_google_login_with_unverified_email_does_not_open_a_linked_account(client):
+    linked = User.objects.create_user('linked', email='pepa@example.cz')
+    UserSocialAuth.objects.create(user=linked, provider='google-oauth2', uid='pepa@example.cz')
+    location = google_login(client, profile('pepa@example.cz', verified=False))
+    assert location == '/settings?login_error=email_unverified'
+    assert logged_in_user(client) is None

@@ -11,9 +11,23 @@ class EmailAccountExists(AuthException):
         return 'Účet s tímto e-mailem už existuje.'
 
 
+class EmailUnverified(AuthException):
+    """Google has not verified the e-mail, so it must not create or open an account with it."""
+
+    def __str__(self):
+        return 'Google tento e-mail neověřil.'
+
+
 def _provider_vouches(backend, response):
     """Google says whether it verified the e-mail; Facebook returns only confirmed e-mails."""
     return backend.name != 'google-oauth2' or (response or {}).get('email_verified') in (True, 'true')
+
+
+def require_verified_email(backend, details, response=None, *args, **kwargs):
+    """Runs before the account lookup: Google's uid is the e-mail, so an unverified one could open a linked account,
+    and a new account with it would later be joined with the real owner's Facebook or password login."""
+    if details.get('email') and not _provider_vouches(backend, response):
+        raise EmailUnverified(backend)
 
 
 def associate_by_email(backend, details, user=None, response=None, *args, **kwargs):
