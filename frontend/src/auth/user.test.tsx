@@ -86,3 +86,23 @@ test('login error from the backend redirect shows a message and leaves the URL',
   );
   error.mockRestore();
 });
+
+test('unverified Google e-mail login error explains what to do', async () => {
+  const error = vi.spyOn(toast, 'error');
+  function Page() {
+    useLoginErrorNotice();
+    return null;
+  }
+  render(
+    <MemoryRouter initialEntries={['/?login_error=email_unverified']}>
+      <Page />
+    </MemoryRouter>,
+  );
+  await waitFor(() =>
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining('Google tvůj e-mail neověřil'),
+      expect.anything(),
+    ),
+  );
+  error.mockRestore();
+});

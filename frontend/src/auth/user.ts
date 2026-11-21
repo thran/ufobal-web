@@ -84,6 +84,8 @@ const LOGIN_ERRORS: Record<string, string> = {
   cancelled: 'Přihlášení bylo zrušeno.',
   email_exists:
     'Účet s tímto e-mailem nejde propojit automaticky. Přihlas se do něj jménem nebo e-mailem a heslem (případně přes „Zapomenuté heslo“) a Google nebo Facebook si pak připoj v Nastavení účtu.',
+  email_unverified:
+    'Google tvůj e-mail neověřil, takže přes něj přihlásit nejde. Ověř si e-mail u Googlu, nebo se zaregistruj jménem a heslem.',
   already_linked: 'Tento účet Google nebo Facebook už je propojený s jiným účtem v ISu.',
   inactive: 'Tento účet je deaktivovaný.',
   failed: 'Přihlášení se nepovedlo, zkus to znovu.',

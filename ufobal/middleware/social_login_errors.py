@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 from django.shortcuts import redirect
 from social_core.exceptions import AuthAlreadyAssociated, AuthCanceled, SocialAuthBaseException
 
-from ufobalapp.social_pipeline import EmailAccountExists
+from ufobalapp.social_pipeline import EmailAccountExists, EmailUnverified
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,7 @@ ERROR_CODES = (
     (AuthCanceled, 'cancelled'),
     (AuthAlreadyAssociated, 'already_linked'),
     (EmailAccountExists, 'email_exists'),
+    (EmailUnverified, 'email_unverified'),
 )
 
 

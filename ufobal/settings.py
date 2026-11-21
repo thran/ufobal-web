@@ -156,6 +156,7 @@ SOCIAL_AUTH_IMMUTABLE_USER_FIELDS = ['first_name', 'last_name']
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
+    'ufobalapp.social_pipeline.require_verified_email',
     'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
     'ufobalapp.social_pipeline.associate_by_email',
